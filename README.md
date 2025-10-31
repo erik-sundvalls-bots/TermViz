@@ -2,9 +2,9 @@ TermViz
 =======
 TermViz, terminology visualization component based on HTML5/JavaScript and D3 http://d3js.org/
 
-DEMO: http://htmlpreview.github.com/?https://github.com/ErikSundvall/TermViz/blob/master/termviz-test-1.html
+DEMO: https://rawcdn.githack.com/ErikSundvall/TermViz/ce35cffeb03203471b690168035ca5618d5ebe7c/termviz-test-1.html
 
-For publications about and links to previous TermViz work, see http://www.imt.liu.se/~erisu/TermViz/
+For publications about and links to previous TermViz work, see https://scholar.google.com/scholar?q=termviz+sundvall
 
 Using and citing this work
 =========================
@@ -14,17 +14,17 @@ SNOMED CT licencing information is available at http://www.ihtsdo.org/
 As researchers we always get happy when you use and cite our work when appropriate:
 
 1.  Interactive Visualization and Navigation of Complex Terminology Systems, Exemplified by SNOMED CT. 
+    By: Sundvall E, Nyström M, Petersson H, Åhlfeldt H. <br>
     Proceedings of MIE2006; 27-30 Aug, Maastricht, The Netherlands, p 851-856;
-    By: Sundvall E, Nyström M, Petersson H, Åhlfeldt H.
-    http://www.imt.liu.se/~erisu/2006/MIE2006SundvallTermViz.pdf
-2.  Methods and applications for visualization of SNOMED CT concept sets.
-    By: Anne Randorff Højen, Erik Sundvall, Kirstine Rosenbeck Gøeg
-    http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3974253/
+    [urn:nbn:se:liu:diva-38011](https://urn.kb.se/resolve?urn=urn%3Anbn%3Ase%3Aliu%3Adiva-38011)
+3.  Methods and applications for visualization of SNOMED CT concept sets.
+    By: Anne Randorff Højen, Erik Sundvall, Kirstine Rosenbeck Gøeg <br>
+    http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3974253/ or
     http://dx.doi.org/10.4338/ACI-2013-09-RA-0071
-3.  Visualizing sets of SNOMED CT concepts to support consistent terminology implementation and reuse of clinical data.
-    By: Anne Randorff Højen, Erik Sundvall, Kirstine Rosenbeck Gøeg,  
+4.  Visualizing sets of SNOMED CT concepts to support consistent terminology implementation and reuse of clinical data.
+    By: Anne Randorff Højen, Erik Sundvall, Kirstine Rosenbeck Gøeg,  <br>
     Proceedings of Medinfo 2013, http://dx.doi.org/10.3233/978-1-61499-289-9-1160
-4.  TODO: Add SHI 2012-papers?
+5.  TODO: Add SHI 2012-papers?
 
 The first paper explains the general visualization principles used.
 The second paper explains the current implementation and target usecase.
