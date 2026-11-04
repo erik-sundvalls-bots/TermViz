@@ -7,9 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/TermViz/assets/mapper-BXSSrUUg.js"></script>
-    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-uTgz9DiQ.js">
-    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-4_KzHn1a.css">
+    <script type="module" crossorigin src="/TermViz/assets/mapper-B37Ps3Ao.js"></script>
+    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-CuNIDnk7.js">
+    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-B-qIuyiC.css">
   </head>
   <body>
     <header class="topbar">
@@ -17,33 +17,33 @@
         <p class="eyebrow">TermViz</p>
         <h1>IPS mapping bench</h1>
         <p class="lede">
-          The lower tree is the International Patient Summary, read with ehrtslib.
-          Amber nodes carry five imperfect SNOMED CT guesses. Selecting one draws
-          those guesses, and every is-a parent, up to the SNOMED CT root.
-          Terms come from the <a href="https://tx-nordics.fhir.org/fhir/r4/">HL7 Nordic Ontoserver</a>.
+          The lower tree is the International Patient Summary, root at the bottom.
+          Switch on one or more amber nodes. Each keeps its own colour in the
+          SNOMED graph, and a dashed line runs from each guess to that concept.
+          Codes live in the list, and open in the
+          <a href="https://browser.ihtsdotools.org/">SNOMED CT browser</a>.
         </p>
       </div>
       <div class="stats" id="stats"></div>
     </header>
     <p class="error" id="error" hidden></p>
     <main>
-      <section class="pane pane-snomed" aria-label="SNOMED CT ancestor tree">
+      <section class="pane pane-snomed" aria-label="SNOMED CT graph">
         <div class="pane-bar">
           <div>
             <h2>SNOMED CT</h2>
             <p class="caption" id="snomedCaption"></p>
           </div>
           <div class="legend" aria-hidden="true">
-            <span><i class="swatch s1"></i>1</span>
-            <span><i class="swatch s2"></i>2</span>
-            <span><i class="swatch s3"></i>3</span>
-            <span><i class="swatch"></i>ancestor</span>
-            <span><i class="swatch s5"></i>5</span>
+            <span><i class="swatch gold"></i>shared</span>
+            <span><i class="swatch hover-self"></i>hover</span>
+            <span><i class="swatch hover-child"></i>child</span>
+            <span><i class="swatch hover-parent"></i>parent</span>
           </div>
         </div>
         <div class="viewport" id="snomedViewport">
           <div class="empty" id="snomedEmpty">
-            <p>Select a template node with mapping suggestions. The five candidates, and the climb from each of them to SNOMED CT Concept, are drawn here.</p>
+            <p>Switch on an amber template node. Its five guesses, and every is-a parent up to SNOMED CT Concept, are drawn here. Concept ids stay in the list.</p>
           </div>
           <svg id="snomedSvg" role="img" aria-label="SNOMED CT graph"></svg>
         </div>
@@ -52,7 +52,7 @@
         <div class="tool-bar">
           <div>
             <h2>International Patient Summary</h2>
-            <p class="hint">Operational template from CKM, enriched only where an archetype binding is missing.</p>
+            <p class="hint">Click an amber node to switch it on. Click again to switch it off. Several can stay on together.</p>
           </div>
           <div class="search">
             <label for="search">Find</label>
@@ -72,5 +72,6 @@
         </div>
       </section>
     </main>
+    <svg id="linkOverlay" class="link-overlay" aria-hidden="true"></svg>
   </body>
 </html>
