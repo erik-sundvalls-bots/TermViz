@@ -1,5 +1,6 @@
 /**
- * 
+ * TermViz 2013, D3 v2. The force and cluster APIs used here were removed
+ * after D3 v3. The D3 7 implementation is src/termviz-2.js.
  */
 
 (function() {

@@ -1,0 +1,19 @@
+{
+  "name": "termviz",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 44731 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 44731 --strictPort",
+    "check": "node scripts/check-model.mjs"
+  },
+  "dependencies": {
+    "d3": "7.9.2"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1"
+  }
+}
