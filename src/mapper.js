@@ -26,6 +26,7 @@ const state = {
   extraCodes: new Map(),
   snomedToken: 0,
   graph: null,
+  hot: null,
 };
 
 function chip(text) {
@@ -315,7 +316,6 @@ function annotate(graph) {
       owners.set(id, set);
     }
   }
-  const maxShare = Math.max(1, ...[...owners.values()].map((set) => set.size));
   for (const item of graph.nodes) {
     const id = String(item.id);
     const share = owners.get(id)?.size || 0;
@@ -327,21 +327,17 @@ function annotate(graph) {
     item.cp = shared;
     item.lcp = shared && !childShared;
     item.name = item.display && item.display !== id ? item.display : "";
-    if (guesses.length === 1 && !shared) {
+    item.fillOpacity = 1;
+    if (shared) {
+      item.fill = "#ffffff";
+      item.stroke = "#1c2430";
+    } else if (guesses.length === 1) {
       item.fill = guesses[0].color;
-      item.fillOpacity = 1;
       item.stroke = guesses[0].color;
-    } else if (shared) {
-      const t = maxShare <= 1 ? 1 : (share - 1) / (maxShare - 1);
-      item.fill = "#e39b2b";
-      item.fillOpacity = 0.45 + 0.55 * t;
-      item.stroke = item.lcp ? "#6a3a0c" : "#a56b12";
     } else {
       item.fill = "#ffffff";
-      item.fillOpacity = 1;
       item.stroke = "#4682b4";
     }
-    if (item.lcp) item.stroke = "#6a3a0c";
   }
   return graph;
 }
@@ -400,6 +396,16 @@ function showBinding(node, code, label) {
   refreshGraph();
 }
 
+function lineKey(code, color) {
+  return `${code}:${color}`;
+}
+
+function lineIsHot(item) {
+  if (!state.hot) return false;
+  if (state.hot.type === "code") return item.code === state.hot.code;
+  return item.key === state.hot.key;
+}
+
 function drawSuggestionLines() {
   if (!linkOverlay) return;
   const overlay = d3.select(linkOverlay);
@@ -409,31 +415,69 @@ function drawSuggestionLines() {
   const lines = [];
   for (const guess of detail.querySelectorAll(".guess")) {
     const code = guess.dataset.code;
+    const color = guess.dataset.color || "#c46b1a";
     const anchor = guess.querySelector(".guess-anchor") || guess;
-    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] circle`);
+    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk, [data-id="${CSS.escape(code)}"] circle`);
     if (!circle) continue;
     const from = anchor.getBoundingClientRect();
     const to = circle.getBoundingClientRect();
     if (to.width === 0 && to.height === 0) continue;
     lines.push({
+      key: lineKey(code, color),
+      code,
       x1: from.left + from.width / 2,
       y1: from.top + from.height / 2,
       x2: to.left + to.width / 2,
       y2: to.top + to.height / 2,
-      color: guess.dataset.color || "#c46b1a",
+      color,
     });
   }
-  overlay.selectAll("line")
-    .data(lines)
+  const group = overlay.selectAll("g.dash").data(lines, (item) => item.key).join("g").attr("class", "dash");
+  group.selectAll("line.dash-hit")
+    .data((item) => [item])
     .join("line")
+    .attr("class", "dash-hit")
+    .attr("data-key", (item) => item.key)
     .attr("x1", (item) => item.x1)
     .attr("y1", (item) => item.y1)
     .attr("x2", (item) => item.x2)
     .attr("y2", (item) => item.y2)
     .attr("stroke", (item) => item.color)
-    .attr("stroke-opacity", 0.55)
+    .attr("stroke-opacity", 0)
+    .attr("stroke-width", 14)
+    .attr("pointer-events", "stroke")
+    .on("mouseover", (event, item) => {
+      state.hot = { type: "key", key: item.key };
+      paintDash();
+    })
+    .on("mouseout", (event, item) => {
+      if (state.hot?.type === "key" && state.hot.key === item.key) {
+        state.hot = null;
+        paintDash();
+      }
+    });
+  group.selectAll("line.dash-link")
+    .data((item) => [item])
+    .join("line")
+    .attr("class", "dash-link")
+    .attr("pointer-events", "none")
+    .attr("x1", (item) => item.x1)
+    .attr("y1", (item) => item.y1)
+    .attr("x2", (item) => item.x2)
+    .attr("y2", (item) => item.y2)
+    .attr("stroke", (item) => item.color)
     .attr("stroke-dasharray", "7 5")
-    .attr("stroke-width", 1.75);
+    .attr("stroke-linecap", "round");
+  paintDash();
+}
+
+function paintDash() {
+  d3.select(linkOverlay).selectAll("line.dash-link").each(function paint(item) {
+    const on = lineIsHot(item);
+    d3.select(this)
+      .attr("stroke-opacity", on ? 0.9 : 0.16)
+      .attr("stroke-width", on ? 2.4 : 1.25);
+  });
 }
 
 function pinConcept(code, on) {
@@ -468,6 +512,8 @@ function wireDetail() {
     const guess = event.target.closest?.(".guess");
     if (!guess || !detail.contains(guess)) return;
     pinConcept(guess.dataset.code, true);
+    state.hot = { type: "key", key: lineKey(guess.dataset.code, guess.dataset.color || "#c46b1a") };
+    paintDash();
   });
   detail.addEventListener("mouseout", (event) => {
     const guess = event.target.closest?.(".guess");
@@ -475,6 +521,27 @@ function wireDetail() {
     const next = event.relatedTarget?.closest?.(".guess");
     if (next === guess) return;
     pinConcept(guess.dataset.code, false);
+    const key = lineKey(guess.dataset.code, guess.dataset.color || "#c46b1a");
+    if (state.hot?.type === "key" && state.hot.key === key) {
+      state.hot = null;
+      paintDash();
+    }
+  });
+  snomedSvg.addEventListener("mouseover", (event) => {
+    const node = event.target.closest?.(".force-node");
+    if (!node || !snomedSvg.contains(node)) return;
+    state.hot = { type: "code", code: node.dataset.id };
+    paintDash();
+  });
+  snomedSvg.addEventListener("mouseout", (event) => {
+    const node = event.target.closest?.(".force-node");
+    if (!node) return;
+    const next = event.relatedTarget?.closest?.(".force-node");
+    if (next === node) return;
+    if (state.hot?.type === "code" && state.hot.code === node.dataset.id) {
+      state.hot = null;
+      paintDash();
+    }
   });
   detail.addEventListener("scroll", drawSuggestionLines, { passive: true });
 }

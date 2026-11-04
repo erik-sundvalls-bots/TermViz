@@ -187,7 +187,7 @@ export function renderAncestorDag(svgSelection, graph, { suggestions = [], selec
  * Dendrogram with the root at the bottom, the same way the 2013 cluster
  * layout drew it (`treeHeight - d.y`). Leaves line up along the top.
  */
-export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle } = {}) {
+export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   if (!rootData) {
@@ -245,17 +245,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     .attr("data-id", (item) => item.data.id)
     .attr("transform", (item) => `translate(${item.x},${yOf(item)})`);
 
-  node.append("title").text((item) => {
-    const data = item.data;
-    return [
-      data.name,
-      data.rmType,
-      data.nodeId || "",
-      data.archetypeId || "",
-      data.section ? `Section: ${data.section}` : "",
-      data.suggestions?.length ? "Click to switch this node on or off in the SNOMED graph." : "",
-    ].filter(Boolean).join("\n");
-  });
+  node.append("title").text((item) => item.data.name || "");
 
   node.filter((item) => onToggle && item.data.children?.length)
     .append("text")
@@ -270,10 +260,14 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     });
 
   node.append("circle")
-    .attr("r", (item) => (item.data.suggestions?.length || active.has(item.data.id) ? 7 : 4.5))
+    .attr("r", (item) => {
+      if (item.data.suggestions?.length) return 8;
+      if (active.has(item.data.id)) return 6.5;
+      return 4.2;
+    })
     .each(function paint(item) {
       const color = colorFor?.(item.data);
-      if (color) d3.select(this).style("fill", color);
+      if (color) d3.select(this).style("fill", color).style("stroke", color);
     });
 
   node.append("text")
@@ -290,6 +284,8 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     event.stopPropagation();
     onSelect?.(item.data);
   });
+  node.on("mouseover", (event, item) => onHover?.(item.data, true));
+  node.on("mouseout", (event, item) => onHover?.(item.data, false));
 
   const selected = root.descendants().find((item) => item.data.id === selectedId);
   return { width, height, selected };
@@ -300,7 +296,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
  * stay quiet until hover or until a concept is shared, and hovering a
  * node pushes its parents and children apart.
  */
-export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
+export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, onPinMove } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   const host = svg.node()?.parentElement;
@@ -345,6 +341,46 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
     .attr("class", "force-link")
     .attr("marker-end", "url(#snomed-isa)");
 
+  const pinOf = pins instanceof Map ? pins : new Map();
+  const rootY = 32;
+  const rowY = Math.max(108, Math.min(156, Math.round(height * 0.2)));
+  for (const item of nodes) {
+    const spot = pinOf.get(String(item.id));
+    if (!spot) continue;
+    item.fx = spot.x;
+    item.fy = spot.y;
+    item.x = spot.x;
+    item.y = spot.y;
+    item.userPinned = true;
+  }
+
+  const tops = nodes.filter((item) => item.outgoing.length === 0);
+  const topSet = new Set(tops);
+  const firstLevel = nodes
+    .filter((item) => !topSet.has(item) && item.outgoing.some((edge) => topSet.has(edge.target)))
+    .sort((a, b) => visibleName(a).localeCompare(visibleName(b)));
+
+  function park(item, x, y) {
+    if (item.userPinned) return;
+    item.fx = x;
+    item.fy = y;
+    item.x = x;
+    item.y = y;
+    item.layoutFixed = true;
+    item.homeX = x;
+    item.homeY = y;
+  }
+
+  tops.forEach((item, index) => {
+    park(item, width / 2 + (index - (tops.length - 1) / 2) * 100, rootY);
+  });
+  const inset = Math.min(96, Math.max(36, width * 0.1));
+  const usable = Math.max(48, width - inset * 2);
+  firstLevel.forEach((item, index) => {
+    const t = firstLevel.length === 1 ? 0.5 : index / (firstLevel.length - 1);
+    park(item, inset + usable * t, rowY);
+  });
+
   const node = svg.append("g")
     .selectAll("g")
     .data(nodes)
@@ -355,15 +391,21 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
       if (item.cp) classes.push("is-cp");
       if (item.lcp) classes.push("is-lcp");
       if (item.inactive) classes.push("is-inactive");
+      if (item.userPinned) classes.push("is-user-pinned");
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.id);
 
   node.append("circle")
-    .attr("r", (item) => (item.lcp ? 13 : item.suggestion ? 11 : 8))
+    .attr("class", "node-disk")
+    .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8))
     .attr("fill", (item) => item.fill || "#ffffff")
     .attr("fill-opacity", (item) => item.fillOpacity ?? 1)
-    .attr("stroke", (item) => item.stroke || "#4682b4");
+    .attr("stroke", (item) => item.stroke || "#4682b4")
+    .attr("stroke-width", (item) => (item.lcp ? 3.4 : item.cp ? 2.5 : 1.6));
+  node.append("circle")
+    .attr("class", "pin-dot")
+    .attr("r", 2.3);
 
   node.each(function label(item) {
     const lines = wrapLabel(visibleName(item), 24);
@@ -374,18 +416,6 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
         text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -18 : 13).text(line);
       });
     }
-  });
-
-  node.append("title").text((item) => {
-    const lines = [visibleName(item)];
-    if (item.commonality > 1) lines.push(`Shared by ${item.commonality} switched-on template nodes`);
-    return lines.filter(Boolean).join("\n");
-  });
-
-  const tops = nodes.filter((item) => item.outgoing.length === 0);
-  tops.forEach((item, index) => {
-    item.fx = width / 2 + (index - (tops.length - 1) / 2) * 80;
-    item.fy = 36;
   });
 
   function paintHover(activeNode, activeLink) {
@@ -429,15 +459,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
     .on("mouseout", () => paintHover(null, null))
     .on("click", (event, item) => {
       event.stopPropagation();
-      if (item.fx == null) {
-        item.fx = item.x;
-        item.fy = item.y;
-      } else if (!tops.includes(item)) {
-        item.fx = null;
-        item.fy = null;
-      }
-      d3.select(event.currentTarget).classed("is-fixed", item.fx != null);
-      simulation.alpha(0.3).restart();
+      onSelect?.(item);
     })
     .call(d3.drag()
       .on("start", (event, item) => {
@@ -448,10 +470,15 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
       .on("drag", (event, item) => {
         item.fx = event.x;
         item.fy = event.y;
+        if (item.userPinned) onPinMove?.(item);
       })
       .on("end", (event, item) => {
         if (!event.active) simulation.alphaTarget(0);
-        if (!tops.includes(item)) {
+        if (item.userPinned) onPinMove?.(item);
+        else if (item.layoutFixed) {
+          item.fx = item.homeX;
+          item.fy = item.homeY;
+        } else {
           item.fx = null;
           item.fy = null;
         }
@@ -461,13 +488,14 @@ export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
     .on("mouseover", (event, item) => paintHover(null, item))
     .on("mouseout", () => paintHover(null, null));
 
-  node.classed("is-fixed", (item) => item.fx != null);
-
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).distance((edge) => 48 + (edge.hoover_doi || 0) * 22).strength(0.85))
+    .force("link", d3.forceLink(links).distance((edge) => {
+      const base = 52 + (edge.hoover_doi || 0) * 22;
+      return edge.target.layoutFixed ? base + 28 : base;
+    }).strength(0.85))
     .force("charge", d3.forceManyBody().strength((item) => -160 + (item.hoover_doi || 0) * -240))
-    .force("x", d3.forceX(width / 2).strength(0.05))
-    .force("y", d3.forceY(height / 2).strength(0.05))
+    .force("x", d3.forceX(width / 2).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.04)))
+    .force("y", d3.forceY(height * 0.62).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.05)))
     .force("collide", d3.forceCollide(18))
     .on("tick", () => {
       link
