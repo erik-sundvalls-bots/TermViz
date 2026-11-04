@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { D3_VERSION, NODE_COLORS, renderSnomedForce, renderTemplateTree } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
-import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
+import { cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -27,6 +27,10 @@ const state = {
   snomedToken: 0,
   graph: null,
   hot: null,
+  muted: new Map(),
+  pins: new Map(),
+  released: new Set(),
+  popId: null,
 };
 
 function chip(text) {
@@ -55,30 +59,31 @@ function markOpen(node, depth = 0) {
   return Boolean(node.suggestions?.length) || below;
 }
 
-function displayTree() {
-  const root = state.model.tree;
-  const query = state.query.trim().toLowerCase();
-  if (query) {
-    return project(root, (node) => {
-      const hay = [
-        node.name,
-        node.nodeId,
-        node.rmType,
-        node.archetypeId,
-        node.section,
-        ...(node.bindings || []).map((binding) => binding.code),
-        ...(node.suggestions || []).map((item) => item.code),
-      ].join(" ").toLowerCase();
-      return hay.includes(query);
-    }) || { ...root, children: [], open: true, name: "No matches" };
-  }
+function nodeHay(node) {
+  return [
+    node.name,
+    node.nodeId,
+    node.section,
+    ...(node.bindings || []).map((binding) => binding.code),
+    ...(node.suggestions || []).map((item) => `${item.code} ${termFor(item.code)}`),
+  ].join(" ").toLowerCase();
+}
+
+function narrowedTree(root) {
   if (state.filter === "suggestions") {
-    return project(root, (node) => Boolean(node.suggestions?.length));
+    return project(root, (node) => Boolean(node.suggestions?.length)) || { ...root, children: [], open: true, name: "No matches" };
   }
   if (state.filter === "bindings") {
-    return project(root, (node) => hasBinding(node) || node.scopeBindings?.length);
+    return project(root, (node) => hasBinding(node) || node.scopeBindings?.length) || { ...root, children: [], open: true, name: "No matches" };
   }
   return root;
+}
+
+function displayTree() {
+  const base = narrowedTree(state.model.tree);
+  const query = state.query.trim().toLowerCase();
+  if (!query) return base;
+  return project(base, (node) => nodeHay(node).includes(query)) || { ...base, children: [], open: true, name: "No matches" };
 }
 
 function findNode(id) {
@@ -121,111 +126,152 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function statusLabel(status) {
-  if (status === "both") return ["In the OPT and the archetype", "both"];
-  if (status === "missing-from-opt") return ["Added from the archetype", "added"];
-  if (status === "opt-only") return ["Only in the OPT", "opt"];
-  if (status === "conflict") return ["OPT and archetype disagree", "added"];
-  return [status || "", ""];
-}
-
 function termFor(code, fallback) {
   const known = cachedConcept(code);
   if (known?.display && known.display !== String(code)) return known.display;
   return fallback || "Unnamed concept";
 }
 
-function bindingRows(node, rows) {
-  return rows.map((binding) => {
-    const [label, kind] = statusLabel(binding.status);
-    const name = binding.label ? `${escapeHtml(binding.label)} · ` : "";
-    const at = binding.atCode ? `<span class="at-code">${escapeHtml(binding.atCode)}</span> → ` : "";
-    return `<div class="binding">
-      <div>${name}${at}${codeLink(binding.code)}<div><span class="tag ${kind}">${escapeHtml(label)}</span></div></div>
-      <button class="text-button" type="button" data-binding="${escapeHtml(binding.code)}" data-node="${escapeHtml(node.id)}" data-label="${escapeHtml(binding.label || node.name)}">Show</button>
-    </div>`;
-  }).join("");
+function codeOn(node, code) {
+  if (!state.activeIds.has(node.id)) return false;
+  return !state.muted.get(node.id)?.has(String(code));
 }
 
-function guessArticle(node, { code, rank, score, reason, term }) {
+function bindingEntries(node) {
+  const seen = new Set();
+  const rows = [];
+  for (const binding of [...(node.bindings || []), ...(node.valueBindings || []), ...(node.scopeBindings || [])]) {
+    const code = String(binding.code || "");
+    if (!code || seen.has(code)) continue;
+    seen.add(code);
+    rows.push(binding);
+  }
+  return rows;
+}
+
+function bindingOn(node, code) {
+  return (state.extraCodes.get(node.id) || []).map(String).includes(String(code));
+}
+
+function codesFor(node) {
+  const codes = [];
+  for (const item of node.suggestions || []) {
+    if (codeOn(node, item.code)) codes.push(String(item.code));
+  }
+  for (const code of state.extraCodes.get(node.id) || []) codes.push(String(code));
+  return [...new Set(codes)];
+}
+
+function contributingNodes() {
+  const ids = new Set();
+  for (const node of state.model?.suggestions?.attached || []) {
+    if ((node.suggestions || []).some((item) => codeOn(node, item.code))) ids.add(node.id);
+  }
+  for (const [id, codes] of state.extraCodes) {
+    if (codes?.length) ids.add(id);
+  }
+  return [...ids].map((id) => findNode(id)).filter(Boolean);
+}
+
+function categoryState(node) {
+  const codes = (node.suggestions || []).map((item) => String(item.code));
+  if (!codes.length) return "false";
+  const on = codes.filter((code) => codeOn(node, code)).length;
+  if (on === 0) return "false";
+  if (on === codes.length) return "true";
+  return "mixed";
+}
+
+function masterState() {
+  const states = (state.model?.suggestions?.attached || []).map(categoryState);
+  if (!states.length || states.every((item) => item === "false")) return "false";
+  if (states.every((item) => item === "true")) return "true";
+  return "mixed";
+}
+
+function switchHtml(attrs, checked) {
+  return `<button class="switch" type="button" role="switch" aria-checked="${checked}" ${attrs}></button>`;
+}
+
+function guessRow(node, item) {
+  const on = codeOn(node, item.code);
   const color = colorFor(node.id);
-  const head = rank
-    ? `${rank}. ${termLink(code, term)}`
-    : termLink(code, term);
-  const bar = Number.isFinite(score)
-    ? `<div class="score" aria-label="score ${score}"><span style="width:${Math.round(score * 100)}%"></span></div>`
-    : "";
-  return `<article class="guess" data-code="${escapeHtml(code)}" data-color="${escapeHtml(color)}">
+  const term = termFor(item.code);
+  const pct = Number.isFinite(item.score) ? Math.round(item.score * 100) : "";
+  return `<article class="guess${on ? "" : " is-off"}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(color)}" title="${escapeHtml(item.reason || "")}">
     <span class="guess-anchor" aria-hidden="true"></span>
-    <div class="guess-head">${head}${codeLink(code)}</div>
-    ${bar}
-    <p class="reason">${escapeHtml(reason)}</p>
+    ${switchHtml(`data-row="${escapeHtml(item.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
+    <span class="rank">${item.rank ?? ""}</span>
+    ${termLink(item.code, term)}
+    ${codeLink(item.code)}
+    <span class="pct">${pct === "" ? "" : pct}</span>
   </article>`;
 }
 
-function nodePanel(node, switchedOn) {
-  const meta = [
-    node.rmType,
-    node.nodeId,
-    node.section ? `in ${node.section}` : "",
-    node.archetypeId || "",
-  ].filter(Boolean).map(escapeHtml).join(" · ");
-  const color = switchedOn ? colorFor(node.id) : "";
-  const extras = new Set((state.extraCodes.get(node.id) || []).map(String));
-  for (const item of node.suggestions || []) extras.delete(String(item.code));
-  const guesses = switchedOn
-    ? (node.suggestions || []).map((item) => guessArticle(node, {
-        code: item.code,
-        rank: item.rank,
-        score: item.score,
-        reason: item.reason,
-        term: termFor(item.code),
-      })).join("")
-    : "";
-  const extraRows = switchedOn
-    ? [...extras].map((code) => guessArticle(node, {
-        code,
-        reason: "Published term binding, included in this node’s colour.",
-        term: termFor(code),
-      })).join("")
-    : "";
-  const bindings = bindingRows(node, [...(node.bindings || []), ...(node.valueBindings || [])]);
-  const scope = node.isArchetypeRoot && node.scopeBindings?.length
-    ? `<h3 class="scope-title">Terminology on this archetype</h3>
-       <p class="reason">${node.scopeBindings.length} SNOMED CT term binding${node.scopeBindings.length === 1 ? "" : "s"} travel with ${escapeHtml(node.archetypeId)}. Ones whose at-code is not in this template slot stay listed here rather than as extra tree nodes.</p>
-       ${bindingRows(node, node.scopeBindings)}`
-    : "";
-  const title = switchedOn
-    ? `<h3><i class="group-dot" aria-hidden="true"></i>${escapeHtml(node.name)}</h3>`
-    : `<h3>${escapeHtml(node.name)}</h3>`;
-  return `<section class="node-group"${color ? ` style="--node-color:${escapeHtml(color)}"` : ""}>${title}<p class="meta">${meta}</p>${guesses}${extraRows}${bindings}${scope}</section>`;
+function bindingRow(node, binding) {
+  const on = bindingOn(node, binding.code);
+  const color = colorFor(node.id);
+  const label = binding.label || binding.atCode || "Binding";
+  return `<article class="guess${on ? "" : " is-off"}" data-code="${escapeHtml(binding.code)}" data-color="${escapeHtml(color)}">
+    <span class="guess-anchor" aria-hidden="true"></span>
+    ${switchHtml(`data-binding="${escapeHtml(binding.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(label)}"`, on ? "true" : "false")}
+    <span class="rank"></span>
+    <span class="binding-label">${escapeHtml(label)}</span>
+    ${codeLink(binding.code)}
+    <span class="pct"></span>
+  </article>`;
+}
+
+function nodeBlock(node) {
+  const color = colorFor(node.id);
+  const checked = categoryState(node);
+  const rows = (node.suggestions || []).map((item) => guessRow(node, item)).join("");
+  return `<section class="side-block" data-node-id="${escapeHtml(node.id)}" style="--node-color:${escapeHtml(color)}">
+    <header class="cat-head">
+      ${switchHtml(`data-cat="node" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(node.name)}"`, checked)}
+      <span class="cat-name">${escapeHtml(node.name)}</span>
+    </header>
+    ${rows}
+  </section>`;
+}
+
+function bindingsBlock(node) {
+  const rows = bindingEntries(node);
+  if (!rows.length) return "";
+  const color = colorFor(node.id);
+  const onCount = rows.filter((binding) => bindingOn(node, binding.code)).length;
+  const checked = onCount === 0 ? "false" : onCount === rows.length ? "true" : "mixed";
+  return `<section class="side-block" data-node-id="${escapeHtml(node.id)}" style="--node-color:${escapeHtml(color)}">
+    <header class="cat-head">
+      ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show bindings"`, checked)}
+      <span class="cat-name">Bindings · ${escapeHtml(node.name)}</span>
+    </header>
+    ${rows.map((binding) => bindingRow(node, binding)).join("")}
+  </section>`;
 }
 
 function renderDetail() {
-  const actives = activeNodes();
+  const suggestions = state.model?.suggestions?.attached || [];
   const focus = findNode(state.focusId);
-  if (!actives.length && !focus) {
-    detail.innerHTML = `
-      <h3>Three open elements</h3>
-      <p class="reason">The pretend mapper left five SNOMED CT guesses on Medication item, Problem/Diagnosis name, and Procedure name. They are the amber nodes. Switch one or more on. Each keeps its own colour, and a dashed line of that colour runs from the guess to the concept.</p>
-      <p class="reason">The concept id sits beside the term and opens that concept in the SNOMED CT browser. It is not drawn on the graph.</p>
-      <p class="reason">Teal nodes already carry a SNOMED CT term binding from the template. The fileset check found no binding that the archetypes had and the OPT had dropped.</p>`;
-    return;
-  }
-  const parts = [];
-  if (focus && !state.activeIds.has(focus.id)) parts.push(nodePanel(focus, false));
-  for (const node of actives) parts.push(nodePanel(node, true));
-  detail.innerHTML = parts.join("");
+  const master = masterState();
+  const blocks = suggestions.map(nodeBlock).join("");
+  const bindings = focus ? bindingsBlock(focus) : "";
+  detail.innerHTML = `<header class="cat-head master">
+      ${switchHtml(`data-cat="all" aria-label="Show all suggestions"`, master)}
+      <span class="cat-name">Suggestions</span>
+    </header>
+    ${blocks}
+    ${bindings}`;
   drawSuggestionLines();
 }
 
 function renderTree() {
-  const tree = displayTree();
-  renderTemplateTree(treeSvg, tree, {
+  renderTemplateTree(treeSvg, displayTree(), {
     selectedId: state.focusId,
     activeIds: state.activeIds,
-    colorFor: (data) => (state.activeIds.has(data.id) ? colorFor(data.id) : null),
-    onSelect: (node) => toggleNode(node),
+    colorFor: (data) => (nodePainted(data) ? colorFor(data.id) : null),
+    onSelect: onTreeSelect,
+    onHover: (data, on) => pairHighlight(data.id, on),
     onToggle: state.filter === "all" && !state.query
       ? (node) => {
           node.open = !node.open;
@@ -233,46 +279,134 @@ function renderTree() {
         }
       : null,
   });
-  if (state.focusId) {
-    const target = treeSvg.querySelector(`[data-id="${CSS.escape(state.focusId)}"]`);
-    target?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }
   drawSuggestionLines();
 }
 
+function nodePainted(data) {
+  return state.activeIds.has(data.id) || Boolean(state.extraCodes.get(data.id)?.length);
+}
+
 function renderStats() {
-  const { comparison, archetypeReports, counts } = state.model;
-  const stubs = archetypeReports.filter((report) => report.how === "terminology-stub").length;
-  const direct = archetypeReports.filter((report) => report.how === "direct").length;
+  const { comparison, counts } = state.model;
   stats.replaceChildren(
-    chip(`<strong>${counts.nodes}</strong> template nodes`),
-    chip(`<strong>${comparison.both}</strong> SNOMED bindings in OPT and archetypes`),
-    chip(`<strong>${comparison.missingFromOpt}</strong> filled in from archetypes`),
-    chip(`ehrtslib 0.11 · ${direct} ADL direct, ${stubs} terminology-only`),
+    chip(`<strong>${counts.nodes}</strong> nodes`),
+    chip(`<strong>${comparison.both}</strong> bindings`),
     chip(`D3 ${D3_VERSION}`),
   );
 }
 
-function canSwitch(node) {
-  return Boolean(node.suggestions?.length || state.extraCodes.get(node.id)?.length);
-}
-
-function toggleNode(node) {
-  if (canSwitch(node)) {
-    if (state.activeIds.has(node.id)) {
-      state.activeIds.delete(node.id);
-      state.focusId = state.focusId === node.id ? [...state.activeIds].at(-1) || null : state.focusId;
-    } else {
-      colorFor(node.id);
-      state.activeIds.add(node.id);
-      state.focusId = node.id;
-    }
-  } else {
-    state.focusId = node.id;
-  }
+function refreshAll() {
   renderTree();
   renderDetail();
   refreshGraph();
+}
+
+function setCategory(node, on) {
+  if (on) {
+    colorFor(node.id);
+    state.activeIds.add(node.id);
+    state.muted.delete(node.id);
+  } else {
+    state.activeIds.delete(node.id);
+    state.muted.delete(node.id);
+  }
+}
+
+function toggleCategory(node) {
+  setCategory(node, categoryState(node) !== "true");
+  state.focusId = node.id;
+  refreshAll();
+}
+
+function toggleMaster() {
+  const on = masterState() !== "true";
+  for (const node of state.model.suggestions.attached) setCategory(node, on);
+  refreshAll();
+}
+
+function toggleCode(node, code) {
+  const key = String(code);
+  const codes = (node.suggestions || []).map((item) => String(item.code));
+  const muted = new Set(state.muted.get(node.id) || []);
+  if (!codeOn(node, key)) {
+    colorFor(node.id);
+    state.activeIds.add(node.id);
+    if (muted.size === 0 && !state.muted.has(node.id) && codes.some((item) => item !== key)) {
+      state.muted.set(node.id, new Set(codes.filter((item) => item !== key)));
+    } else {
+      muted.delete(key);
+      if (muted.size === 0) state.muted.delete(node.id);
+      else state.muted.set(node.id, muted);
+    }
+  } else {
+    muted.add(key);
+    if (codes.every((item) => muted.has(item))) {
+      state.activeIds.delete(node.id);
+      state.muted.delete(node.id);
+    } else {
+      state.activeIds.add(node.id);
+      state.muted.set(node.id, muted);
+    }
+  }
+  state.focusId = node.id;
+  refreshAll();
+}
+
+function setBinding(node, code, on) {
+  const extras = new Set((state.extraCodes.get(node.id) || []).map(String));
+  if (on) extras.add(String(code));
+  else extras.delete(String(code));
+  if (extras.size) {
+    colorFor(node.id);
+    state.extraCodes.set(node.id, [...extras]);
+  } else state.extraCodes.delete(node.id);
+  state.focusId = node.id;
+  refreshAll();
+}
+
+function toggleAllBindings(node) {
+  const rows = bindingEntries(node);
+  const allOn = rows.length > 0 && rows.every((binding) => bindingOn(node, binding.code));
+  if (allOn) state.extraCodes.delete(node.id);
+  else {
+    colorFor(node.id);
+    state.extraCodes.set(node.id, rows.map((binding) => String(binding.code)));
+  }
+  state.focusId = node.id;
+  refreshAll();
+}
+
+function onTreeSelect(node) {
+  state.focusId = node.id;
+  if (node.suggestions?.length) {
+    toggleCategory(node);
+    return;
+  }
+  renderTree();
+  renderDetail();
+}
+
+function pairHighlight(id, on) {
+  treeSvg.querySelectorAll(".is-pair").forEach((element) => element.classList.remove("is-pair"));
+  detail.querySelectorAll(".is-pair").forEach((element) => element.classList.remove("is-pair"));
+  if (!on || !id) return;
+  const treeNode = treeSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  const side = detail.querySelector(`.side-block[data-node-id="${CSS.escape(id)}"]`);
+  treeNode?.classList.add("is-pair");
+  side?.classList.add("is-pair");
+  const treePort = document.querySelector("#treeViewport");
+  if (treeNode && treePort) {
+    const box = treeNode.getBoundingClientRect();
+    const view = treePort.getBoundingClientRect();
+    if (box.top < view.top || box.bottom > view.bottom || box.left < view.left || box.right > view.right) {
+      treeNode.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+  }
+  if (side) {
+    const box = side.getBoundingClientRect();
+    const view = detail.getBoundingClientRect();
+    if (box.top < view.top || box.bottom > view.bottom) side.scrollIntoView({ block: "nearest" });
+  }
 }
 
 function ancestorsOf(code, parents) {
@@ -298,16 +432,20 @@ function annotate(graph) {
   }
   const owners = new Map();
   const suggestionOf = new Map();
-  for (const node of activeNodes()) {
-    const direct = new Set([
-      ...(node.suggestions || []).map((item) => String(item.code)),
-      ...(state.extraCodes.get(node.id) || []).map(String),
-    ]);
+  for (const node of contributingNodes()) {
+    const direct = new Set(codesFor(node));
     const closure = new Set();
     for (const code of direct) {
       for (const id of ancestorsOf(code, parents)) closure.add(id);
+      const suggestion = (node.suggestions || []).find((item) => String(item.code) === code);
       const list = suggestionOf.get(code) || [];
-      list.push({ color: colorFor(node.id) });
+      list.push({
+        color: colorFor(node.id),
+        templateName: node.name,
+        rank: suggestion?.rank ?? null,
+        score: suggestion?.score ?? null,
+        reason: suggestion?.reason || "",
+      });
       suggestionOf.set(code, list);
     }
     for (const id of closure) {
@@ -323,6 +461,7 @@ function annotate(graph) {
     const shared = share >= 2;
     const childShared = (children.get(id) || []).some((child) => (owners.get(child)?.size || 0) >= 2);
     item.suggestion = guesses.length > 0;
+    item.sources = guesses;
     item.commonality = share;
     item.cp = shared;
     item.lcp = shared && !childShared;
@@ -342,21 +481,31 @@ function annotate(graph) {
   return graph;
 }
 
+function forceOptions() {
+  return {
+    onTick: () => {
+      drawSuggestionLines();
+      placePop();
+    },
+    onSelect: (item) => openPop(item),
+    pins: state.pins,
+    released: state.released,
+    onPinMove: (item) => {
+      const id = String(item.id);
+      state.released.delete(id);
+      state.pins.set(id, { x: item.x, y: item.y, auto: Boolean(item.autoPin) });
+    },
+  };
+}
+
 async function refreshGraph() {
   const token = ++state.snomedToken;
-  const codes = [];
-  for (const node of activeNodes()) {
-    for (const item of node.suggestions || []) codes.push(String(item.code));
-    for (const code of state.extraCodes.get(node.id) || []) codes.push(String(code));
-  }
-  const unique = [...new Set(codes)];
+  const unique = [...new Set(contributingNodes().flatMap(codesFor))];
   if (!unique.length) {
     state.graph = null;
-    renderSnomedForce(snomedSvg, { nodes: [], links: [] });
+    renderSnomedForce(snomedSvg, { nodes: [], links: [] }, forceOptions());
     snomedEmpty.hidden = false;
-    snomedCaption.textContent = state.focusId
-      ? "This node is not switched on. Switch on an amber node to draw its guesses."
-      : "Switch on an amber template node. Concept ids stay in the list.";
+    snomedCaption.textContent = "Nothing switched on.";
     drawSuggestionLines();
     return;
   }
@@ -369,9 +518,14 @@ async function refreshGraph() {
     const shared = graph.nodes.filter((node) => node.cp).length;
     const misses = graph.nodes.filter((node) => node.error).length;
     snomedCaption.textContent = misses
-      ? `${graph.nodes.length} concepts in the is-a graph. ${misses} lookups failed.`
-      : `${graph.nodes.length} concepts in the is-a graph.${shared ? ` ${shared} shared by more than one switched-on template node.` : ""} From the saved subset of ${BUNDLED_CONCEPTS} concepts.`;
-    renderSnomedForce(snomedSvg, graph, { onTick: drawSuggestionLines });
+      ? `${graph.nodes.length} concepts · ${misses} lookups failed`
+      : `${graph.nodes.length} concepts${shared ? ` · ${shared} shared` : ""}`;
+    const reopen = state.popId;
+    renderSnomedForce(snomedSvg, graph, forceOptions());
+    if (reopen) {
+      const el = snomedSvg.querySelector(`[data-id="${CSS.escape(reopen)}"]`);
+      if (el) openPop(d3.select(el).datum());
+    }
     drawSuggestionLines();
   } catch (error) {
     if (token !== state.snomedToken) return;
@@ -381,19 +535,87 @@ async function refreshGraph() {
   }
 }
 
-function showBinding(node, code, label) {
-  colorFor(node.id);
-  state.activeIds.add(node.id);
-  state.focusId = node.id;
-  const suggested = (node.suggestions || []).some((item) => String(item.code) === String(code));
-  if (!suggested) {
-    const extras = new Set((state.extraCodes.get(node.id) || []).map(String));
-    extras.add(String(code));
-    state.extraCodes.set(node.id, [...extras]);
+function conceptLabel(item) {
+  return item?.name || item?.display || "Unnamed concept";
+}
+
+function openPop(item) {
+  if (!item) return;
+  state.popId = String(item.id);
+  const pop = document.querySelector("#conceptPop");
+  document.querySelector("#popTitle").textContent = conceptLabel(item);
+  document.querySelector("#popCode").innerHTML = codeLink(item.id);
+  const parents = (item.outgoing || []).map((edge) => conceptLabel(edge.target)).filter(Boolean);
+  const children = (item.incoming || []).map((edge) => conceptLabel(edge.source)).filter(Boolean);
+  const facts = [];
+  if (item.inactive) facts.push(["Status", "Inactive"]);
+  if (Number.isFinite(item.depth)) facts.push(["From root", String(item.depth)]);
+  facts.push(["Parents", parents.join(", ") || "SNOMED CT root"]);
+  if (children.length) facts.push(["Children here", children.slice(0, 8).join(", ")]);
+  if (item.commonality > 1) facts.push(["Shared by", `${item.commonality} template nodes`]);
+  document.querySelector("#popFacts").innerHTML = facts.map(([name, value]) => `<dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd>`).join("");
+  document.querySelector("#popSources").innerHTML = (item.sources || []).map((source) => {
+    const head = source.rank ? `${source.rank}. ${source.templateName}` : source.templateName;
+    const score = Number.isFinite(source.score) ? ` · ${Math.round(source.score * 100)}%` : "";
+    return `<p><strong>${escapeHtml(`${head}${score}`)}</strong>${source.reason ? ` ${escapeHtml(source.reason)}` : ""}</p>`;
+  }).join("");
+  document.querySelector("#popPin").setAttribute("aria-checked", item.userPinned ? "true" : "false");
+  pop.hidden = false;
+  placePop();
+}
+
+function placePop() {
+  const pop = document.querySelector("#conceptPop");
+  if (!pop || pop.hidden || !state.popId) return;
+  const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(state.popId)}"] .node-disk`);
+  if (!circle) {
+    pop.hidden = true;
+    return;
   }
-  renderTree();
-  renderDetail();
-  refreshGraph();
+  const anchor = circle.getBoundingClientRect();
+  const margin = 8;
+  const width = pop.offsetWidth || 260;
+  const height = pop.offsetHeight || 180;
+  let left = anchor.right + margin;
+  let top = anchor.top - 8;
+  if (left + width > window.innerWidth - margin) left = anchor.left - width - margin;
+  if (top + height > window.innerHeight - margin) top = Math.max(margin, window.innerHeight - height - margin);
+  if (left < margin) left = margin;
+  if (top < margin) top = margin;
+  pop.style.left = `${left}px`;
+  pop.style.top = `${top}px`;
+}
+
+function closePop() {
+  const pop = document.querySelector("#conceptPop");
+  if (pop) pop.hidden = true;
+  state.popId = null;
+}
+
+function setUserPin(item, on) {
+  const id = String(item.id);
+  const el = snomedSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (on) {
+    state.released.delete(id);
+    item.userPinned = true;
+    item.autoPin = false;
+    item.layoutFixed = false;
+    item.fx = item.x;
+    item.fy = item.y;
+    state.pins.set(id, { x: item.x, y: item.y, auto: false });
+    el?.classList.add("is-user-pinned");
+  } else {
+    state.pins.delete(id);
+    state.released.add(id);
+    item.userPinned = false;
+    item.autoPin = false;
+    item.layoutFixed = false;
+    item.fx = null;
+    item.fy = null;
+    el?.classList.remove("is-user-pinned");
+  }
+  document.querySelector("#popPin")?.setAttribute("aria-checked", on ? "true" : "false");
+  snomedSvg.__termvizSimulation?.alpha(0.5).restart();
 }
 
 function lineKey(code, color) {
@@ -406,30 +628,62 @@ function lineIsHot(item) {
   return item.key === state.hot.key;
 }
 
+function syncCues(rows) {
+  const cueUp = document.querySelector("#cueUp");
+  const cueDown = document.querySelector("#cueDown");
+  const port = detail.getBoundingClientRect();
+  let above = detail.scrollTop > 2;
+  let below = detail.scrollTop + detail.clientHeight < detail.scrollHeight - 2;
+  for (const row of rows) {
+    const box = row.getBoundingClientRect();
+    if (box.bottom < port.top + 1) above = true;
+    if (box.top > port.bottom - 1) below = true;
+  }
+  cueUp.hidden = !above;
+  cueDown.hidden = !below;
+}
+
+function rowPoint(row) {
+  const port = detail.getBoundingClientRect();
+  const box = row.getBoundingClientRect();
+  if (box.bottom < port.top + 1) {
+    const cue = document.querySelector("#cueUp").getBoundingClientRect();
+    return { x: cue.left + cue.width / 2, y: cue.top + cue.height / 2 };
+  }
+  if (box.top > port.bottom - 1) {
+    const cue = document.querySelector("#cueDown").getBoundingClientRect();
+    return { x: cue.left + cue.width / 2, y: cue.top + cue.height / 2 };
+  }
+  const anchor = row.querySelector(".guess-anchor") || row;
+  const from = anchor.getBoundingClientRect();
+  return { x: from.left + from.width / 2, y: from.top + from.height / 2 };
+}
+
 function drawSuggestionLines() {
   if (!linkOverlay) return;
+  const rows = [...detail.querySelectorAll(".guess:not(.is-off)")];
+  syncCues(rows);
   const overlay = d3.select(linkOverlay);
   const width = window.innerWidth;
   const height = window.innerHeight;
   overlay.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
   const lines = [];
-  for (const guess of detail.querySelectorAll(".guess")) {
-    const code = guess.dataset.code;
-    const color = guess.dataset.color || "#c46b1a";
-    const anchor = guess.querySelector(".guess-anchor") || guess;
-    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk, [data-id="${CSS.escape(code)}"] circle`);
+  for (const row of rows) {
+    const code = row.dataset.code;
+    const color = row.dataset.color || "#1c2430";
+    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
     if (!circle) continue;
-    const from = anchor.getBoundingClientRect();
     const to = circle.getBoundingClientRect();
     if (to.width === 0 && to.height === 0) continue;
+    const from = rowPoint(row);
     lines.push({
       key: lineKey(code, color),
       code,
-      x1: from.left + from.width / 2,
-      y1: from.top + from.height / 2,
+      color,
+      x1: from.x,
+      y1: from.y,
       x2: to.left + to.width / 2,
       y2: to.top + to.height / 2,
-      color,
     });
   }
   const group = overlay.selectAll("g.dash").data(lines, (item) => item.key).join("g").attr("class", "dash");
@@ -437,7 +691,6 @@ function drawSuggestionLines() {
     .data((item) => [item])
     .join("line")
     .attr("class", "dash-hit")
-    .attr("data-key", (item) => item.key)
     .attr("x1", (item) => item.x1)
     .attr("y1", (item) => item.y1)
     .attr("x2", (item) => item.x2)
@@ -445,7 +698,6 @@ function drawSuggestionLines() {
     .attr("stroke", (item) => item.color)
     .attr("stroke-opacity", 0)
     .attr("stroke-width", 14)
-    .attr("pointer-events", "stroke")
     .on("mouseover", (event, item) => {
       state.hot = { type: "key", key: item.key };
       paintDash();
@@ -485,12 +737,18 @@ function pinConcept(code, on) {
   node?.classList.toggle("is-pinned", on);
 }
 
-function wireFilters() {
+function relayout() {
+  if (!state.model) return;
+  renderTree();
+  if (state.graph) renderSnomedForce(snomedSvg, state.graph, forceOptions());
+  else drawSuggestionLines();
+  placePop();
+}
+
+function wireChrome() {
   filterButtons.forEach((button) => {
     button.addEventListener("click", () => {
       state.filter = button.dataset.filter;
-      state.query = "";
-      search.value = "";
       filterButtons.forEach((other) => other.classList.toggle("is-on", other === button));
       renderTree();
     });
@@ -499,29 +757,36 @@ function wireFilters() {
     state.query = search.value;
     renderTree();
   });
-}
-
-function wireDetail() {
   detail.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-binding]");
+    const button = event.target.closest(".switch");
     if (!button || !detail.contains(button)) return;
+    event.preventDefault();
     const node = findNode(button.dataset.node);
-    if (node) showBinding(node, button.dataset.binding, button.dataset.label);
+    if (button.dataset.cat === "all") toggleMaster();
+    else if (button.dataset.cat === "node" && node) toggleCategory(node);
+    else if (button.dataset.row && node) toggleCode(node, button.dataset.row);
+    else if (button.dataset.bindCat && node) toggleAllBindings(node);
+    else if (button.dataset.binding && node) setBinding(node, button.dataset.binding, button.getAttribute("aria-checked") !== "true");
   });
   detail.addEventListener("mouseover", (event) => {
+    const block = event.target.closest?.(".side-block");
+    if (block?.dataset.nodeId) pairHighlight(block.dataset.nodeId, true);
     const guess = event.target.closest?.(".guess");
     if (!guess || !detail.contains(guess)) return;
     pinConcept(guess.dataset.code, true);
-    state.hot = { type: "key", key: lineKey(guess.dataset.code, guess.dataset.color || "#c46b1a") };
+    state.hot = { type: "key", key: lineKey(guess.dataset.code, guess.dataset.color || "#1c2430") };
     paintDash();
   });
   detail.addEventListener("mouseout", (event) => {
+    const block = event.target.closest?.(".side-block");
+    const nextBlock = event.relatedTarget?.closest?.(".side-block");
+    if (block && nextBlock !== block) pairHighlight(block.dataset.nodeId, false);
     const guess = event.target.closest?.(".guess");
     if (!guess) return;
     const next = event.relatedTarget?.closest?.(".guess");
     if (next === guess) return;
     pinConcept(guess.dataset.code, false);
-    const key = lineKey(guess.dataset.code, guess.dataset.color || "#c46b1a");
+    const key = lineKey(guess.dataset.code, guess.dataset.color || "#1c2430");
     if (state.hot?.type === "key" && state.hot.key === key) {
       state.hot = null;
       paintDash();
@@ -544,26 +809,79 @@ function wireDetail() {
     }
   });
   detail.addEventListener("scroll", drawSuggestionLines, { passive: true });
+  document.querySelector("#cueUp").addEventListener("click", () => {
+    detail.scrollBy({ top: -Math.max(48, detail.clientHeight * 0.75), behavior: "smooth" });
+  });
+  document.querySelector("#cueDown").addEventListener("click", () => {
+    detail.scrollBy({ top: Math.max(48, detail.clientHeight * 0.75), behavior: "smooth" });
+  });
+  document.querySelector("#popClose").addEventListener("click", closePop);
+  document.querySelector("#popPin").addEventListener("click", () => {
+    const el = state.popId && snomedSvg.querySelector(`[data-id="${CSS.escape(state.popId)}"]`);
+    const item = el ? d3.select(el).datum() : null;
+    if (item) setUserPin(item, !item.userPinned);
+  });
+  document.querySelector("#snomedViewport").addEventListener("click", (event) => {
+    if (event.target === snomedSvg || event.target.id === "snomedViewport") closePop();
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePop();
+  });
+  const bench = document.querySelector("#bench");
+  const topPane = document.querySelector("#snomedPane");
+  const splitter = document.querySelector("#splitter");
+  let dragging = false;
+  function applySplit(percent) {
+    const clamped = Math.min(82, Math.max(18, percent));
+    topPane.style.flex = `0 0 ${clamped}%`;
+    splitter.setAttribute("aria-valuenow", String(Math.round(clamped)));
+  }
+  function splitFromPointer(event) {
+    const rect = bench.getBoundingClientRect();
+    applySplit(((event.clientY - rect.top) / rect.height) * 100);
+  }
+  splitter.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    splitter.setPointerCapture(event.pointerId);
+    splitFromPointer(event);
+  });
+  splitter.addEventListener("pointermove", (event) => {
+    if (dragging) splitFromPointer(event);
+  });
+  function endSplit() {
+    if (!dragging) return;
+    dragging = false;
+    relayout();
+  }
+  splitter.addEventListener("pointerup", endSplit);
+  splitter.addEventListener("pointercancel", endSplit);
+  splitter.addEventListener("dblclick", () => {
+    applySplit(60);
+    relayout();
+  });
+  splitter.addEventListener("keydown", (event) => {
+    const now = Number(splitter.getAttribute("aria-valuenow")) || 60;
+    if (event.key === "ArrowUp") applySplit(now - 4);
+    if (event.key === "ArrowDown") applySplit(now + 4);
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") relayout();
+  });
 }
 
-wireFilters();
-wireDetail();
+wireChrome();
 for (const element of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
   element?.addEventListener("scroll", drawSuggestionLines, { passive: true });
 }
-window.addEventListener("scroll", drawSuggestionLines, { passive: true });
 snomedCaption.textContent = "Reading the International Patient Summary…";
 
 loadIpsModel().then((model) => {
   state.model = model;
   markOpen(model.tree);
   renderStats();
-  const first = model.suggestions.attached[0];
-  if (first) {
-    colorFor(first.id);
-    state.activeIds.add(first.id);
-    state.focusId = first.id;
+  for (const node of model.suggestions.attached) {
+    colorFor(node.id);
+    state.activeIds.add(node.id);
   }
+  state.focusId = model.suggestions.attached[0]?.id ?? null;
   renderTree();
   renderDetail();
   refreshGraph();
@@ -573,12 +891,4 @@ loadIpsModel().then((model) => {
   snomedCaption.textContent = "The template could not be read.";
 });
 
-window.addEventListener("resize", () => {
-  if (!state.model) return;
-  renderTree();
-  if (state.graph) {
-    renderSnomedForce(snomedSvg, state.graph, { onTick: drawSuggestionLines });
-  } else {
-    drawSuggestionLines();
-  }
-});
+window.addEventListener("resize", () => relayout());

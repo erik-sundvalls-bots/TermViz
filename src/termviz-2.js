@@ -296,7 +296,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
  * stay quiet until hover or until a concept is shared, and hovering a
  * node pushes its parents and children apart.
  */
-export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, onPinMove } = {}) {
+export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, released, onPinMove } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   const host = svg.node()?.parentElement;
@@ -342,17 +342,9 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .attr("marker-end", "url(#snomed-isa)");
 
   const pinOf = pins instanceof Map ? pins : new Map();
+  const releasedSet = released instanceof Set ? released : new Set();
   const rootY = 32;
   const rowY = Math.max(108, Math.min(156, Math.round(height * 0.2)));
-  for (const item of nodes) {
-    const spot = pinOf.get(String(item.id));
-    if (!spot) continue;
-    item.fx = spot.x;
-    item.fy = spot.y;
-    item.x = spot.x;
-    item.y = spot.y;
-    item.userPinned = true;
-  }
 
   const tops = nodes.filter((item) => item.outgoing.length === 0);
   const topSet = new Set(tops);
@@ -360,26 +352,53 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .filter((item) => !topSet.has(item) && item.outgoing.some((edge) => topSet.has(edge.target)))
     .sort((a, b) => visibleName(a).localeCompare(visibleName(b)));
 
-  function park(item, x, y) {
-    if (item.userPinned) return;
+  function place(item, x, y, { pinned, auto, fixed }) {
     item.fx = x;
     item.fy = y;
     item.x = x;
     item.y = y;
-    item.layoutFixed = true;
-    item.homeX = x;
-    item.homeY = y;
+    item.userPinned = pinned;
+    item.autoPin = auto;
+    item.layoutFixed = fixed;
+    if (fixed) {
+      item.homeX = x;
+      item.homeY = y;
+    }
+    if (pinned) onPinMove?.(item);
   }
 
   tops.forEach((item, index) => {
-    park(item, width / 2 + (index - (tops.length - 1) / 2) * 100, rootY);
+    const id = String(item.id);
+    const pin = pinOf.get(id);
+    if (releasedSet.has(id)) return;
+    if (pin && !pin.auto) {
+      place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
+      return;
+    }
+    place(item, width / 2 + (index - (tops.length - 1) / 2) * 100, rootY, { pinned: false, auto: false, fixed: true });
   });
-  const inset = Math.min(96, Math.max(36, width * 0.1));
-  const usable = Math.max(48, width - inset * 2);
-  firstLevel.forEach((item, index) => {
-    const t = firstLevel.length === 1 ? 0.5 : index / (firstLevel.length - 1);
-    park(item, inset + usable * t, rowY);
+
+  const elastic = [];
+  for (const item of firstLevel) {
+    const id = String(item.id);
+    if (releasedSet.has(id)) continue;
+    const pin = pinOf.get(id);
+    if (pin && !pin.auto) {
+      place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
+    } else elastic.push(item);
+  }
+  elastic.forEach((item, index) => {
+    const x = width * (index + 1) / (elastic.length + 1);
+    place(item, x, rowY, { pinned: true, auto: true, fixed: false });
   });
+
+  for (const item of nodes) {
+    if (item.userPinned || item.layoutFixed) continue;
+    const id = String(item.id);
+    const pin = pinOf.get(id);
+    if (!pin || pin.auto || releasedSet.has(id)) continue;
+    place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
+  }
 
   const node = svg.append("g")
     .selectAll("g")
@@ -466,16 +485,19 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
         if (!event.active) simulation.alphaTarget(0.3).restart();
         item.fx = item.x;
         item.fy = item.y;
+        item.dragOrigin = { x: item.x, y: item.y };
       })
       .on("drag", (event, item) => {
         item.fx = event.x;
         item.fy = event.y;
-        if (item.userPinned) onPinMove?.(item);
       })
       .on("end", (event, item) => {
         if (!event.active) simulation.alphaTarget(0);
-        if (item.userPinned) onPinMove?.(item);
-        else if (item.layoutFixed) {
+        const moved = Math.hypot((item.x ?? 0) - (item.dragOrigin?.x ?? item.x), (item.y ?? 0) - (item.dragOrigin?.y ?? item.y)) > 4;
+        if (item.userPinned) {
+          if (moved) item.autoPin = false;
+          onPinMove?.(item);
+        } else if (item.layoutFixed) {
           item.fx = item.homeX;
           item.fy = item.homeY;
         } else {
