@@ -5,9 +5,20 @@
  * without asking again.
  */
 
+import bundledClosure from "./snomed-closure.json";
+
 export const SNOMED_SYSTEM = "http://snomed.info/sct";
 export const SNOMED_ROOT = "138875005";
 export const ONTOSERVER = "https://tx-nordics.fhir.org/fhir/r4";
+export const BUNDLED_CONCEPTS = bundledClosure.concepts.length;
+
+export function snomedBrowserUrl(code) {
+  const url = new URL("https://browser.ihtsdotools.org/");
+  url.searchParams.set("perspective", "full");
+  url.searchParams.set("conceptId1", String(code));
+  url.searchParams.set("edition", "MAIN");
+  return url.toString();
+}
 
 const CACHE_KEY = "termviz.snomed.lookup.v1";
 const memory = new Map();
@@ -52,6 +63,16 @@ function persistSoon() {
 }
 
 loadDisk();
+
+for (const concept of bundledClosure.concepts) {
+  memory.set(String(concept.code), {
+    code: String(concept.code),
+    display: concept.display || "",
+    parents: (concept.parents || []).map(String),
+    inactive: Boolean(concept.inactive),
+    error: null,
+  });
+}
 
 function parameterValue(parameter) {
   return parameter.valueString ?? parameter.valueCode ?? parameter.valueBoolean ?? null;

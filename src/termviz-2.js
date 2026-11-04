@@ -12,6 +12,9 @@ export const D3_VERSION = "7.9.2";
 
 const RANK_COLORS = ["#0f6e6b", "#1d4e89", "#c46b1a", "#8a4b2f", "#6b3a6b"];
 
+/** One colour per switched-on template node, not per SNOMED guess. */
+export const NODE_COLORS = ["#c46b1a", "#1d4e89", "#0f6e6b", "#6b3a6b", "#8d2f2f", "#3d6b2f", "#8a4b2f", "#2456a0"];
+
 function clear(svg) {
   const node = svg.node();
   if (node?.__termvizSimulation) {
@@ -27,6 +30,12 @@ function sizeOf(svg) {
   const width = Math.max(320, box.width || node.clientWidth || 640);
   const height = Math.max(220, box.height || node.clientHeight || 360);
   return { width, height };
+}
+
+function visibleName(item) {
+  const name = item.name || item.display || "";
+  if (!name || name === String(item.id)) return "Unnamed concept";
+  return name;
 }
 
 function wrapLabel(name, limit = 28) {
@@ -174,7 +183,11 @@ export function renderAncestorDag(svgSelection, graph, { suggestions = [], selec
   return { link, node, width: innerWidth, height };
 }
 
-export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelect, onToggle } = {}) {
+/**
+ * Dendrogram with the root at the bottom, the same way the 2013 cluster
+ * layout drew it (`treeHeight - d.y`). Leaves line up along the top.
+ */
+export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   if (!rootData) {
@@ -182,7 +195,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
     return;
   }
   const root = d3.hierarchy(rootData, (node) => (node.open === false ? null : node.children));
-  const layout = d3.tree().nodeSize([28, 272]);
+  const layout = d3.cluster().nodeSize([108, 76]);
   layout(root);
   let x0 = Infinity;
   let x1 = -Infinity;
@@ -192,18 +205,26 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
     if (node.x > x1) x1 = node.x;
     if (node.y > y1) y1 = node.y;
   });
-  const height = Math.max(180, x1 - x0 + 56);
-  const width = y1 + 300;
+  const padTop = 36;
+  const padBottom = 28;
+  const padLeft = 64;
+  const height = padTop + y1 + padBottom;
+  const width = Math.max(280, x1 - x0 + padLeft + 80);
   svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
-  const plot = svg.append("g").attr("transform", `translate(36,${24 - x0})`);
-  const diagonal = d3.linkHorizontal().x((point) => point.y).y((point) => point.x);
+  const yOf = (node) => padTop + (y1 - node.y);
+  const plot = svg.append("g").attr("transform", `translate(${padLeft - x0},0)`);
+  const diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
+  const active = activeIds instanceof Set ? activeIds : new Set(activeIds || []);
 
   plot.append("g")
     .selectAll("path")
     .data(root.links())
     .join("path")
     .attr("class", "tree-link")
-    .attr("d", diagonal);
+    .attr("d", (link) => diagonal({
+      source: { x: link.source.x, y: yOf(link.source) },
+      target: { x: link.target.x, y: yOf(link.target) },
+    }));
 
   const node = plot.append("g")
     .selectAll("g")
@@ -213,6 +234,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
       const data = item.data;
       const classes = ["tpl-node", `rm-${data.rmType || "other"}`];
       if (data.id === selectedId) classes.push("is-selected");
+      if (active.has(data.id)) classes.push("is-on");
       if (data.suggestions?.length) classes.push("has-suggestions");
       const bound = [...(data.bindings || []), ...(data.valueBindings || [])];
       if (bound.some((binding) => binding.status === "missing-from-opt")) {
@@ -221,7 +243,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.data.id)
-    .attr("transform", (item) => `translate(${item.y},${item.x})`);
+    .attr("transform", (item) => `translate(${item.x},${yOf(item)})`);
 
   node.append("title").text((item) => {
     const data = item.data;
@@ -231,13 +253,14 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
       data.nodeId || "",
       data.archetypeId || "",
       data.section ? `Section: ${data.section}` : "",
+      data.suggestions?.length ? "Click to switch this node on or off in the SNOMED graph." : "",
     ].filter(Boolean).join("\n");
   });
 
   node.filter((item) => onToggle && item.data.children?.length)
     .append("text")
     .attr("class", "tree-toggle")
-    .attr("x", -16)
+    .attr("x", -14)
     .attr("dy", "0.35em")
     .attr("text-anchor", "middle")
     .text((item) => (item.children ? "−" : "+"))
@@ -246,16 +269,21 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
       onToggle?.(item.data);
     });
 
-  node.append("circle").attr("r", (item) => item.data.suggestions?.length ? 7 : 4.5);
+  node.append("circle")
+    .attr("r", (item) => (item.data.suggestions?.length || active.has(item.data.id) ? 7 : 4.5))
+    .each(function paint(item) {
+      const color = colorFor?.(item.data);
+      if (color) d3.select(this).style("fill", color);
+    });
 
   node.append("text")
     .attr("class", "tree-label")
-    .attr("x", 12)
-    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .attr("dy", -12)
     .text((item) => {
       const name = item.data.name || "";
-      const clipped = name.length > 34 ? `${name.slice(0, 33)}…` : name;
-      return item.data.suggestions?.length ? `${clipped}  ·  5 maps` : clipped;
+      const limit = active.has(item.data.id) ? 28 : 18;
+      return name.length > limit ? `${name.slice(0, limit - 1)}…` : name;
     });
 
   node.on("click", (event, item) => {
@@ -265,6 +293,193 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, onSelec
 
   const selected = root.descendants().find((item) => item.data.id === selectedId);
   return { width, height, selected };
+}
+
+/**
+ * Force-directed is-a graph, in the 2013 style: SNOMED is a DAG, labels
+ * stay quiet until hover or until a concept is shared, and hovering a
+ * node pushes its parents and children apart.
+ */
+export function renderSnomedForce(svgSelection, graph, { onTick } = {}) {
+  const svg = d3.select(svgSelection);
+  clear(svg);
+  const host = svg.node()?.parentElement;
+  const width = Math.max(320, host?.clientWidth || 640);
+  const height = Math.max(260, host?.clientHeight || 360);
+  svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const nodes = (graph?.nodes || []).map((node) => ({ ...node, hoover_doi: 0, incoming: [], outgoing: [] }));
+  if (!nodes.length) {
+    onTick?.();
+    return null;
+  }
+  const byId = new Map(nodes.map((node) => [node.id, node]));
+  const links = (graph.links || [])
+    .map((link) => ({
+      source: byId.get(String(link.source)),
+      target: byId.get(String(link.target)),
+      hoover_doi: 0,
+    }))
+    .filter((link) => link.source && link.target);
+  for (const link of links) {
+    link.target.incoming.push(link);
+    link.source.outgoing.push(link);
+  }
+
+  const defs = svg.append("defs");
+  defs.append("marker")
+    .attr("id", "snomed-isa")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 18)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5Z")
+    .attr("class", "force-arrow");
+
+  const link = svg.append("g")
+    .selectAll("line")
+    .data(links)
+    .join("line")
+    .attr("class", "force-link")
+    .attr("marker-end", "url(#snomed-isa)");
+
+  const node = svg.append("g")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .attr("class", (item) => {
+      const classes = ["force-node"];
+      if (item.suggestion) classes.push("is-suggestion");
+      if (item.cp) classes.push("is-cp");
+      if (item.lcp) classes.push("is-lcp");
+      if (item.inactive) classes.push("is-inactive");
+      return classes.join(" ");
+    })
+    .attr("data-id", (item) => item.id);
+
+  node.append("circle")
+    .attr("r", (item) => (item.lcp ? 13 : item.suggestion ? 11 : 8))
+    .attr("fill", (item) => item.fill || "#ffffff")
+    .attr("fill-opacity", (item) => item.fillOpacity ?? 1)
+    .attr("stroke", (item) => item.stroke || "#4682b4");
+
+  node.each(function label(item) {
+    const lines = wrapLabel(visibleName(item), 24);
+    const group = d3.select(this);
+    for (const kind of ["shadow", "ink"]) {
+      const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "middle");
+      lines.forEach((line, index) => {
+        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -18 : 13).text(line);
+      });
+    }
+  });
+
+  node.append("title").text((item) => {
+    const lines = [visibleName(item)];
+    if (item.commonality > 1) lines.push(`Shared by ${item.commonality} switched-on template nodes`);
+    return lines.filter(Boolean).join("\n");
+  });
+
+  const tops = nodes.filter((item) => item.outgoing.length === 0);
+  tops.forEach((item, index) => {
+    item.fx = width / 2 + (index - (tops.length - 1) / 2) * 80;
+    item.fy = 36;
+  });
+
+  function paintHover(activeNode, activeLink) {
+    nodes.forEach((item) => {
+      item.hoover_doi = 0;
+    });
+    links.forEach((item) => {
+      item.hoover_doi = 0;
+    });
+    node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    if (activeNode) {
+      activeNode.hoover_doi = 3;
+      node.filter((item) => item === activeNode).classed("is-active", true);
+      for (const edge of activeNode.incoming) {
+        edge.hoover_doi = 1;
+        edge.source.hoover_doi = Math.max(edge.source.hoover_doi, 1);
+        link.filter((item) => item === edge).classed("is-incoming", true);
+        node.filter((item) => item === edge.source).classed("is-incoming", true);
+      }
+      for (const edge of activeNode.outgoing) {
+        edge.hoover_doi = 1;
+        edge.target.hoover_doi = Math.max(edge.target.hoover_doi, 1);
+        link.filter((item) => item === edge).classed("is-outgoing", true);
+        node.filter((item) => item === edge.target).classed("is-outgoing", true);
+      }
+    }
+    if (activeLink) {
+      activeLink.hoover_doi = 1;
+      link.filter((item) => item === activeLink).classed("is-active", true);
+      node.filter((item) => item === activeLink.source).classed("is-incoming", true);
+      node.filter((item) => item === activeLink.target).classed("is-outgoing", true);
+      activeLink.source.hoover_doi = Math.max(activeLink.source.hoover_doi, 1);
+      activeLink.target.hoover_doi = Math.max(activeLink.target.hoover_doi, 1);
+    }
+    simulation.alpha(0.35).restart();
+  }
+
+  node
+    .on("mouseover", (event, item) => paintHover(item, null))
+    .on("mouseout", () => paintHover(null, null))
+    .on("click", (event, item) => {
+      event.stopPropagation();
+      if (item.fx == null) {
+        item.fx = item.x;
+        item.fy = item.y;
+      } else if (!tops.includes(item)) {
+        item.fx = null;
+        item.fy = null;
+      }
+      d3.select(event.currentTarget).classed("is-fixed", item.fx != null);
+      simulation.alpha(0.3).restart();
+    })
+    .call(d3.drag()
+      .on("start", (event, item) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        item.fx = item.x;
+        item.fy = item.y;
+      })
+      .on("drag", (event, item) => {
+        item.fx = event.x;
+        item.fy = event.y;
+      })
+      .on("end", (event, item) => {
+        if (!event.active) simulation.alphaTarget(0);
+        if (!tops.includes(item)) {
+          item.fx = null;
+          item.fy = null;
+        }
+      }));
+
+  link
+    .on("mouseover", (event, item) => paintHover(null, item))
+    .on("mouseout", () => paintHover(null, null));
+
+  node.classed("is-fixed", (item) => item.fx != null);
+
+  const simulation = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).distance((edge) => 48 + (edge.hoover_doi || 0) * 22).strength(0.85))
+    .force("charge", d3.forceManyBody().strength((item) => -160 + (item.hoover_doi || 0) * -240))
+    .force("x", d3.forceX(width / 2).strength(0.05))
+    .force("y", d3.forceY(height / 2).strength(0.05))
+    .force("collide", d3.forceCollide(18))
+    .on("tick", () => {
+      link
+        .attr("x1", (item) => item.source.x)
+        .attr("y1", (item) => item.source.y)
+        .attr("x2", (item) => item.target.x)
+        .attr("y2", (item) => item.target.y);
+      node.attr("transform", (item) => `translate(${item.x},${item.y})`);
+      onTick?.();
+    });
+  svg.node().__termvizSimulation = simulation;
+  return { simulation };
 }
 
 export function renderForceGraph(svgSelection, data, { onSelect } = {}) {

@@ -1,0 +1,812 @@
+{
+  "source": "https://tx-nordics.fhir.org/fhir/r4",
+  "system": "http://snomed.info/sct",
+  "root": "138875005",
+  "edition": "http://snomed.info/sct/900000000000207008",
+  "seeds": [
+    "105590001",
+    "106229004",
+    "129125009",
+    "14657009",
+    "14734007",
+    "148006",
+    "15240007",
+    "16206004",
+    "246153002",
+    "261665006",
+    "271649006",
+    "271650006",
+    "277923006",
+    "282291009",
+    "288524001",
+    "288526004",
+    "304252001",
+    "304253006",
+    "363679005",
+    "364090009",
+    "373873005",
+    "386725007",
+    "387713003",
+    "404684003",
+    "410511007",
+    "410513005",
+    "410515003",
+    "410516002",
+    "410942007",
+    "418799008",
+    "431314004",
+    "439401001",
+    "448703006",
+    "5558000",
+    "60621009",
+    "64572001",
+    "71388002",
+    "763158003",
+    "781405001",
+    "8319008",
+    "85097005"
+  ],
+  "concepts": [
+    {
+      "code": "103228002",
+      "display": "Hemoglobin saturation with oxygen",
+      "parents": [
+        "86084001",
+        "736015003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "105590001",
+      "display": "Substance",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "106229004",
+      "display": "Qualifier for type of diagnosis",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "106237007",
+      "display": "Linkage concept",
+      "parents": [
+        "900000000000441003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "118223001",
+      "display": "Patient status finding",
+      "parents": [
+        "404684003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "128927009",
+      "display": "Procedure by method",
+      "parents": [
+        "71388002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "129125009",
+      "display": "Procedure with explicit context",
+      "parents": [
+        "243796009"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "138875005",
+      "display": "SNOMED CT Concept",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "14657009",
+      "display": "Established diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "14734007",
+      "display": "Administrative procedure",
+      "parents": [
+        "71388002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "148006",
+      "display": "Preliminary diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "15240007",
+      "display": "Current",
+      "parents": [
+        "410512000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "16206004",
+      "display": "Oxygen delivery",
+      "parents": [
+        "364392006"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "243796009",
+      "display": "Situation with explicit context",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "243814003",
+      "display": "Interpretation of findings",
+      "parents": [
+        "363787002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "246061005",
+      "display": "Attribute",
+      "parents": [
+        "106237007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "246153002",
+      "display": "Type of cuff",
+      "parents": [
+        "410657003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "246464006",
+      "display": "Function",
+      "parents": [
+        "363787002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "248326004",
+      "display": "Body measure",
+      "parents": [
+        "363789004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "252059006",
+      "display": "Vascular measure",
+      "parents": [
+        "364087003",
+        "310611001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "257434000",
+      "display": "Gas analyzer",
+      "parents": [
+        "30234008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "260787004",
+      "display": "Physical object",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "261665006",
+      "display": "Unknown",
+      "parents": [
+        "410514004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "271649006",
+      "display": "Systolic blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "271650006",
+      "display": "Diastolic blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "272099008",
+      "display": "Descriptor",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "272103003",
+      "display": "Time patterns",
+      "parents": [
+        "272099008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "272181003",
+      "display": "Clinical equipment and/or device",
+      "parents": [
+        "49062001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "277923006",
+      "display": "Pulse oximetry waveform",
+      "parents": [
+        "364681001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "281586009",
+      "display": "Special atomic mapping values",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "282291009",
+      "display": "Diagnosis interpretation",
+      "parents": [
+        "243814003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "288524001",
+      "display": "Courses",
+      "parents": [
+        "272103003",
+        "303102005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "288526004",
+      "display": "Episodicities",
+      "parents": [
+        "272103003",
+        "303102005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "288529006",
+      "display": "Context values",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "30234008",
+      "display": "Medical laboratory analyzer",
+      "parents": [
+        "80617005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "303102005",
+      "display": "Special disorder atoms",
+      "parents": [
+        "281586009"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "303607000",
+      "display": "Biomedical equipment",
+      "parents": [
+        "272181003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "304252001",
+      "display": "For resuscitation",
+      "parents": [
+        "365870005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "304253006",
+      "display": "Not for resuscitation",
+      "parents": [
+        "365870005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "310611001",
+      "display": "Cardiovascular measure",
+      "parents": [
+        "364066008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "362981000",
+      "display": "Qualifier value",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "363679005",
+      "display": "Imaging",
+      "parents": [
+        "386053000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "363787002",
+      "display": "Observable entity",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "363788007",
+      "display": "Clinical history/examination observable",
+      "parents": [
+        "363787002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "363789004",
+      "display": "General characteristic of patient",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364048003",
+      "display": "Respiratory observable",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364066008",
+      "display": "Cardiovascular observable",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364087003",
+      "display": "Blood vessel feature",
+      "parents": [
+        "364066008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364090009",
+      "display": "Systemic arterial pressure",
+      "parents": [
+        "386536003",
+        "386534000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364392006",
+      "display": "Metabolic observable",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364393001",
+      "display": "Nutritional observable",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364676005",
+      "display": "Anesthetic observable",
+      "parents": [
+        "416342005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364681001",
+      "display": "Waveform observable",
+      "parents": [
+        "364676005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "365870005",
+      "display": "Finding of resuscitation status",
+      "parents": [
+        "118223001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "36692007",
+      "display": "Known",
+      "parents": [
+        "410514004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "373873005",
+      "display": "Pharmaceutical / biologic product",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "386053000",
+      "display": "Evaluation procedure",
+      "parents": [
+        "128927009"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "386534000",
+      "display": "Arterial blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "386536003",
+      "display": "Systemic blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "386725007",
+      "display": "Body temperature",
+      "parents": [
+        "363789004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "387713003",
+      "display": "Surgical procedure",
+      "parents": [
+        "71388002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "404684003",
+      "display": "Clinical finding",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "408739003",
+      "display": "Unapproved attribute",
+      "parents": [
+        "246061005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410510008",
+      "display": "Temporal context value",
+      "parents": [
+        "288529006"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410511007",
+      "display": "Current or past",
+      "parents": [
+        "410510008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410512000",
+      "display": "Current or specified",
+      "parents": [
+        "410511007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410513005",
+      "display": "Past",
+      "parents": [
+        "410511007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410514004",
+      "display": "Finding context value",
+      "parents": [
+        "288529006"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410515003",
+      "display": "Known present",
+      "parents": [
+        "36692007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410516002",
+      "display": "Known absent",
+      "parents": [
+        "36692007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410657003",
+      "display": "Type - attribute",
+      "parents": [
+        "408739003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "410942007",
+      "display": "Drug or medicament",
+      "parents": [
+        "105590001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "416342005",
+      "display": "Procedure related observable",
+      "parents": [
+        "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "418799008",
+      "display": "Finding reported by subject or history provider",
+      "parents": [
+        "404684003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "431314004",
+      "display": "Peripheral oxygen saturation",
+      "parents": [
+        "103228002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "439401001",
+      "display": "Diagnosis",
+      "parents": [
+        "243814003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "448703006",
+      "display": "Pulse oximeter",
+      "parents": [
+        "59181002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "49062001",
+      "display": "Device",
+      "parents": [
+        "260787004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "52893008",
+      "display": "Blood gas/pH analyzer",
+      "parents": [
+        "257434000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "5558000",
+      "display": "Working diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "59181002",
+      "display": "Oxygen analyzer",
+      "parents": [
+        "52893008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "60621009",
+      "display": "Body mass index",
+      "parents": [
+        "87276001",
+        "248326004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "64572001",
+      "display": "Disease",
+      "parents": [
+        "404684003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "71388002",
+      "display": "Procedure",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "736015003",
+      "display": "Oxygenation observable",
+      "parents": [
+        "364048003",
+        "364676005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "75367002",
+      "display": "Blood pressure",
+      "parents": [
+        "310611001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "763158003",
+      "display": "Medicinal product",
+      "parents": [
+        "373873005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "781405001",
+      "display": "Medicinal product package",
+      "parents": [
+        "373873005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "80617005",
+      "display": "Analyzer",
+      "parents": [
+        "303607000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "8319008",
+      "display": "Principal diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "85097005",
+      "display": "Secondary diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "86084001",
+      "display": "Hematologic function",
+      "parents": [
+        "246464006"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "87276001",
+      "display": "Nutritional status",
+      "parents": [
+        "364393001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "900000000000441003",
+      "display": "SNOMED CT Model Component",
+      "parents": [
+        "138875005"
+      ],
+      "inactive": false
+    }
+  ]
+}

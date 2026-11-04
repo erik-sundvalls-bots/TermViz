@@ -1,6 +1,7 @@
-import { D3_VERSION, renderAncestorDag, renderTemplateTree } from "./termviz-2.js";
+import * as d3 from "d3";
+import { D3_VERSION, NODE_COLORS, renderSnomedForce, renderTemplateTree } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
-import { cacheSize, cachedConcept, closureToRoot } from "./snomed.js";
+import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -12,13 +13,19 @@ const search = document.querySelector("#search");
 const errorBox = document.querySelector("#error");
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
 
+const linkOverlay = document.querySelector("#linkOverlay");
+
 const state = {
   model: null,
   filter: "suggestions",
   query: "",
-  selectedId: null,
+  focusId: null,
+  activeIds: new Set(),
+  colors: new Map(),
+  colorIndex: 0,
+  extraCodes: new Map(),
   snomedToken: 0,
-  focusCode: null,
+  graph: null,
 };
 
 function chip(text) {
@@ -73,14 +80,36 @@ function displayTree() {
   return root;
 }
 
-function selectedNode() {
-  if (!state.selectedId) return null;
+function findNode(id) {
+  if (!id) return null;
   let found = null;
   (function walk(node) {
-    if (node.id === state.selectedId) found = node;
+    if (node.id === id) found = node;
     node.children?.forEach(walk);
   })(state.model.tree);
   return found;
+}
+
+function activeNodes() {
+  return [...state.activeIds].map((id) => findNode(id)).filter(Boolean);
+}
+
+function colorFor(id) {
+  if (!state.colors.has(id)) {
+    state.colors.set(id, NODE_COLORS[state.colorIndex % NODE_COLORS.length]);
+    state.colorIndex += 1;
+  }
+  return state.colors.get(id);
+}
+
+function codeLink(code) {
+  const href = escapeHtml(snomedBrowserUrl(code));
+  return `<a class="code-link" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(code)}</a>`;
+}
+
+function termLink(code, text) {
+  const href = escapeHtml(snomedBrowserUrl(code));
+  return `<a class="term" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
 }
 
 function escapeHtml(value) {
@@ -99,64 +128,103 @@ function statusLabel(status) {
   return [status || "", ""];
 }
 
-function renderDetail() {
-  const node = selectedNode();
-  if (!node) {
-    detail.innerHTML = `
-      <h3>Three open elements</h3>
-      <p class="reason">The pretend mapper left five SNOMED CT guesses on Medication item, Problem/Diagnosis name, and Procedure name. They are the amber nodes. Select one and the upper tree climbs each guess to the SNOMED CT root.</p>
-      <p class="reason">Teal nodes already carry a SNOMED CT term binding from the template. The fileset check found no binding that the archetypes had and the OPT had dropped.</p>`;
-    return;
-  }
+function termFor(code, fallback) {
+  const known = cachedConcept(code);
+  if (known?.display && known.display !== String(code)) return known.display;
+  return fallback || "Unnamed concept";
+}
+
+function bindingRows(node, rows) {
+  return rows.map((binding) => {
+    const [label, kind] = statusLabel(binding.status);
+    const name = binding.label ? `${escapeHtml(binding.label)} · ` : "";
+    const at = binding.atCode ? `<span class="at-code">${escapeHtml(binding.atCode)}</span> → ` : "";
+    return `<div class="binding">
+      <div>${name}${at}${codeLink(binding.code)}<div><span class="tag ${kind}">${escapeHtml(label)}</span></div></div>
+      <button class="text-button" type="button" data-binding="${escapeHtml(binding.code)}" data-node="${escapeHtml(node.id)}" data-label="${escapeHtml(binding.label || node.name)}">Show</button>
+    </div>`;
+  }).join("");
+}
+
+function guessArticle(node, { code, rank, score, reason, term }) {
+  const color = colorFor(node.id);
+  const head = rank
+    ? `${rank}. ${termLink(code, term)}`
+    : termLink(code, term);
+  const bar = Number.isFinite(score)
+    ? `<div class="score" aria-label="score ${score}"><span style="width:${Math.round(score * 100)}%"></span></div>`
+    : "";
+  return `<article class="guess" data-code="${escapeHtml(code)}" data-color="${escapeHtml(color)}">
+    <span class="guess-anchor" aria-hidden="true"></span>
+    <div class="guess-head">${head}${codeLink(code)}</div>
+    ${bar}
+    <p class="reason">${escapeHtml(reason)}</p>
+  </article>`;
+}
+
+function nodePanel(node, switchedOn) {
   const meta = [
     node.rmType,
     node.nodeId,
     node.section ? `in ${node.section}` : "",
     node.archetypeId || "",
   ].filter(Boolean).map(escapeHtml).join(" · ");
-  const guesses = (node.suggestions || []).map((item) => {
-    const known = cachedConcept(item.code);
-    const term = known?.display || "term not loaded yet";
-    return `<article class="guess">
-      <div class="guess-head">
-        <button class="term" type="button" data-code="${item.code}">${item.rank}. ${escapeHtml(term)}</button>
-        <code>${item.code}</code>
-      </div>
-      <div class="score" aria-label="score ${item.score}"><span style="width:${Math.round(item.score * 100)}%"></span></div>
-      <p class="reason">${escapeHtml(item.reason)}</p>
-    </article>`;
-  }).join("");
-  const bindings = [...(node.bindings || []), ...(node.valueBindings || [])].map((binding) => {
-    const [label, kind] = statusLabel(binding.status);
-    const name = binding.label ? `${escapeHtml(binding.label)} · ` : "";
-    return `<div class="binding">
-      <div>${name}<code>${escapeHtml(binding.code)}</code><div><span class="tag ${kind}">${escapeHtml(label)}</span></div></div>
-      <button class="text-button" type="button" data-binding="${escapeHtml(binding.code)}" data-label="${escapeHtml(binding.label || node.name)}">Show</button>
-    </div>`;
-  }).join("");
-  const scope = node.isArchetypeRoot && node.scopeBindings?.length
-    ? `<h3 style="font-size:18px;margin-top:18px">Terminology on this archetype</h3>
-       <p class="reason">${node.scopeBindings.length} SNOMED CT term binding${node.scopeBindings.length === 1 ? "" : "s"} travel with ${escapeHtml(node.archetypeId)}. Ones whose at-code is not in this template slot stay listed here rather than as extra tree nodes.</p>
-       ${node.scopeBindings.map((binding) => {
-         const [label, kind] = statusLabel(binding.status);
-         return `<div class="binding"><div>${escapeHtml(binding.label)} <code>${escapeHtml(binding.atCode)}</code> → <code>${escapeHtml(binding.code)}</code><div><span class="tag ${kind}">${escapeHtml(label)}</span></div></div>
-           <button class="text-button" type="button" data-binding="${escapeHtml(binding.code)}" data-label="${escapeHtml(binding.label)}">Show</button></div>`;
-       }).join("")}`
+  const color = switchedOn ? colorFor(node.id) : "";
+  const extras = new Set((state.extraCodes.get(node.id) || []).map(String));
+  for (const item of node.suggestions || []) extras.delete(String(item.code));
+  const guesses = switchedOn
+    ? (node.suggestions || []).map((item) => guessArticle(node, {
+        code: item.code,
+        rank: item.rank,
+        score: item.score,
+        reason: item.reason,
+        term: termFor(item.code),
+      })).join("")
     : "";
-  detail.innerHTML = `<h3>${escapeHtml(node.name)}</h3><p class="meta">${meta}</p>${guesses}${bindings}${scope}`;
-  detail.querySelectorAll("[data-code]").forEach((button) => {
-    button.addEventListener("click", () => focusSuggestion(node, button.dataset.code));
-  });
-  detail.querySelectorAll("[data-binding]").forEach((button) => {
-    button.addEventListener("click", () => showBinding(button.dataset.binding, button.dataset.label));
-  });
+  const extraRows = switchedOn
+    ? [...extras].map((code) => guessArticle(node, {
+        code,
+        reason: "Published term binding, included in this node’s colour.",
+        term: termFor(code),
+      })).join("")
+    : "";
+  const bindings = bindingRows(node, [...(node.bindings || []), ...(node.valueBindings || [])]);
+  const scope = node.isArchetypeRoot && node.scopeBindings?.length
+    ? `<h3 class="scope-title">Terminology on this archetype</h3>
+       <p class="reason">${node.scopeBindings.length} SNOMED CT term binding${node.scopeBindings.length === 1 ? "" : "s"} travel with ${escapeHtml(node.archetypeId)}. Ones whose at-code is not in this template slot stay listed here rather than as extra tree nodes.</p>
+       ${bindingRows(node, node.scopeBindings)}`
+    : "";
+  const title = switchedOn
+    ? `<h3><i class="group-dot" aria-hidden="true"></i>${escapeHtml(node.name)}</h3>`
+    : `<h3>${escapeHtml(node.name)}</h3>`;
+  return `<section class="node-group"${color ? ` style="--node-color:${escapeHtml(color)}"` : ""}>${title}<p class="meta">${meta}</p>${guesses}${extraRows}${bindings}${scope}</section>`;
+}
+
+function renderDetail() {
+  const actives = activeNodes();
+  const focus = findNode(state.focusId);
+  if (!actives.length && !focus) {
+    detail.innerHTML = `
+      <h3>Three open elements</h3>
+      <p class="reason">The pretend mapper left five SNOMED CT guesses on Medication item, Problem/Diagnosis name, and Procedure name. They are the amber nodes. Switch one or more on. Each keeps its own colour, and a dashed line of that colour runs from the guess to the concept.</p>
+      <p class="reason">The concept id sits beside the term and opens that concept in the SNOMED CT browser. It is not drawn on the graph.</p>
+      <p class="reason">Teal nodes already carry a SNOMED CT term binding from the template. The fileset check found no binding that the archetypes had and the OPT had dropped.</p>`;
+    return;
+  }
+  const parts = [];
+  if (focus && !state.activeIds.has(focus.id)) parts.push(nodePanel(focus, false));
+  for (const node of actives) parts.push(nodePanel(node, true));
+  detail.innerHTML = parts.join("");
+  drawSuggestionLines();
 }
 
 function renderTree() {
   const tree = displayTree();
   renderTemplateTree(treeSvg, tree, {
-    selectedId: state.selectedId,
-    onSelect: (node) => selectNode(node),
+    selectedId: state.focusId,
+    activeIds: state.activeIds,
+    colorFor: (data) => (state.activeIds.has(data.id) ? colorFor(data.id) : null),
+    onSelect: (node) => toggleNode(node),
     onToggle: state.filter === "all" && !state.query
       ? (node) => {
           node.open = !node.open;
@@ -164,10 +232,11 @@ function renderTree() {
         }
       : null,
   });
-  if (state.selectedId) {
-    const target = treeSvg.querySelector(`[data-id="${CSS.escape(state.selectedId)}"]`);
+  if (state.focusId) {
+    const target = treeSvg.querySelector(`[data-id="${CSS.escape(state.focusId)}"]`);
     target?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
+  drawSuggestionLines();
 }
 
 function renderStats() {
@@ -183,35 +252,131 @@ function renderStats() {
   );
 }
 
-async function drawClosure(codes, suggestions, focusCode, caption) {
+function canSwitch(node) {
+  return Boolean(node.suggestions?.length || state.extraCodes.get(node.id)?.length);
+}
+
+function toggleNode(node) {
+  if (canSwitch(node)) {
+    if (state.activeIds.has(node.id)) {
+      state.activeIds.delete(node.id);
+      state.focusId = state.focusId === node.id ? [...state.activeIds].at(-1) || null : state.focusId;
+    } else {
+      colorFor(node.id);
+      state.activeIds.add(node.id);
+      state.focusId = node.id;
+    }
+  } else {
+    state.focusId = node.id;
+  }
+  renderTree();
+  renderDetail();
+  refreshGraph();
+}
+
+function ancestorsOf(code, parents) {
+  const seen = new Set();
+  const stack = [String(code)];
+  while (stack.length) {
+    const current = stack.pop();
+    if (seen.has(current)) continue;
+    seen.add(current);
+    for (const parent of parents.get(current) || []) stack.push(parent);
+  }
+  return seen;
+}
+
+function annotate(graph) {
+  const parents = new Map();
+  const children = new Map();
+  for (const link of graph.links || []) {
+    const child = String(link.source?.id ?? link.source);
+    const parent = String(link.target?.id ?? link.target);
+    parents.set(child, [...(parents.get(child) || []), parent]);
+    children.set(parent, [...(children.get(parent) || []), child]);
+  }
+  const owners = new Map();
+  const suggestionOf = new Map();
+  for (const node of activeNodes()) {
+    const direct = new Set([
+      ...(node.suggestions || []).map((item) => String(item.code)),
+      ...(state.extraCodes.get(node.id) || []).map(String),
+    ]);
+    const closure = new Set();
+    for (const code of direct) {
+      for (const id of ancestorsOf(code, parents)) closure.add(id);
+      const list = suggestionOf.get(code) || [];
+      list.push({ color: colorFor(node.id) });
+      suggestionOf.set(code, list);
+    }
+    for (const id of closure) {
+      const set = owners.get(id) || new Set();
+      set.add(node.id);
+      owners.set(id, set);
+    }
+  }
+  const maxShare = Math.max(1, ...[...owners.values()].map((set) => set.size));
+  for (const item of graph.nodes) {
+    const id = String(item.id);
+    const share = owners.get(id)?.size || 0;
+    const guesses = suggestionOf.get(id) || [];
+    const shared = share >= 2;
+    const childShared = (children.get(id) || []).some((child) => (owners.get(child)?.size || 0) >= 2);
+    item.suggestion = guesses.length > 0;
+    item.commonality = share;
+    item.cp = shared;
+    item.lcp = shared && !childShared;
+    item.name = item.display && item.display !== id ? item.display : "";
+    if (guesses.length === 1 && !shared) {
+      item.fill = guesses[0].color;
+      item.fillOpacity = 1;
+      item.stroke = guesses[0].color;
+    } else if (shared) {
+      const t = maxShare <= 1 ? 1 : (share - 1) / (maxShare - 1);
+      item.fill = "#e39b2b";
+      item.fillOpacity = 0.45 + 0.55 * t;
+      item.stroke = item.lcp ? "#6a3a0c" : "#a56b12";
+    } else {
+      item.fill = "#ffffff";
+      item.fillOpacity = 1;
+      item.stroke = "#4682b4";
+    }
+    if (item.lcp) item.stroke = "#6a3a0c";
+  }
+  return graph;
+}
+
+async function refreshGraph() {
   const token = ++state.snomedToken;
-  state.lastDraw = { codes, suggestions, focusCode, caption };
-  snomedCaption.textContent = caption;
+  const codes = [];
+  for (const node of activeNodes()) {
+    for (const item of node.suggestions || []) codes.push(String(item.code));
+    for (const code of state.extraCodes.get(node.id) || []) codes.push(String(code));
+  }
+  const unique = [...new Set(codes)];
+  if (!unique.length) {
+    state.graph = null;
+    renderSnomedForce(snomedSvg, { nodes: [], links: [] });
+    snomedEmpty.hidden = false;
+    snomedCaption.textContent = state.focusId
+      ? "This node is not switched on. Switch on an amber node to draw its guesses."
+      : "Switch on an amber template node. Concept ids stay in the list.";
+    drawSuggestionLines();
+    return;
+  }
   snomedEmpty.hidden = true;
   try {
-    const graph = await closureToRoot(codes, {
-      onProgress: ({ cached }) => {
-        if (token === state.snomedToken) {
-          snomedCaption.textContent = `${caption} Cache holds ${cached} concepts.`;
-        }
-      },
-    });
+    const graph = await closureToRoot(unique);
     if (token !== state.snomedToken) return;
+    annotate(graph);
+    state.graph = graph;
+    const shared = graph.nodes.filter((node) => node.cp).length;
     const misses = graph.nodes.filter((node) => node.error).length;
     snomedCaption.textContent = misses
-      ? `${graph.nodes.length} concepts in the ancestor closure. ${misses} lookups failed.`
-      : `${graph.nodes.length} concepts, from the guesses up to SNOMED CT Concept. ${cacheSize()} cached.`;
-    state.lastGraph = graph;
-    state.lastSuggestions = suggestions;
-    renderAncestorDag(snomedSvg, graph, {
-      suggestions,
-      selectedCode: focusCode,
-      onSelect: (node) => {
-        state.focusCode = node.id;
-        renderAncestorDag(snomedSvg, graph, { suggestions, selectedCode: node.id });
-      },
-    });
-    renderDetail();
+      ? `${graph.nodes.length} concepts in the is-a graph. ${misses} lookups failed.`
+      : `${graph.nodes.length} concepts in the is-a graph.${shared ? ` ${shared} shared by more than one switched-on template node.` : ""} From the saved subset of ${BUNDLED_CONCEPTS} concepts.`;
+    renderSnomedForce(snomedSvg, graph, { onTick: drawSuggestionLines });
+    drawSuggestionLines();
   } catch (error) {
     if (token !== state.snomedToken) return;
     snomedCaption.textContent = "The terminology server did not answer.";
@@ -220,37 +385,60 @@ async function drawClosure(codes, suggestions, focusCode, caption) {
   }
 }
 
-function selectNode(node) {
-  state.selectedId = node.id;
-  state.focusCode = null;
+function showBinding(node, code, label) {
+  colorFor(node.id);
+  state.activeIds.add(node.id);
+  state.focusId = node.id;
+  const suggested = (node.suggestions || []).some((item) => String(item.code) === String(code));
+  if (!suggested) {
+    const extras = new Set((state.extraCodes.get(node.id) || []).map(String));
+    extras.add(String(code));
+    state.extraCodes.set(node.id, [...extras]);
+  }
   renderTree();
   renderDetail();
-  if (node.suggestions?.length) {
-    showSuggestions(node, null);
-    return;
+  refreshGraph();
+}
+
+function drawSuggestionLines() {
+  if (!linkOverlay) return;
+  const overlay = d3.select(linkOverlay);
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  overlay.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const lines = [];
+  for (const guess of detail.querySelectorAll(".guess")) {
+    const code = guess.dataset.code;
+    const anchor = guess.querySelector(".guess-anchor") || guess;
+    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] circle`);
+    if (!circle) continue;
+    const from = anchor.getBoundingClientRect();
+    const to = circle.getBoundingClientRect();
+    if (to.width === 0 && to.height === 0) continue;
+    lines.push({
+      x1: from.left + from.width / 2,
+      y1: from.top + from.height / 2,
+      x2: to.left + to.width / 2,
+      y2: to.top + to.height / 2,
+      color: guess.dataset.color || "#c46b1a",
+    });
   }
-  state.snomedToken += 1;
-  snomedSvg.replaceChildren();
-  snomedEmpty.hidden = false;
-  snomedCaption.textContent = hasBinding(node) || node.scopeBindings?.length
-    ? "This node has published term bindings. Use Show to climb one code, or pick an amber suggestion."
-    : "This node has no mapping suggestions. Pick an amber node to draw the SNOMED CT tree.";
+  overlay.selectAll("line")
+    .data(lines)
+    .join("line")
+    .attr("x1", (item) => item.x1)
+    .attr("y1", (item) => item.y1)
+    .attr("x2", (item) => item.x2)
+    .attr("y2", (item) => item.y2)
+    .attr("stroke", (item) => item.color)
+    .attr("stroke-opacity", 0.55)
+    .attr("stroke-dasharray", "7 5")
+    .attr("stroke-width", 1.75);
 }
 
-function showSuggestions(node, code) {
-  state.focusCode = code;
-  const label = code
-    ? `Suggestion ${node.suggestions.find((item) => item.code === code)?.rank || ""} held in the closure.`
-    : `Five guesses for ${node.name}, and every is-a parent up to the root.`;
-  drawClosure(node.suggestions.map((item) => item.code), node.suggestions, code, label);
-}
-
-function focusSuggestion(node, code) {
-  showSuggestions(node, code);
-}
-
-function showBinding(code, label) {
-  drawClosure([code], [{ code, rank: 1, score: 1 }], code, `${label || "Binding"} ${code}, climbed to the SNOMED CT root.`);
+function pinConcept(code, on) {
+  const node = code ? snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"]`) : null;
+  node?.classList.toggle("is-pinned", on);
 }
 
 function wireFilters() {
@@ -269,40 +457,49 @@ function wireFilters() {
   });
 }
 
-async function prefetch() {
-  const codes = [];
-  (function walk(node) {
-    for (const item of node.suggestions || []) codes.push(item.code);
-    node.children.forEach(walk);
-  })(state.model.tree);
-  if (!state.selectedId) {
-    snomedCaption.textContent = "Caching ancestor chains from the Nordic Ontoserver…";
-  }
-  try {
-    await closureToRoot(codes);
-    if (!state.selectedId) {
-      snomedCaption.textContent = `Cached ${cacheSize()} SNOMED CT concepts. Select an amber node to draw its five climbs.`;
-    }
-    renderDetail();
-  } catch (error) {
-    snomedCaption.textContent = "Could not prefetch from the terminology server. Selecting a node will try again.";
-    errorBox.hidden = false;
-    errorBox.textContent = error instanceof Error ? error.message : String(error);
-  }
+function wireDetail() {
+  detail.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-binding]");
+    if (!button || !detail.contains(button)) return;
+    const node = findNode(button.dataset.node);
+    if (node) showBinding(node, button.dataset.binding, button.dataset.label);
+  });
+  detail.addEventListener("mouseover", (event) => {
+    const guess = event.target.closest?.(".guess");
+    if (!guess || !detail.contains(guess)) return;
+    pinConcept(guess.dataset.code, true);
+  });
+  detail.addEventListener("mouseout", (event) => {
+    const guess = event.target.closest?.(".guess");
+    if (!guess) return;
+    const next = event.relatedTarget?.closest?.(".guess");
+    if (next === guess) return;
+    pinConcept(guess.dataset.code, false);
+  });
+  detail.addEventListener("scroll", drawSuggestionLines, { passive: true });
 }
 
 wireFilters();
+wireDetail();
+for (const element of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
+  element?.addEventListener("scroll", drawSuggestionLines, { passive: true });
+}
+window.addEventListener("scroll", drawSuggestionLines, { passive: true });
 snomedCaption.textContent = "Reading the International Patient Summary…";
 
 loadIpsModel().then((model) => {
   state.model = model;
   markOpen(model.tree);
   renderStats();
+  const first = model.suggestions.attached[0];
+  if (first) {
+    colorFor(first.id);
+    state.activeIds.add(first.id);
+    state.focusId = first.id;
+  }
   renderTree();
   renderDetail();
-  const first = model.suggestions.attached[0];
-  if (first) selectNode(first);
-  prefetch();
+  refreshGraph();
 }).catch((error) => {
   errorBox.hidden = false;
   errorBox.textContent = error instanceof Error ? error.message : String(error);
@@ -312,10 +509,9 @@ loadIpsModel().then((model) => {
 window.addEventListener("resize", () => {
   if (!state.model) return;
   renderTree();
-  if (state.lastGraph) {
-    renderAncestorDag(snomedSvg, state.lastGraph, {
-      suggestions: state.lastSuggestions || [],
-      selectedCode: state.focusCode,
-    });
+  if (state.graph) {
+    renderSnomedForce(snomedSvg, state.graph, { onTick: drawSuggestionLines });
+  } else {
+    drawSuggestionLines();
   }
 });
