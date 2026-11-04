@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TermViz — IPS SNOMED mapper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/TermViz/assets/mapper-BXSSrUUg.js"></script>
+    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-uTgz9DiQ.js">
+    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-4_KzHn1a.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TermViz</p>
+        <h1>IPS mapping bench</h1>
+        <p class="lede">
+          The lower tree is the International Patient Summary, read with ehrtslib.
+          Amber nodes carry five imperfect SNOMED CT guesses. Selecting one draws
+          those guesses, and every is-a parent, up to the SNOMED CT root.
+          Terms come from the <a href="https://tx-nordics.fhir.org/fhir/r4/">HL7 Nordic Ontoserver</a>.
+        </p>
+      </div>
+      <div class="stats" id="stats"></div>
+    </header>
+    <p class="error" id="error" hidden></p>
+    <main>
+      <section class="pane pane-snomed" aria-label="SNOMED CT ancestor tree">
+        <div class="pane-bar">
+          <div>
+            <h2>SNOMED CT</h2>
+            <p class="caption" id="snomedCaption"></p>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch s1"></i>1</span>
+            <span><i class="swatch s2"></i>2</span>
+            <span><i class="swatch s3"></i>3</span>
+            <span><i class="swatch"></i>ancestor</span>
+            <span><i class="swatch s5"></i>5</span>
+          </div>
+        </div>
+        <div class="viewport" id="snomedViewport">
+          <div class="empty" id="snomedEmpty">
+            <p>Select a template node with mapping suggestions. The five candidates, and the climb from each of them to SNOMED CT Concept, are drawn here.</p>
+          </div>
+          <svg id="snomedSvg" role="img" aria-label="SNOMED CT graph"></svg>
+        </div>
+      </section>
+      <section class="pane" aria-label="International Patient Summary template">
+        <div class="tool-bar">
+          <div>
+            <h2>International Patient Summary</h2>
+            <p class="hint">Operational template from CKM, enriched only where an archetype binding is missing.</p>
+          </div>
+          <div class="search">
+            <label for="search">Find</label>
+            <input id="search" type="search" placeholder="Name, at-code, or SNOMED id" />
+          </div>
+          <div class="filters" role="group" aria-label="Tree filter">
+            <button type="button" data-filter="suggestions" class="is-on">Suggestions</button>
+            <button type="button" data-filter="bindings">SNOMED bindings</button>
+            <button type="button" data-filter="all">Whole template</button>
+          </div>
+        </div>
+        <div class="split">
+          <div class="viewport" id="treeViewport">
+            <svg id="treeSvg" role="img" aria-label="Template tree"></svg>
+          </div>
+          <aside class="detail" id="detail"></aside>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
