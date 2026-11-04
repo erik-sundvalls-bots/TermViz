@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  // Dev stays at /. The GitHub Pages build sets TERMVIZ_BASE=/TermViz/.
+  base: process.env.TERMVIZ_BASE || "/",
   server: {
     host: "0.0.0.0",
     port: 44731,

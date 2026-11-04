@@ -443,27 +443,33 @@ export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl }) {
   };
 }
 
+function publicUrl(path) {
+  const base = import.meta.env.BASE_URL || "/";
+  const prefix = base.endsWith("/") ? base : `${base}/`;
+  return `${prefix}${String(path).replace(/^\/+/, "")}`;
+}
+
 export async function loadIpsModel() {
   // Vite refuses a bare import of a file in public/. Fetch it and import the blob
   // so the published ehrtslib parser runs as the library shipped it.
-  const bundle = await fetch("/vendor/ehrtslib-0.11.0-parser.min.js");
+  const bundle = await fetch(publicUrl("vendor/ehrtslib-0.11.0-parser.min.js"));
   if (!bundle.ok) {
     throw new Error(`Could not load the ehrtslib parser (${bundle.status}).`);
   }
   const source = await bundle.text();
   const blobUrl = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
   const ehr = await import(/* @vite-ignore */ blobUrl);
-  const optResponse = await fetch("/models/International_Patient_Summary.opt");
+  const optResponse = await fetch(publicUrl("models/International_Patient_Summary.opt"));
   if (!optResponse.ok) throw new Error(`Could not fetch the OPT (${optResponse.status}).`);
   const optXml = await optResponse.text();
-  const manifestResponse = await fetch("/models/ips-fileset/adl-manifest.json");
+  const manifestResponse = await fetch(publicUrl("models/ips-fileset/adl-manifest.json"));
   if (!manifestResponse.ok) {
     throw new Error(`Could not fetch the archetype manifest (${manifestResponse.status}).`);
   }
   const paths = await manifestResponse.json();
   const adlEntries = await Promise.all(
     paths.map(async (filePath) => {
-      const response = await fetch(`/models/ips-fileset/${filePath}`);
+      const response = await fetch(publicUrl(`models/ips-fileset/${filePath}`));
       if (!response.ok) throw new Error(`Could not fetch ${filePath} (${response.status}).`);
       return { path: filePath, text: await response.text() };
     }),

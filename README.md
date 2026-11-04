@@ -14,6 +14,10 @@ Terminology visualisation for the browser. The original component (2013) drew a 
 
 SNOMED CT content is shown under the affiliate licence terms that apply to you. The Nordic server used here is a public HL7 terminology endpoint; it is not a bulk extract of SNOMED CT.
 
+## GitHub Pages
+
+The fork publishes a static build at [erik-sundvalls-bots.github.io/TermViz](https://erik-sundvalls-bots.github.io/TermViz/). `npm run pages` builds with `base` `/TermViz/` and copies the 2013 scripts the legacy page still loads. That output is the `gh-pages` branch.
+
 ## Run
 
 ```bash
