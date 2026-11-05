@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
-import { RELATIONSHIPS } from "./snap2snomed.js";
+import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
 import { cacheSize, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
@@ -34,6 +34,9 @@ const state = {
   shownLabels: new Set(),
   hiddenLabels: new Set(),
   popId: null,
+  mapReviews: new Map(),
+  mapRelations: new Map(),
+  treeSide: false,
 };
 
 function chip(text) {
@@ -180,8 +183,22 @@ function termFor(code, fallback) {
   return fallback || "Unnamed concept";
 }
 
+function mapKey(item) {
+  return `${item.sourceCode || ""}|${item.code}`;
+}
+
+function reviewOf(item) {
+  return state.mapReviews.get(mapKey(item)) || "";
+}
+
+function relationOf(item) {
+  return state.mapRelations.get(mapKey(item)) || item.relationship;
+}
+
 function codeOn(node, code) {
   if (!state.activeIds.has(node.id)) return false;
+  const item = (node.suggestions || []).find((row) => String(row.code) === String(code));
+  if (item && reviewOf(item) === "dismissed") return false;
   return !state.muted.get(node.id)?.has(String(code));
 }
 
@@ -341,14 +358,28 @@ function relationGlyph(type) {
 }
 
 function guessRow(node, item) {
-  const on = codeOn(node, item.code);
+  const review = reviewOf(item);
+  const relation = relationOf(item);
+  const muted = state.muted.get(node.id)?.has(String(item.code));
+  const switched = state.activeIds.has(node.id) && !muted;
   const term = termFor(item.code, item.display);
-  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}">
+  const options = Object.keys(RELATIONSHIPS).map((type) => {
+    const label = type.replace("TARGET_", "").toLowerCase();
+    return `<option value="${type}"${type === relation ? " selected" : ""}>${label}</option>`;
+  }).join("");
+  const source = escapeHtml(item.sourceCode || "");
+  const code = escapeHtml(item.code);
+  return `<article class="guess${switched && review !== "dismissed" ? "" : " is-off"}${review ? ` is-${review}` : ""}" data-node-id="${escapeHtml(node.id)}" data-code="${code}" data-source="${source}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}">
     <span class="guess-anchor" aria-hidden="true"></span>
-    ${switchHtml(`data-row="${escapeHtml(item.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
-    ${relationGlyph(item.relationship)}
+    ${switchHtml(`data-row="${code}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, switched ? "true" : "false")}
+    ${relationGlyph(relation)}
     ${termLink(item.code, term)}
     ${codeLink(item.code)}
+    <div class="review">
+      <select class="rel-select" data-source="${source}" data-code="${code}" aria-label="Relationship type for ${escapeHtml(term)}">${options}</select>
+      <button type="button" data-review="accepted" data-source="${source}" data-code="${code}" aria-pressed="${review === "accepted" ? "true" : "false"}">Okay</button>
+      <button type="button" data-review="dismissed" data-source="${source}" data-code="${code}" aria-pressed="${review === "dismissed" ? "true" : "false"}">Dismiss</button>
+    </div>
   </article>`;
 }
 
@@ -410,6 +441,7 @@ function renderDetail() {
         <header class="cat-head master">
           ${switchHtml(`data-cat="all" aria-label="Show all mapping suggestions"`, master)}
           <span class="cat-name">Mapping suggestions</span>
+          <button type="button" class="text-button map-download" data-download-map>Download map</button>
         </header>
         <div class="side-indent">${blocks}</div>
       </div>`;
@@ -442,6 +474,7 @@ function renderTree() {
       }
       return { color: style.color, fill: style.color, stroke };
     },
+    side: state.treeSide,
     onSelect: onTreeSelect,
     onHover: (data, on) => hoverFromTree(data.id, on),
     onToggle: state.filter === "all" && !state.query
@@ -656,6 +689,7 @@ function annotate(graph) {
     children.set(parent, [...(children.get(parent) || []), child]);
   }
   const marks = new Map();
+  const included = new Set();
   const suggestionOf = new Map();
   for (const listing of activeListings()) {
     const node = listing.node;
@@ -668,29 +702,29 @@ function annotate(graph) {
     for (const code of listing.codes) {
       const suggestion = (node.suggestions || []).find((item) => String(item.code) === code);
       if (suggestion) {
+        const relation = relationOf(suggestion);
         const list = suggestionOf.get(code) || [];
         list.push({
           color: style.color,
           fill: mark.fill,
           stroke: mark.stroke,
           templateName: node.name,
-          relationship: suggestion.relationship || "",
-          reason: suggestion.reason || "",
+          relationship: relation || "",
+          reason: relationshipText(relation),
         });
         suggestionOf.set(code, list);
       }
-      for (const id of ancestorsOf(code, parents)) {
-        const list = marks.get(id) || [];
-        if (!list.some((item) => item.nodeId === node.id)) list.push(mark);
-        marks.set(id, list);
-      }
+      const painted = marks.get(code) || [];
+      if (!painted.some((item) => item.nodeId === node.id)) painted.push(mark);
+      marks.set(code, painted);
+      for (const id of ancestorsOf(code, parents)) included.add(id);
     }
   }
   const kept = [];
   for (const item of graph.nodes) {
     const id = String(item.id);
+    if (!included.has(id)) continue;
     const paints = marks.get(id) || [];
-    if (!paints.length) continue;
     const share = new Set(paints.map((paint) => paint.nodeId)).size;
     const guesses = suggestionOf.get(id) || [];
     const shared = share >= 2;
@@ -702,7 +736,10 @@ function annotate(graph) {
     item.lcp = shared && !childShared;
     item.name = item.display && item.display !== id ? item.display : "";
     item.fillOpacity = 1;
-    if (shared) {
+    if (!paints.length) {
+      item.fill = "#ffffff";
+      item.stroke = "#9aa8b5";
+    } else if (shared) {
       item.fill = "#ffffff";
       item.stroke = "#1c2430";
     } else {
@@ -728,6 +765,7 @@ function forceOptions() {
       placePop();
     },
     onSelect: (item) => openPop(item),
+    onLinger: (item) => openPop(item),
     pins: state.pins,
     released: state.released,
     labels: state.shownLabels,
@@ -756,6 +794,12 @@ async function refreshGraph() {
     const graph = await closureToRoot(unique);
     if (token !== state.snomedToken) return;
     annotate(graph);
+    for (const listing of activeListings()) {
+      for (const code of listing.codes) {
+        const id = String(code);
+        if (!state.hiddenLabels.has(id)) state.shownLabels.add(id);
+      }
+    }
     state.graph = graph;
     const shared = graph.nodes.filter((node) => node.cp).length;
     const misses = graph.nodes.filter((node) => node.error).length;
@@ -1082,6 +1126,17 @@ function wireChrome() {
     renderTree();
   });
   detail.addEventListener("click", (event) => {
+    const review = event.target.closest("[data-review]");
+    if (review && detail.contains(review)) {
+      event.preventDefault();
+      setMapReview(review.dataset.source, review.dataset.code, review.dataset.review);
+      return;
+    }
+    if (event.target.closest("[data-download-map]")) {
+      event.preventDefault();
+      downloadMap();
+      return;
+    }
     const button = event.target.closest(".switch");
     if (!button || !detail.contains(button)) return;
     event.preventDefault();
@@ -1092,6 +1147,11 @@ function wireChrome() {
     else if (button.dataset.row && node) toggleCode(node, button.dataset.row);
     else if (button.dataset.bindCat && node) toggleAllBindings(node);
     else if (button.dataset.binding && node) setBinding(node, button.dataset.binding, button.getAttribute("aria-checked") !== "true");
+  });
+  detail.addEventListener("change", (event) => {
+    const select = event.target.closest("select.rel-select");
+    if (!select || !detail.contains(select)) return;
+    setMapRelation(select.dataset.source, select.dataset.code, select.value);
   });
   detail.addEventListener("mouseover", (event) => {
     const block = event.target.closest?.("[data-node-id]");
@@ -1224,6 +1284,8 @@ function showModel(model) {
   state.query = "";
   state.focusId = null;
   state.popId = null;
+  state.mapReviews = new Map();
+  state.mapRelations = new Map();
   if (search) search.value = "";
   const label = templateLabel(model.templateId);
   const now = document.querySelector("#templateNow");
@@ -1322,6 +1384,199 @@ document.querySelector("#templateFile")?.addEventListener("change", () => {
   const file = document.querySelector("#templateFile")?.files?.[0];
   const fileName = document.querySelector("#templateFileName");
   if (fileName) fileName.textContent = file ? file.name : "Choose a file";
+});
+
+function setMapReview(source, code, review) {
+  const key = `${source}|${code}`;
+  if (state.mapReviews.get(key) === review) state.mapReviews.delete(key);
+  else state.mapReviews.set(key, review);
+  renderDetail();
+  renderTree();
+  refreshGraph();
+}
+
+function setMapRelation(source, code, relationship) {
+  if (!RELATIONSHIPS[relationship]) return;
+  state.mapRelations.set(`${source}|${code}`, relationship);
+  renderDetail();
+  refreshGraph();
+}
+
+function downloadMap() {
+  const seen = new Set();
+  const rows = [];
+  for (const node of state.model?.suggestions?.attached || []) {
+    for (const item of node.suggestions || []) {
+      if (reviewOf(item) === "dismissed") continue;
+      const key = mapKey(item);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push({
+        sourceCode: item.sourceCode,
+        sourceDisplay: item.sourceDisplay,
+        code: item.code,
+        display: item.display || termFor(item.code, ""),
+        relationship: relationOf(item),
+      });
+    }
+  }
+  const blob = new Blob([serializeSnapMap(rows)], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "snap2snomed-reviewed.csv";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function snapshotSuggestions(root) {
+  const bag = [];
+  (function walk(node) {
+    if (!node) return;
+    if (node.suggestions) bag.push([node, node.suggestions, node.suggestionSetId]);
+    for (const child of node.children || []) walk(child);
+  })(root);
+  return bag;
+}
+
+function clearSuggestions(root) {
+  (function walk(node) {
+    if (!node) return;
+    node.suggestions = null;
+    node.suggestionSetId = null;
+    for (const child of node.children || []) walk(child);
+  })(root);
+}
+
+function restoreSuggestions(root, bag) {
+  clearSuggestions(root);
+  for (const [node, suggestions, id] of bag) {
+    node.suggestions = suggestions;
+    node.suggestionSetId = id;
+  }
+}
+
+async function applyMapRows(rows) {
+  if (!state.model?.tree) throw new Error("Load a template before a map.");
+  if (!rows.length) throw new Error("The file has no Snap2SNOMED rows.");
+  const previous = snapshotSuggestions(state.model.tree);
+  clearSuggestions(state.model.tree);
+  const result = attachSnapMap(state.model.tree, rows);
+  if (!result.attached.length) {
+    restoreSuggestions(state.model.tree, previous);
+    throw new Error("None of the source paths are in the current template.");
+  }
+  state.model.suggestions = result;
+  state.mapReviews = new Map();
+  state.mapRelations = new Map();
+  state.activeIds = new Set();
+  state.colors = new Map();
+  state.colorIndex = 0;
+  state.muted = new Map();
+  state.filter = "suggestions";
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    button.classList.toggle("is-on", button.dataset.filter === "suggestions");
+  });
+  markOpen(state.model.tree);
+  for (const node of result.attached) setCategory(node, true);
+  state.focusId = result.attached[0]?.id || null;
+  renderStats();
+  renderTree();
+  renderDetail();
+  const failed = await refreshGraph();
+  fitTree();
+  if (failed) throw failed;
+  return result;
+}
+
+function mapMessage(text, failed) {
+  const status = document.querySelector("#mapStatus");
+  if (!status) return;
+  status.hidden = !text;
+  status.textContent = text || "";
+  status.classList.toggle("is-error", Boolean(failed));
+}
+
+function setMapBusy(on) {
+  const dialog = document.querySelector("#mapDialog");
+  if (!dialog) return;
+  if (on) dialog.dataset.busy = "true";
+  else delete dialog.dataset.busy;
+  for (const control of dialog.querySelectorAll("input, button")) control.disabled = on;
+}
+
+async function loadMapFromDialog() {
+  const dialog = document.querySelector("#mapDialog");
+  const urlField = document.querySelector("#mapUrl");
+  const fileField = document.querySelector("#mapFile");
+  const url = urlField?.value.trim() || "";
+  const file = fileField?.files?.[0];
+  if (!file && !url) {
+    mapMessage("Enter a URL or choose a file.", true);
+    return;
+  }
+  setMapBusy(true);
+  mapMessage(file ? `Reading ${file.name}…` : "Reading the map…", false);
+  try {
+    let text = "";
+    if (file) text = await file.text();
+    else {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`The map URL returned ${response.status}.`);
+      text = await response.text();
+    }
+    mapMessage("Matching paths and looking up SNOMED CT…", false);
+    const result = await applyMapRows(parseSnapMap(text));
+    if (fileField) fileField.value = "";
+    const fileName = document.querySelector("#mapFileName");
+    if (fileName) fileName.textContent = "Choose a file";
+    if (urlField) urlField.value = "";
+    if (result.missing.length) {
+      mapMessage(`Loaded ${result.attached.length} paths. Not in this template: ${result.missing.join(", ")}`, false);
+      return;
+    }
+    dialog?.close();
+    mapMessage("", false);
+  } catch (error) {
+    mapMessage(error instanceof Error ? error.message : String(error), true);
+  } finally {
+    setMapBusy(false);
+  }
+}
+
+const mapDialog = document.querySelector("#mapDialog");
+document.querySelector("#loadMap")?.addEventListener("click", () => {
+  mapMessage("", false);
+  mapDialog?.showModal();
+});
+document.querySelector("#mapCancel")?.addEventListener("click", () => {
+  if (mapDialog?.dataset.busy === "true") return;
+  mapDialog?.close();
+});
+mapDialog?.addEventListener("cancel", (event) => {
+  if (mapDialog.dataset.busy === "true") event.preventDefault();
+});
+document.querySelector("#mapGo")?.addEventListener("click", () => {
+  loadMapFromDialog();
+});
+document.querySelector("#mapUrl")?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    loadMapFromDialog();
+  }
+});
+document.querySelector("#mapFile")?.addEventListener("change", () => {
+  const file = document.querySelector("#mapFile")?.files?.[0];
+  const fileName = document.querySelector("#mapFileName");
+  if (fileName) fileName.textContent = file ? file.name : "Choose a file";
+});
+document.querySelector("#treeSide")?.addEventListener("click", () => {
+  state.treeSide = !state.treeSide;
+  const button = document.querySelector("#treeSide");
+  button?.classList.toggle("is-on", state.treeSide);
+  button?.setAttribute("aria-pressed", state.treeSide ? "true" : "false");
+  renderTree();
+  fitTree();
 });
 
 loadIpsModel().then(showModel).catch((error) => {

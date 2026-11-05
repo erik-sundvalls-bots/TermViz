@@ -352,7 +352,7 @@ function treeLabelWidth(text) {
   return Math.max(16, labelMeasure.measureText(text).width);
 }
 
-export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover } = {}) {
+export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover, side = false } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
@@ -368,55 +368,85 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     node.label = treeLabel(node.data.name || "");
     node.labelWidth = treeLabelWidth(node.label);
   });
-  d3.cluster().nodeSize([1, depthGap]).separation((a, b) => (a.labelWidth + b.labelWidth) / 2 + labelGap)(root);
-  const depths = d3.groups(root.descendants(), (node) => node.depth)
-    .sort((a, b) => b[0] - a[0]);
-  function shiftSubtree(node, delta) {
-    node.each((item) => {
-      item.x += delta;
+  let xOf;
+  let yOf;
+  let labelAnchor = "middle";
+  let labelX = 0;
+  let labelDy = -13;
+  let toggleX = -14;
+  let diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
+  if (side) {
+    // Leaves sit on the left and the root on the right. Each depth reserves
+    // the widest horizontal label, so the text stays upright and readable.
+    d3.cluster().nodeSize([22, 1]).separation(() => 1)(root);
+    const maxDepth = root.height;
+    const widest = Array.from({ length: maxDepth + 1 }, () => 36);
+    root.each((node) => {
+      widest[node.depth] = Math.max(widest[node.depth], node.labelWidth);
     });
-  }
-  function extent(node) {
-    let min = node.x - node.labelWidth / 2;
-    let max = node.x + node.labelWidth / 2;
-    node.each((item) => {
-      min = Math.min(min, item.x - item.labelWidth / 2);
-      max = Math.max(max, item.x + item.labelWidth / 2);
+    const xAt = [];
+    let cursor = 18;
+    for (let depth = maxDepth; depth >= 0; depth -= 1) {
+      xAt[depth] = cursor + widest[depth];
+      cursor = xAt[depth] + 30;
+    }
+    let minBreadth = Infinity;
+    root.each((node) => { minBreadth = Math.min(minBreadth, node.x); });
+    xOf = (node) => xAt[node.depth];
+    yOf = (node) => 16 + (node.x - minBreadth);
+    labelAnchor = "end";
+    labelX = -12;
+    labelDy = "0.32em";
+    toggleX = 14;
+    diagonal = d3.linkHorizontal().x((point) => point.x).y((point) => point.y);
+  } else {
+    d3.cluster().nodeSize([1, depthGap]).separation((a, b) => (a.labelWidth + b.labelWidth) / 2 + labelGap)(root);
+    const depths = d3.groups(root.descendants(), (node) => node.depth)
+      .sort((a, b) => b[0] - a[0]);
+    function shiftSubtree(node, delta) {
+      node.each((item) => {
+        item.x += delta;
+      });
+    }
+    function extent(node) {
+      let min = node.x - node.labelWidth / 2;
+      let max = node.x + node.labelWidth / 2;
+      node.each((item) => {
+        min = Math.min(min, item.x - item.labelWidth / 2);
+        max = Math.max(max, item.x + item.labelWidth / 2);
+      });
+      return [min, max];
+    }
+    for (const [, row] of depths) {
+      row.sort((a, b) => a.x - b.x);
+      for (const node of row) {
+        if (!node.children?.length) continue;
+        const xs = node.children.map((child) => child.x);
+        node.x = (Math.min(...xs) + Math.max(...xs)) / 2;
+      }
+      let edge = -Infinity;
+      for (const node of row) {
+        const [min] = extent(node);
+        if (min < edge + labelGap) shiftSubtree(node, edge + labelGap - min);
+        edge = extent(node)[1];
+      }
+    }
+    let x0 = Infinity;
+    let y1 = 0;
+    root.each((node) => {
+      x0 = Math.min(x0, node.x - node.labelWidth / 2);
+      if (node.y > y1) y1 = node.y;
     });
-    return [min, max];
+    const padTop = 16;
+    const padX = 8;
+    xOf = (node) => node.x + (padX - x0);
+    yOf = (node) => padTop + (y1 - node.y);
   }
-  for (const [, row] of depths) {
-    row.sort((a, b) => a.x - b.x);
-    for (const node of row) {
-      if (!node.children?.length) continue;
-      const xs = node.children.map((child) => child.x);
-      node.x = (Math.min(...xs) + Math.max(...xs)) / 2;
-    }
-    let edge = -Infinity;
-    for (const node of row) {
-      const [min] = extent(node);
-      if (min < edge + labelGap) shiftSubtree(node, edge + labelGap - min);
-      edge = extent(node)[1];
-    }
-  }
-  let x0 = Infinity;
-  let x1 = -Infinity;
-  let y1 = 0;
-  root.each((node) => {
-    x0 = Math.min(x0, node.x - node.labelWidth / 2);
-    x1 = Math.max(x1, node.x + node.labelWidth / 2);
-    if (node.y > y1) y1 = node.y;
-  });
-  const padTop = 16;
-  const padBottom = 14;
-  const padX = 8;
   const host = svg.node()?.parentElement;
   const viewW = Math.max(280, host?.clientWidth || 640);
   const viewH = Math.max(140, host?.clientHeight || 320);
   svg.attr("width", viewW).attr("height", viewH).attr("viewBox", `0 0 ${viewW} ${viewH}`);
-  const yOf = (node) => padTop + (y1 - node.y);
-  const plot = zoomLayer(svg).append("g").attr("transform", `translate(${padX - x0},0)`);
-  const diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
+  const plot = zoomLayer(svg).append("g");
   const active = activeIds instanceof Set ? activeIds : new Set(activeIds || []);
 
   plot.append("g")
@@ -425,8 +455,8 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     .join("path")
     .attr("class", "tree-link")
     .attr("d", (link) => diagonal({
-      source: { x: link.source.x, y: yOf(link.source) },
-      target: { x: link.target.x, y: yOf(link.target) },
+      source: { x: xOf(link.source), y: yOf(link.source) },
+      target: { x: xOf(link.target), y: yOf(link.target) },
     }));
 
   const node = plot.append("g")
@@ -446,14 +476,14 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.data.id)
-    .attr("transform", (item) => `translate(${item.x},${yOf(item)})`);
+    .attr("transform", (item) => `translate(${xOf(item)},${yOf(item)})`);
 
   node.append("title").text((item) => item.data.name || "");
 
   node.filter((item) => onToggle && item.data.children?.length)
     .append("text")
     .attr("class", "tree-toggle")
-    .attr("x", -14)
+    .attr("x", toggleX)
     .attr("dy", "0.35em")
     .attr("text-anchor", "middle")
     .text((item) => (item.children ? "−" : "+"))
@@ -480,8 +510,9 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
   for (const kind of ["shadow", "ink"]) {
     node.append("text")
       .attr("class", `tree-label ${kind}`)
-      .attr("text-anchor", "middle")
-      .attr("dy", -13)
+      .attr("text-anchor", labelAnchor)
+      .attr("x", labelX)
+      .attr("dy", labelDy)
       .text((item) => item.label);
   }
   node.append("circle")
@@ -508,7 +539,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
  * stay quiet until hover or until a concept is shared, and hovering a
  * node pushes its parents and children apart.
  */
-export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, released, onPinMove, labels, labelHidden } = {}) {
+export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLinger, pins, released, onPinMove, labels, labelHidden } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
@@ -539,7 +570,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
   defs.append("marker")
     .attr("id", "snomed-isa")
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 18)
+    .attr("refX", 14)
     .attr("refY", 0)
     .attr("markerWidth", 6)
     .attr("markerHeight", 6)
@@ -669,9 +700,9 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
 
   node.append("circle")
     .attr("class", "node-disk")
-    .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8))
+    .attr("r", 8)
     .attr("fill-opacity", (item) => item.fillOpacity ?? 1)
-    .attr("stroke-width", (item) => (item.lcp ? 3.4 : item.cp ? 2.5 : 1.6))
+    .attr("stroke-width", 1.6)
     .each(function paint(item) {
       d3.select(this)
         .style("fill", item.fill || "#ffffff")
@@ -687,13 +718,13 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     for (const kind of ["shadow", "ink"]) {
       const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "middle");
       lines.forEach((line, index) => {
-        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -18 : 13).text(line);
+        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -14 : 13).text(line);
       });
     }
   });
   node.append("circle")
     .attr("class", "node-hit")
-    .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8));
+    .attr("r", 8);
 
   let hoverHold = null;
   function releaseHoverHold() {
@@ -736,15 +767,54 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     }
   }
 
+  let lingerTimer = 0;
+  let lingerItem = null;
+  let lingerPoint = null;
+  function clearLinger() {
+    window.clearTimeout(lingerTimer);
+    lingerTimer = 0;
+    lingerItem = null;
+    lingerPoint = null;
+  }
+  function armLinger(item, point) {
+    if (lingerItem === item && lingerTimer) return;
+    window.clearTimeout(lingerTimer);
+    lingerItem = item;
+    lingerPoint = point;
+    lingerTimer = window.setTimeout(() => {
+      lingerTimer = 0;
+      onLinger?.(item);
+    }, 1000);
+  }
+
   node
     .on("mouseover", (event, item) => paintHover(item, null))
     .on("mouseout", () => paintHover(null, null))
+    .on("pointerenter", (event, item) => {
+      if (event.pointerType === "touch") return;
+      armLinger(item, { x: event.clientX, y: event.clientY });
+    })
+    .on("pointerdown", (event, item) => {
+      armLinger(item, { x: event.clientX, y: event.clientY });
+    })
+    .on("pointermove", (event) => {
+      if (!lingerPoint || !lingerTimer) return;
+      if (Math.hypot(event.clientX - lingerPoint.x, event.clientY - lingerPoint.y) > 8) clearLinger();
+    })
+    .on("pointerup", () => clearLinger())
+    .on("pointerleave", (event) => {
+      if (event.pointerType === "touch") return;
+      clearLinger();
+    })
+    .on("pointercancel", () => clearLinger())
+    .on("contextmenu", (event) => event.preventDefault())
     .on("click", (event, item) => {
       event.stopPropagation();
       onSelect?.(item);
     })
     .call(d3.drag()
       .on("start", (event, item) => {
+        clearLinger();
         if (!event.active) simulation.alphaTarget(0.3).restart();
         item.dragging = true;
         item.fx = item.x;
@@ -782,6 +852,35 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .force("x", d3.forceX(width / 2).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.04)))
     .force("y", d3.forceY(height / 2).strength(0))
     .force("collide", d3.forceCollide(18))
+    .force("cap", () => {
+      const maxLength = 140;
+      for (const edge of links) {
+        const a = edge.source;
+        const b = edge.target;
+        const dx = (b.x ?? 0) - (a.x ?? 0);
+        const dy = (b.y ?? 0) - (a.y ?? 0);
+        const dist = Math.hypot(dx, dy) || 1;
+        if (dist <= maxLength) continue;
+        const aLocked = a.fx != null && a.fy != null;
+        const bLocked = b.fx != null && b.fy != null;
+        if (aLocked && bLocked) continue;
+        const extra = dist - maxLength;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        if (!aLocked && !bLocked) {
+          a.x += ux * extra / 2;
+          a.y += uy * extra / 2;
+          b.x -= ux * extra / 2;
+          b.y -= uy * extra / 2;
+        } else if (aLocked) {
+          b.x -= ux * extra;
+          b.y -= uy * extra;
+        } else {
+          a.x += ux * extra;
+          a.y += uy * extra;
+        }
+      }
+    })
     .on("tick", () => {
       link
         .attr("x1", (item) => item.source.x)

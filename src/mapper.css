@@ -254,6 +254,18 @@ main {
   line-height: 1.4;
 }
 
+#mapDialog { width: min(520px, calc(100vw - 28px)); }
+
+.dialog-links {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: var(--teal-deep);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dialog-links a { color: inherit; }
+
 .dialog-field {
   display: flex;
   flex-direction: column;
@@ -521,7 +533,7 @@ h2 {
   font-size: 13px;
 }
 
-.filters button.is-on, .text-button.is-on {
+.filters button.is-on, .text-button.is-on, .template-load button.is-on {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
@@ -785,7 +797,36 @@ h2 {
 
 .rel svg { width: 16px; height: 16px; display: block; }
 
-.guess.is-off { opacity: 0.42; }
+.guess.is-off, .guess.is-dismissed { opacity: 0.45; }
+
+.review {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.review select,
+.review button {
+  font: inherit;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  padding: 1px 7px;
+  cursor: pointer;
+}
+
+.review button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.map-download { margin-left: auto; }
 .guess .rank, .guess .pct { color: var(--muted); font-size: 11px; }
 .guess .term, .guess .binding-label {
   min-width: 0;
@@ -898,7 +939,8 @@ svg { display: block; }
 .force-link { stroke: #8d97a3; }
 #snomedSvg .node-disk { stroke-width: 1.6; }
 #snomedSvg .is-cp .node-disk { fill: #fff; stroke: #1c2430; stroke-width: 2.5; }
-#snomedSvg .is-lcp .node-disk { stroke-width: 3.4; }
+#snomedSvg .is-lcp .node-disk { stroke-width: 1.6; }
+#snomedSvg .force-node { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 #snomedSvg .pin-dot { fill: transparent; stroke: none; pointer-events: none; }
 #snomedSvg .is-user-pinned .pin-dot { fill: #fffdf8; stroke: #1c2430; stroke-width: 1; }
 

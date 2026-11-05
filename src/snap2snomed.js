@@ -57,14 +57,19 @@ function splitCsv(line) {
   return out;
 }
 
+function splitRow(line) {
+  if (line.includes("\t") && !line.includes(",")) return line.split("\t");
+  return splitCsv(line);
+}
+
 export function parseSnapMap(text) {
   const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
   if (!lines.length) return [];
-  const header = splitCsv(lines[0]).map((cell) => cell.trim());
+  const header = splitRow(lines[0]).map((cell) => cell.trim());
   const index = Object.fromEntries(header.map((name, position) => [name, position]));
   const rows = [];
   for (const line of lines.slice(1)) {
-    const cells = splitCsv(line);
+    const cells = splitRow(line);
     const relationship = (cells[index.relationship_type] || "").trim();
     const code = (cells[index.target_code] || "").trim();
     const sourceCode = (cells[index.source_code] || "").trim();
@@ -78,6 +83,20 @@ export function parseSnapMap(text) {
     });
   }
   return rows;
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) return `"${text.replaceAll("\"", "\"\"")}"`;
+  return text;
+}
+
+export function serializeSnapMap(rows) {
+  const lines = ["source_code,source_display,target_code,target_display,relationship_type"];
+  for (const row of rows) {
+    lines.push([row.sourceCode, row.sourceDisplay, row.code, row.display, row.relationship].map(csvCell).join(","));
+  }
+  return `${lines.join("\n")}\n`;
 }
 
 function parseSourcePath(source) {
