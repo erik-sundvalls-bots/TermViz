@@ -478,8 +478,8 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     event.stopPropagation();
     onSelect?.(item.data);
   });
-  node.on("mouseover", (event, item) => onHover?.(item.data, true));
-  node.on("mouseout", (event, item) => onHover?.(item.data, false));
+  node.on("mouseenter", (event, item) => onHover?.(item.data, true));
+  node.on("mouseleave", (event, item) => onHover?.(item.data, false));
 
   const selected = root.descendants().find((item) => item.data.id === selectedId);
   return { width: viewW, height: viewH, selected };

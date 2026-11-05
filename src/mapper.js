@@ -562,10 +562,11 @@ function pairHighlight(id, on) {
   treeSvg.querySelectorAll(".is-pair").forEach((element) => element.classList.remove("is-pair"));
   detail.querySelectorAll(".is-pair").forEach((element) => element.classList.remove("is-pair"));
   if (!on || !id) return;
-  const treeNode = treeSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  const side = detail.querySelector(`[data-node-id="${CSS.escape(id)}"]`);
+  const treeNode = treeSvg.querySelector(`.tpl-node[data-id="${CSS.escape(id)}"]`);
+  const sides = [...detail.querySelectorAll(`[data-node-id="${CSS.escape(id)}"]`)];
   treeNode?.classList.add("is-pair");
-  side?.classList.add("is-pair");
+  for (const side of sides) side.classList.add("is-pair");
+  const side = sides.find((element) => element.classList.contains("guess") || element.classList.contains("bind-row")) || sides[0];
   const treePort = document.querySelector("#treeViewport");
   if (treeNode && treePort) {
     const box = treeNode.getBoundingClientRect();

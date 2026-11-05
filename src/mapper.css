@@ -527,7 +527,12 @@ h2 {
 }
 
 .side-block { margin: 0 0 4px; }
-.side-block.is-pair { background: rgba(28, 36, 48, 0.06); border-radius: 6px; }
+.side-block.is-pair,
+.guess.is-pair,
+.bind-row.is-pair {
+  background: rgba(15, 110, 107, 0.16);
+  border-radius: 6px;
+}
 
 .switch {
   width: 26px;
@@ -702,15 +707,17 @@ svg { display: block; }
 .dag-node.is-inactive circle { stroke-dasharray: 3 2; }
 
 .tpl-node { cursor: pointer; }
-.tpl-node circle { fill: white; stroke: #60706c; stroke-width: 1.4; }
-.tpl-node.has-binding circle, .tpl-node.has-enriched circle { fill: #fff; stroke: #0f6e6b; stroke-width: 1.8; }
-.tpl-node.has-suggestions circle { fill: #fff; stroke: #1c2430; stroke-width: 2.2; }
-.tpl-node.is-selected circle, .tpl-node.is-pair circle { stroke: var(--ink); stroke-width: 3; }
+.tpl-node > circle { fill: white; stroke: #60706c; stroke-width: 1.4; }
+.tpl-node.has-binding > circle, .tpl-node.has-enriched > circle { stroke: #0f6e6b; stroke-width: 1.8; }
+.tpl-node.has-suggestions > circle { stroke: #1c2430; stroke-width: 2.2; }
+.tpl-node circle.node-hit { fill: transparent; stroke: none; }
+.tpl-node.is-selected > circle:not(.node-hit),
+.tpl-node.is-pair > circle:not(.node-hit) { stroke: var(--ink) !important; stroke-width: 3.4px !important; }
 .tree-label { font-size: 11px; pointer-events: none; }
 .tree-label.ink { pointer-events: painted; }
 .tree-label.shadow { stroke: #fff; stroke-width: 3px; stroke-opacity: 0.92; }
 .tree-label.ink { fill: var(--ink); }
-.tpl-node.is-selected .tree-label, .tpl-node.is-on .tree-label, .tpl-node.has-suggestions .tree-label { font-weight: 650; }
+.tpl-node.is-selected .tree-label, .tpl-node.is-on .tree-label, .tpl-node.has-suggestions .tree-label, .tpl-node.is-pair .tree-label { font-weight: 650; }
 .tree-toggle { font-size: 14px; fill: var(--muted); cursor: pointer; }
 
 #forceSvg .force-node circle { fill: white; stroke: #0f6e6b; stroke-width: 1.6; }
