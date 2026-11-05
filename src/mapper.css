@@ -220,8 +220,7 @@ main {
   font-size: 12px;
 }
 
-.template-load button,
-.template-load .upload-template {
+.template-load button {
   border: 1px solid var(--line);
   background: var(--card);
   border-radius: 999px;
@@ -232,10 +231,107 @@ main {
   white-space: nowrap;
 }
 
-.template-load button:hover,
-.template-load .upload-template:hover {
-  border-color: var(--teal);
+.template-load button:hover { border-color: var(--teal); }
+
+.template-dialog {
+  width: min(440px, calc(100vw - 28px));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  padding: 16px 18px 14px;
+  box-shadow: var(--shadow);
 }
+
+.template-dialog::backdrop { background: rgba(28, 36, 48, 0.38); }
+
+.template-dialog h2 { font-size: 16px; margin-bottom: 6px; }
+
+.dialog-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dialog-field input {
+  font-weight: 400;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px 10px;
+}
+
+.dialog-or {
+  margin: 10px 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.dialog-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dialog-file input { max-width: 100%; }
+
+.dialog-status {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.dialog-status.is-error { color: var(--danger); }
+
+.template-dialog[data-busy] .dialog-status:not(.is-error)::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  vertical-align: baseline;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.dialog-actions button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dialog-actions #templateGo {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: white;
+}
+
+.template-dialog[data-busy] .dialog-actions button { opacity: 0.55; }
 
 h2 {
   margin: 0;
@@ -669,7 +765,7 @@ h2 {
 .guess {
   position: relative;
   display: grid;
-  grid-template-columns: 16px 12px minmax(0, 1fr) auto auto;
+  grid-template-columns: 26px 18px minmax(0, 1fr) auto;
   gap: 0 5px;
   align-items: center;
   border-left: 2px solid var(--node-ink, var(--node-color, var(--line)));
@@ -677,6 +773,17 @@ h2 {
   font-size: 12.5px;
   line-height: 1.25;
 }
+
+.rel {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  color: var(--ink);
+  cursor: help;
+}
+
+.rel svg { width: 16px; height: 16px; display: block; }
 
 .guess.is-off { opacity: 0.42; }
 .guess .rank, .guess .pct { color: var(--muted); font-size: 11px; }

@@ -57,11 +57,7 @@
           <div class="template-load">
             <h2>Template</h2>
             <span class="template-now" id="templateNow" title="International Patient Summary">International Patient Summary</span>
-            <input id="templateUrl" type="url" placeholder="Template URL" aria-label="Template URL" />
             <button type="button" id="loadTemplate">Load template</button>
-            <label class="upload-template">Upload
-              <input id="templateFile" type="file" hidden accept=".opt,.oet,.xml,.adl,.adls,.json,.t.json,application/json,text/xml" />
-            </label>
           </div>
           <div class="filter-cluster">
             <span class="filter-name">Filter</span>
@@ -88,6 +84,23 @@
       </section>
     </main>
     <svg id="linkOverlay" class="link-overlay" aria-hidden="true"></svg>
+    <dialog id="templateDialog" class="template-dialog" aria-labelledby="templateDialogTitle">
+      <h2 id="templateDialogTitle">Load template</h2>
+      <p class="dialog-note">ehrtslib reads an OPT, OET, web template JSON, or ADL file. A GitHub file URL also pulls the archetype closure.</p>
+      <label class="dialog-field" for="templateUrl">Template URL
+        <input id="templateUrl" type="url" placeholder="https://…" autocomplete="off" />
+      </label>
+      <p class="dialog-or">or</p>
+      <label class="dialog-file">
+        <input id="templateFile" type="file" accept=".opt,.oet,.xml,.adl,.adls,.json,.t.json,application/json,text/xml" />
+        <span id="templateFileName">Choose a file</span>
+      </label>
+      <p id="templateStatus" class="dialog-status" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" id="templateCancel">Cancel</button>
+        <button type="button" id="templateGo">Load</button>
+      </div>
+    </dialog>
     <div id="conceptPop" class="concept-pop" hidden>
       <button type="button" class="pop-close" id="popClose" aria-label="Close">×</button>
       <h3 id="popTitle"></h3>

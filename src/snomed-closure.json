@@ -12,8 +12,14 @@
     "148006",
     "15240007",
     "16206004",
+    "182849000",
+    "225761000",
     "246153002",
+    "258681007",
+    "260548002",
+    "260864003",
     "261665006",
+    "261771004",
     "271649006",
     "271650006",
     "277923006",
@@ -22,9 +28,12 @@
     "288526004",
     "304252001",
     "304253006",
+    "307439001",
     "363679005",
     "364090009",
     "373873005",
+    "373873007",
+    "385055001",
     "386725007",
     "387713003",
     "404684003",
@@ -32,16 +41,25 @@
     "410513005",
     "410515003",
     "410516002",
+    "410656007",
     "410942007",
     "418799008",
+    "420891004",
+    "422135004",
+    "422472007",
+    "428191000124101",
     "431314004",
     "439401001",
+    "444981005",
+    "446134003",
     "448703006",
     "5558000",
     "60621009",
     "64572001",
     "71388002",
+    "736542009",
     "763158003",
+    "767525000",
     "781405001",
     "8319008",
     "85097005"
@@ -85,6 +103,14 @@
       "display": "Patient status finding",
       "parents": [
         "404684003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "118598001",
+      "display": "Property",
+      "parents": [
+        "362981000"
       ],
       "inactive": false
     },
@@ -147,6 +173,22 @@
       "display": "Oxygen delivery",
       "parents": [
         "364392006"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "182849000",
+      "display": "No drug therapy prescribed",
+      "parents": [
+        "416237000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "225761000",
+      "display": "As required",
+      "parents": [
+        "307485003"
       ],
       "inactive": false
     },
@@ -216,10 +258,48 @@
       "inactive": false
     },
     {
+      "code": "258680008",
+      "display": "Unit of mass",
+      "parents": [
+        "767524001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "258681007",
+      "display": "SI unit of mass",
+      "parents": [
+        "258680008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "260548002",
+      "display": "Oral",
+      "parents": [],
+      "inactive": true
+    },
+    {
       "code": "260787004",
       "display": "Physical object",
       "parents": [
         "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "260863009",
+      "display": "Temporal relationship",
+      "parents": [
+        "408739003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "260864003",
+      "display": "Frequency",
+      "parents": [
+        "260863009"
       ],
       "inactive": false
     },
@@ -229,6 +309,12 @@
       "parents": [
         "410514004"
       ],
+      "inactive": false
+    },
+    {
+      "code": "261771004",
+      "display": "Date of expiry (observable entity)",
+      "parents": [],
       "inactive": false
     },
     {
@@ -262,6 +348,14 @@
       "display": "Time patterns",
       "parents": [
         "272099008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "272123002",
+      "display": "Frequencies",
+      "parents": [
+        "272103003"
       ],
       "inactive": false
     },
@@ -364,6 +458,46 @@
       "inactive": false
     },
     {
+      "code": "307430002",
+      "display": "Regular frequency",
+      "parents": [
+        "272123002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307431003",
+      "display": "Frequency per unit time",
+      "parents": [
+        "307430002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307438009",
+      "display": "Frequency per day",
+      "parents": [
+        "307431003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307439001",
+      "display": "Four times daily",
+      "parents": [
+        "307438009"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307485003",
+      "display": "Irregular frequency",
+      "parents": [
+        "272123002"
+      ],
+      "inactive": false
+    },
+    {
       "code": "310611001",
       "display": "Cardiovascular measure",
       "parents": [
@@ -424,6 +558,24 @@
       "display": "Cardiovascular observable",
       "parents": [
         "363788007"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364072008",
+      "display": "Cardiac feature",
+      "parents": [
+        "414236006",
+        "364066008"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "364075005",
+      "display": "Heart rate",
+      "parents": [
+        "364072008",
+        "310611001"
       ],
       "inactive": false
     },
@@ -497,6 +649,20 @@
       "display": "Pharmaceutical / biologic product",
       "parents": [
         "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "373873007",
+      "display": "Pharmaceutical / biologic product (product)",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "385055001",
+      "display": "Tablet",
+      "parents": [
+        "421378002"
       ],
       "inactive": false
     },
@@ -615,6 +781,14 @@
       "inactive": false
     },
     {
+      "code": "410656007",
+      "display": "Type",
+      "parents": [
+        "118598001"
+      ],
+      "inactive": false
+    },
+    {
       "code": "410657003",
       "display": "Type - attribute",
       "parents": [
@@ -627,6 +801,30 @@
       "display": "Drug or medicament",
       "parents": [
         "105590001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "414236006",
+      "display": "Feature of anatomical entity",
+      "parents": [
+        "414237002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "414237002",
+      "display": "Feature of entity",
+      "parents": [
+        "363787002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "416237000",
+      "display": "Procedure not done",
+      "parents": [
+        "129125009"
       ],
       "inactive": false
     },
@@ -647,6 +845,40 @@
       "inactive": false
     },
     {
+      "code": "420891004",
+      "display": "Batch number (attribute)",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "421378002",
+      "display": "Solid dose form",
+      "parents": [
+        "736478001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "422135004",
+      "display": "As directed for",
+      "parents": [
+        "307485003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "422472007",
+      "display": "Expiry date (attribute)",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "428191000124101",
+      "display": "No current prescription for medication (situation)",
+      "parents": [],
+      "inactive": false
+    },
+    {
       "code": "431314004",
       "display": "Peripheral oxygen saturation",
       "parents": [
@@ -660,6 +892,20 @@
       "parents": [
         "243814003"
       ],
+      "inactive": false
+    },
+    {
+      "code": "444981005",
+      "display": "Resting heart rate",
+      "parents": [
+        "364075005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "446134003",
+      "display": "Evaluation of lot number (procedure)",
+      "parents": [],
       "inactive": false
     },
     {
@@ -737,6 +983,22 @@
       "inactive": false
     },
     {
+      "code": "736478001",
+      "display": "Basic dose form",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "736542009",
+      "display": "Pharmaceutical dose form",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
       "code": "75367002",
       "display": "Blood pressure",
       "parents": [
@@ -749,6 +1011,22 @@
       "display": "Medicinal product",
       "parents": [
         "373873005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "767524001",
+      "display": "Unit of measure",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "767525000",
+      "display": "Unit",
+      "parents": [
+        "767524001"
       ],
       "inactive": false
     },

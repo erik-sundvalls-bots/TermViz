@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseAdl, parseOptXml } from "../public/vendor/ehrtslib-0.11.0-parser.min.js";
 import { buildIpsModel } from "../src/ips-model.js";
-import { SUGGESTION_TARGETS } from "../src/suggestions.js";
+import { parseSnapMap } from "../src/snap2snomed.js";
 
 const rootDir = path.resolve(import.meta.dirname, "..");
 const ONTOSERVER = "https://tx-nordics.fhir.org/fhir/r4";
@@ -42,6 +42,10 @@ async function lookup(code) {
   url.searchParams.append("property", "inactive");
   url.searchParams.set("_format", "json");
   const response = await fetch(url, { headers: { Accept: "application/fhir+json" } });
+  if (response.status === 404) {
+    const known = mapRows.find((row) => row.code === code);
+    return { code, display: known?.display || "", parents: [], inactive: false };
+  }
   if (!response.ok) throw new Error(`Ontoserver ${response.status} for ${code}`);
   return { code, ...parseLookup(await response.json()) };
 }
@@ -52,12 +56,10 @@ const adlEntries = manifest.map((filePath) => ({
   path: filePath,
   text: fs.readFileSync(path.join(rootDir, "public/models/ips-fileset", filePath), "utf8"),
 }));
-const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl });
+const mapRows = parseSnapMap(fs.readFileSync(path.join(rootDir, "public/maps/ips-snap2snomed.csv"), "utf8"));
+const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows });
 
-const seeds = new Set();
-for (const target of SUGGESTION_TARGETS) {
-  for (const item of target.suggestions) seeds.add(item.code);
-}
+const seeds = new Set(mapRows.map((row) => row.code));
 (function walk(node) {
   for (const binding of [...(node.bindings || []), ...(node.valueBindings || []), ...(node.scopeBindings || [])]) {
     if (binding.code) seeds.add(String(binding.code));
@@ -66,6 +68,19 @@ for (const target of SUGGESTION_TARGETS) {
 })(model.tree);
 
 const concepts = new Map();
+const previousPath = path.join(rootDir, "src/snomed-closure.json");
+if (fs.existsSync(previousPath)) {
+  const previous = JSON.parse(fs.readFileSync(previousPath, "utf8"));
+  for (const concept of previous.concepts || []) {
+    concepts.set(String(concept.code), {
+      code: String(concept.code),
+      display: concept.display || "",
+      parents: (concept.parents || []).map(String),
+      inactive: Boolean(concept.inactive),
+    });
+  }
+  for (const code of previous.seeds || []) seeds.add(String(code));
+}
 const pending = [...seeds, SNOMED_ROOT];
 while (pending.length) {
   const batch = pending.splice(0, 6);

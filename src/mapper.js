@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
+import { RELATIONSHIPS } from "./snap2snomed.js";
 import { cacheSize, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
@@ -324,17 +325,30 @@ function switchHtml(attrs, checked) {
   return `<button class="switch" type="button" role="switch" aria-checked="${checked}" ${attrs}></button>`;
 }
 
+function relSvg(kind) {
+  const open = `<svg viewBox="0 0 16 16" aria-hidden="true">`;
+  const stroke = `fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"`;
+  if (kind === "equivalent") return `${open}<path d="M2 6h12M2 10h12" ${stroke}/></svg>`;
+  if (kind === "broader") return `${open}<path d="M1.5 4.5h13M4.5 11.5h7" ${stroke}/></svg>`;
+  if (kind === "narrower") return `${open}<path d="M4.5 4.5h7M1.5 11.5h13" ${stroke}/></svg>`;
+  return `${open}<path d="M1.8 10c1.2-2.5 2.1-2.5 3.1 0s1.9 2.5 3.1 0 1.9-2.5 3.1 0 1.9 2.5 3.1 0" ${stroke}/></svg>`;
+}
+
+function relationGlyph(type) {
+  const known = RELATIONSHIPS[type] || { kind: "inexact", title: type || "Relationship", hint: "" };
+  const title = known.hint ? `${known.title} — ${known.hint}` : known.title;
+  return `<span class="rel rel-${known.kind}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${relSvg(known.kind)}</span>`;
+}
+
 function guessRow(node, item) {
   const on = codeOn(node, item.code);
-  const term = termFor(item.code);
-  const pct = Number.isFinite(item.score) ? Math.round(item.score * 100) : "";
-  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}" title="${escapeHtml(item.reason || "")}">
+  const term = termFor(item.code, item.display);
+  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}">
     <span class="guess-anchor" aria-hidden="true"></span>
     ${switchHtml(`data-row="${escapeHtml(item.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
-    <span class="rank">${item.rank ?? ""}</span>
+    ${relationGlyph(item.relationship)}
     ${termLink(item.code, term)}
     ${codeLink(item.code)}
-    <span class="pct">${pct === "" ? "" : `${pct}%`}</span>
   </article>`;
 }
 
@@ -660,8 +674,7 @@ function annotate(graph) {
           fill: mark.fill,
           stroke: mark.stroke,
           templateName: node.name,
-          rank: suggestion.rank ?? null,
-          score: suggestion.score ?? null,
+          relationship: suggestion.relationship || "",
           reason: suggestion.reason || "",
         });
         suggestionOf.set(code, list);
@@ -762,7 +775,9 @@ async function refreshGraph() {
     snomedCaption.textContent = "The terminology server did not answer.";
     errorBox.hidden = false;
     errorBox.textContent = error instanceof Error ? error.message : String(error);
+    return error instanceof Error ? error : new Error(String(error));
   }
+  return null;
 }
 
 function conceptLabel(item) {
@@ -785,9 +800,7 @@ function openPop(item) {
   if (item.commonality > 1) facts.push(["Shared by", `${item.commonality} template nodes`]);
   document.querySelector("#popFacts").innerHTML = facts.map(([name, value]) => `<dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd>`).join("");
   document.querySelector("#popSources").innerHTML = (item.sources || []).map((source) => {
-    const head = source.rank ? `${source.rank}. ${source.templateName}` : source.templateName;
-    const score = Number.isFinite(source.score) ? ` · ${Math.round(source.score * 100)}%` : "";
-    return `<p><strong>${escapeHtml(`${head}${score}`)}</strong>${source.reason ? ` ${escapeHtml(source.reason)}` : ""}</p>`;
+    return `<p><strong>${escapeHtml(source.templateName)}</strong>${source.reason ? ` — ${escapeHtml(source.reason)}` : ""}</p>`;
   }).join("");
   document.querySelector("#popPin").setAttribute("aria-checked", item.userPinned ? "true" : "false");
   document.querySelector("#popLabel").setAttribute("aria-checked", item.showLabel ? "true" : "false");
@@ -937,6 +950,10 @@ function clipLinesToTopPane() {
 function drawSuggestionLines() {
   if (!linkOverlay) return;
   clipLinesToTopPane();
+  if (shelfHidden()) {
+    d3.select(linkOverlay).selectAll("g.dash").remove();
+    return;
+  }
   const rows = [...detail.querySelectorAll(".guess:not(.is-off), .bind-row:not(.is-off)")];
   syncCues(rows);
   const overlay = d3.select(linkOverlay);
@@ -1035,8 +1052,13 @@ function wireChrome() {
     const button = document.querySelector("#shelfToggle");
     button?.setAttribute("aria-expanded", hidden ? "false" : "true");
     button?.setAttribute("aria-label", hidden ? "Show filtered nodes" : "Hide filtered nodes");
+    if (hidden) {
+      d3.select(linkOverlay).selectAll("g.dash").remove();
+      return;
+    }
     const started = performance.now();
     const follow = () => {
+      if (shelfHidden()) return;
       drawSuggestionLines();
       if (performance.now() - started < 340) requestAnimationFrame(follow);
     };
@@ -1222,38 +1244,84 @@ function showModel(model) {
   renderStats();
   renderTree();
   renderDetail();
-  refreshGraph();
+  const pending = refreshGraph();
   fitTree();
+  return pending;
 }
 
-async function loadChosen(loader) {
-  const button = document.querySelector("#loadTemplate");
-  errorBox.hidden = true;
-  if (button) button.disabled = true;
-  snomedCaption.textContent = "Reading the template…";
+function templateMessage(text, failed) {
+  const status = document.querySelector("#templateStatus");
+  if (!status) return;
+  status.hidden = !text;
+  status.textContent = text || "";
+  status.classList.toggle("is-error", Boolean(failed));
+}
+
+function setTemplateBusy(on) {
+  const dialog = document.querySelector("#templateDialog");
+  if (!dialog) return;
+  if (on) dialog.dataset.busy = "true";
+  else delete dialog.dataset.busy;
+  for (const control of dialog.querySelectorAll("input, button")) control.disabled = on;
+}
+
+async function loadFromDialog() {
+  const dialog = document.querySelector("#templateDialog");
+  const urlField = document.querySelector("#templateUrl");
+  const fileField = document.querySelector("#templateFile");
+  const url = urlField?.value.trim() || "";
+  const file = fileField?.files?.[0];
+  if (!file && !url) {
+    templateMessage("Enter a URL or choose a file.", true);
+    return;
+  }
+  setTemplateBusy(true);
+  templateMessage(file ? `Reading ${file.name}…` : "Reading the template…", false);
   try {
-    showModel(await loader());
+    const model = file
+      ? await loadTemplateFromText(await file.text(), { name: file.name })
+      : await loadTemplateFromUrl(url);
+    templateMessage("Looking up SNOMED CT concepts…", false);
+    const graphError = await showModel(model);
+    if (graphError) throw graphError;
+    if (urlField) urlField.value = "";
+    if (fileField) fileField.value = "";
+    const fileName = document.querySelector("#templateFileName");
+    if (fileName) fileName.textContent = "Choose a file";
+    dialog?.close();
+    templateMessage("", false);
   } catch (error) {
-    errorBox.hidden = false;
-    errorBox.textContent = error instanceof Error ? error.message : String(error);
-    snomedCaption.textContent = "The template could not be read.";
+    templateMessage(error instanceof Error ? error.message : String(error), true);
   } finally {
-    if (button) button.disabled = false;
+    setTemplateBusy(false);
   }
 }
 
-const templateUrl = document.querySelector("#templateUrl");
+const templateDialog = document.querySelector("#templateDialog");
 document.querySelector("#loadTemplate")?.addEventListener("click", () => {
-  loadChosen(() => loadTemplateFromUrl(templateUrl?.value || ""));
+  templateMessage("", false);
+  templateDialog?.showModal();
 });
-templateUrl?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") loadChosen(() => loadTemplateFromUrl(templateUrl.value));
+document.querySelector("#templateCancel")?.addEventListener("click", () => {
+  if (templateDialog?.dataset.busy === "true") return;
+  templateDialog?.close();
 });
-document.querySelector("#templateFile")?.addEventListener("change", (event) => {
-  const file = event.target.files?.[0];
-  event.target.value = "";
-  if (!file) return;
-  loadChosen(async () => loadTemplateFromText(await file.text(), { name: file.name }));
+templateDialog?.addEventListener("cancel", (event) => {
+  if (templateDialog.dataset.busy === "true") event.preventDefault();
+});
+document.querySelector("#templateGo")?.addEventListener("click", () => {
+  loadFromDialog();
+});
+document.querySelector("#templateUrl")?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    loadFromDialog();
+  }
+});
+document.querySelector("#templateFile")?.addEventListener("change", () => {
+  const file = document.querySelector("#templateFile")?.files?.[0];
+  const fileName = document.querySelector("#templateFileName");
+  if (fileName) fileName.textContent = file ? file.name : "Choose a file";
 });
 
 loadIpsModel().then(showModel).catch((error) => {

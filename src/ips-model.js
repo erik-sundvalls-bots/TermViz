@@ -11,7 +11,7 @@
  * so the term bindings are still taken from the library.
  */
 
-import { attachSuggestions } from "./suggestions.js";
+import { attachSnapMap, parseSnapMap } from "./snap2snomed.js";
 
 const CLINICAL_RM = new Set([
   "COMPOSITION",
@@ -410,7 +410,7 @@ function attachBindingLists(node, comparison, termDefs) {
   for (const child of node.children) attachBindingLists(child, comparison, termDefs);
 }
 
-export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl }) {
+export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows = [] }) {
   const { operationalTemplate, warnings } = parseOptXml(optXml);
   const termDefs = operationalTemplate.archetype_term_definitions || {};
   const tree = buildClinicalTree(operationalTemplate.definition, termDefs);
@@ -419,7 +419,7 @@ export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl }) {
   const archetypes = readArchetypeSnomedBindings(adlEntries, parseAdl);
   const comparison = compareBindings(optBindings, archetypes.bindings);
   attachBindingLists(tree, comparison, termDefs);
-  const suggestions = attachSuggestions(tree);
+  const suggestions = attachSnapMap(tree, mapRows);
   const counts = { nodes: 0, boundNodes: 0, enrichedNodes: 0 };
   (function tally(node) {
     counts.nodes += 1;
@@ -483,6 +483,7 @@ export function buildTemplateModel({
   parseAdl,
   warnings = [],
   sourceName,
+  mapRows = [],
 }) {
   const termDefs = operationalTemplate.archetype_term_definitions || {};
   const tree = buildClinicalTree(operationalTemplate.definition, termDefs);
@@ -494,7 +495,7 @@ export function buildTemplateModel({
     : { bindings: {}, reports: [] };
   const comparison = compareBindings(optBindings, archetypes.bindings);
   attachBindingLists(tree, comparison, termDefs);
-  const suggestions = attachSuggestions(tree);
+  const suggestions = attachSnapMap(tree, mapRows);
   const counts = { nodes: 0, boundNodes: 0, enrichedNodes: 0 };
   (function tally(node) {
     counts.nodes += 1;
@@ -552,6 +553,7 @@ export async function loadTemplateFromText(text, { name } = {}) {
     parseAdl: ehr.parseAdl,
     warnings,
     sourceName: name,
+    mapRows: await loadDemoMap(),
   });
 }
 
@@ -580,6 +582,7 @@ export async function loadTemplateFromUrl(url) {
       parseAdl: ehr.parseAdl,
       warnings: [...(resolved.warnings || []), ...(closure.warnings || [])],
       sourceName: target,
+      mapRows: await loadDemoMap(),
     });
   }
   let response;
@@ -622,5 +625,19 @@ export async function loadIpsModel() {
     adlEntries,
     parseOptXml: ehr.parseOptXml,
     parseAdl: ehr.parseAdl,
+    mapRows: await loadDemoMap(),
   });
+}
+
+let demoMapPromise;
+
+export function loadDemoMap() {
+  if (!demoMapPromise) {
+    demoMapPromise = (async () => {
+      const response = await fetch(publicUrl("maps/ips-snap2snomed.csv"));
+      if (!response.ok) throw new Error(`Could not fetch the Snap2SNOMED map (${response.status}).`);
+      return parseSnapMap(await response.text());
+    })();
+  }
+  return demoMapPromise;
 }

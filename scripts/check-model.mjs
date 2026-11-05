@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseAdl, parseOptXml } from "../public/vendor/ehrtslib-0.11.0-parser.min.js";
 import { buildIpsModel } from "../src/ips-model.js";
+import { parseSnapMap } from "../src/snap2snomed.js";
+import bundled from "../src/snomed-closure.json" with { type: "json" };
 
 const root = path.resolve(import.meta.dirname, "..");
 const optXml = fs.readFileSync(
@@ -16,7 +18,8 @@ const adlEntries = manifest.map((filePath) => ({
   text: fs.readFileSync(path.join(root, "public/models/ips-fileset", filePath), "utf8"),
 }));
 
-const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl });
+const mapRows = parseSnapMap(fs.readFileSync(path.join(root, "public/maps/ips-snap2snomed.csv"), "utf8"));
+const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows });
 const failed = model.archetypeReports.filter((report) => report.how === "failed");
 const stubs = model.archetypeReports.filter((report) => report.how === "terminology-stub");
 const direct = model.archetypeReports.filter((report) => report.how === "direct");
@@ -43,8 +46,16 @@ if (failed.length) {
 }
 
 const problems = [];
-if (model.suggestions.attached.length !== 3) problems.push("expected 3 suggestion nodes");
-if (model.suggestions.missing.length) problems.push("unmatched targets");
+const sourceCodes = new Set(mapRows.map((row) => row.sourceCode));
+const covered = new Set(model.suggestions.attached.map((node) => node.suggestionSetId));
+if (covered.size !== sourceCodes.size) {
+  problems.push(`expected ${sourceCodes.size} mapped paths, got ${covered.size}`);
+}
+if (model.suggestions.missing.length) problems.push(`unmatched map paths: ${model.suggestions.missing.join(" | ")}`);
+const bundledIds = new Set(bundled.concepts.map((item) => String(item.code)));
+const mapCodes = [...new Set(mapRows.map((row) => row.code))];
+const absent = mapCodes.filter((code) => !bundledIds.has(code));
+if (absent.length) problems.push(`map codes missing from the bundled closure: ${absent.join(", ")}`);
 if (model.comparison.missingFromOpt !== 0) problems.push("unexpected missing bindings");
 if (model.comparison.conflicts !== 0) problems.push("binding conflicts");
 if (model.comparison.both < 26) problems.push("expected the 26 shared SNOMED bindings");
