@@ -7,6 +7,7 @@
  */
 
 import * as d3 from "d3";
+import { coordQuad, decrossOpt, decrossTwoLayer, graphConnect, layeringLongestPath, sugiyama } from "d3-dag";
 
 export const D3_VERSION = "7.9.2";
 
@@ -543,6 +544,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
   const svg = d3.select(svgSelection);
   clear(svg);
   svg.classed("is-tangled", false);
+  svg.classed("is-sugiyama", false);
   graphZoom(svgSelection);
   installCategoryPatterns(svgSelection);
   const host = svg.node()?.parentElement;
@@ -1048,6 +1050,7 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
   const svg = d3.select(svgSelection);
   clear(svg);
   svg.classed("is-tangled", true);
+  svg.classed("is-sugiyama", false);
   graphZoom(svgSelection);
   installCategoryPatterns(svgSelection);
   const host = svg.node()?.parentElement;
@@ -1282,6 +1285,273 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
     .on("mouseover", (event, item) => paintHover(null, item))
     .on("mouseout", () => paintHover(null, null));
   return null;
+}
+
+const SUGIYAMA_NODE = [132, 16];
+const SUGIYAMA_GAP = [12, 42];
+
+function layoutSugiyama(pairs) {
+  const connect = graphConnect().single(true);
+  const operators = (decross) => sugiyama()
+    .layering(layeringLongestPath())
+    .decross(decross)
+    .coord(coordQuad())
+    .nodeSize(SUGIYAMA_NODE)
+    .gap(SUGIYAMA_GAP);
+  const dag = connect(pairs);
+  try {
+    operators(decrossOpt())(dag);
+    return { dag, fallback: false };
+  } catch {
+    const retry = connect(pairs);
+    operators(decrossTwoLayer())(retry);
+    return { dag: retry, fallback: true };
+  }
+}
+
+function sugiyamaPath(points) {
+  if (!points || points.length < 2) return "";
+  return d3.line().curve(d3.curveBumpY)(points.slice().reverse());
+}
+
+/**
+ * Top-to-bottom Sugiyama layout (d3-dag): longest-path layering, optimal
+ * decrossing, quadratic coordinates. Edges point at the parent, as in the
+ * force graph. Optimal decrossing refuses a graph it judges too large; that
+ * case falls back to two-layer decrossing and the caller is told.
+ */
+export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, labels, labelHidden } = {}) {
+  const svg = d3.select(svgSelection);
+  clear(svg);
+  svg.classed("is-tangled", false);
+  svg.classed("is-sugiyama", true);
+  graphZoom(svgSelection);
+  installCategoryPatterns(svgSelection);
+  const host = svg.node()?.parentElement;
+  const width = Math.max(320, host?.clientWidth || 640);
+  const height = Math.max(260, host?.clientHeight || 360);
+  svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const nodes = (graph?.nodes || []).map((node) => ({ ...node, incoming: [], outgoing: [] }));
+  if (!nodes.length) return null;
+  const byId = new Map(nodes.map((node) => [String(node.id), node]));
+  const links = (graph.links || [])
+    .map((link) => ({
+      source: byId.get(String(link.source?.id ?? link.source)),
+      target: byId.get(String(link.target?.id ?? link.target)),
+    }))
+    .filter((link) => link.source && link.target);
+  for (const link of links) {
+    link.target.incoming.push(link);
+    link.source.outgoing.push(link);
+  }
+
+  const pairs = links.map((link) => [String(link.target.id), String(link.source.id)]);
+  const linked = new Set(pairs.flat());
+  for (const node of nodes) {
+    const id = String(node.id);
+    if (!linked.has(id)) pairs.push([id, id]);
+  }
+  const { dag, fallback } = layoutSugiyama(pairs);
+  let minX = Infinity;
+  let minY = Infinity;
+  for (const dagNode of dag.nodes()) {
+    minX = Math.min(minX, dagNode.x);
+    minY = Math.min(minY, dagNode.y);
+  }
+  const dx = 36 - (Number.isFinite(minX) ? minX : 0);
+  const dy = 48 - (Number.isFinite(minY) ? minY : 0);
+  const placed = new Map([...dag.nodes()].map((dagNode) => [String(dagNode.data), dagNode]));
+  for (const node of nodes) {
+    const at = placed.get(String(node.id));
+    node.x = (at?.x ?? 0) + dx;
+    node.y = (at?.y ?? 0) + dy;
+  }
+  const geometry = new Map();
+  for (const dagLink of dag.links()) {
+    const parent = String(dagLink.source.data);
+    const child = String(dagLink.target.data);
+    if (parent === child) continue;
+    geometry.set(`${child}|${parent}`, dagLink.points.map(([x, y]) => [x + dx, y + dy]));
+  }
+  for (const link of links) link.points = geometry.get(`${link.source.id}|${link.target.id}`);
+
+  const labelSet = labels instanceof Set ? labels : new Set();
+  const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
+  const tops = nodes.filter((item) => item.outgoing.length === 0);
+  const topSet = new Set(tops);
+  const firstLevel = nodes.filter((item) => !topSet.has(item) && item.outgoing.some((edge) => topSet.has(edge.target)));
+  for (const item of [...tops, ...firstLevel]) {
+    const id = String(item.id);
+    if (labelOff.has(id)) item.showLabel = false;
+    else {
+      labelSet.add(id);
+      item.showLabel = true;
+    }
+  }
+  for (const item of nodes) {
+    const id = String(item.id);
+    if (labelOff.has(id)) {
+      item.showLabel = false;
+      item.labelOff = true;
+    } else if (labelSet.has(id)) item.showLabel = true;
+  }
+
+  const defs = svg.append("defs");
+  defs.append("marker")
+    .attr("id", "snomed-isa")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 14)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5Z")
+    .attr("class", "force-arrow");
+
+  const layer = zoomLayer(svg);
+  const drawn = links.filter((link) => link.points);
+  const linkWrap = layer.append("g")
+    .attr("class", "sugi-links")
+    .selectAll("g")
+    .data(drawn)
+    .join("g");
+  linkWrap.append("path")
+    .attr("class", "tangle-halo")
+    .attr("d", (item) => sugiyamaPath(item.points));
+  const link = linkWrap.append("path")
+    .attr("class", "force-link sugi-link")
+    .attr("marker-end", "url(#snomed-isa)")
+    .attr("d", (item) => sugiyamaPath(item.points));
+
+  const radius = 8;
+  const node = layer.append("g")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .attr("class", (item) => {
+      const classes = ["force-node"];
+      if (item.suggestion) classes.push("is-suggestion");
+      if (item.cp) classes.push("is-cp");
+      if (item.lcp) classes.push("is-lcp");
+      if (item.inactive) classes.push("is-inactive");
+      if (item.showLabel) classes.push("is-labeled");
+      if (item.labelOff) classes.push("is-label-off");
+      return classes.join(" ");
+    })
+    .attr("data-id", (item) => item.id)
+    .attr("transform", (item) => `translate(${item.x},${item.y})`);
+
+  const sliceArc = d3.arc().innerRadius(0).outerRadius(radius);
+  node.each(function paint(item) {
+    const hostNode = d3.select(this);
+    const slices = item.sliceFills || [];
+    if (slices.length > 1) {
+      const pie = d3.pie().sort(null).value(() => 1)(slices);
+      hostNode.append("g")
+        .attr("class", "node-slices")
+        .selectAll("path")
+        .data(pie)
+        .join("path")
+        .attr("d", sliceArc)
+        .style("fill", (slice) => slice.data);
+    }
+    hostNode.append("circle")
+      .attr("class", "node-disk")
+      .attr("r", radius)
+      .style("fill", slices.length > 1 ? "none" : (item.fill || "#ffffff"))
+      .style("stroke", item.stroke || "#4682b4");
+  });
+  node.each(function label(item) {
+    const lines = wrapLabel(visibleName(item), 22);
+    const group = d3.select(this);
+    for (const kind of ["shadow", "ink"]) {
+      const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "middle");
+      lines.forEach((line, index) => {
+        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -14 : 13).text(line);
+      });
+    }
+  });
+  node.append("circle").attr("class", "node-hit").attr("r", radius);
+
+  function paintHover(activeNode, activeLink) {
+    node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false).classed("is-bold", false);
+    linkWrap.classed("is-raised", false);
+    const raised = new Set();
+    if (activeNode) {
+      node.filter((item) => item === activeNode).classed("is-active", true);
+      for (const edge of activeNode.incoming) {
+        raised.add(edge);
+        link.filter((item) => item === edge).classed("is-incoming", true).classed("is-bold", true);
+        node.filter((item) => item === edge.source).classed("is-incoming", true);
+      }
+      for (const edge of activeNode.outgoing) {
+        raised.add(edge);
+        link.filter((item) => item === edge).classed("is-outgoing", true).classed("is-bold", true);
+        node.filter((item) => item === edge.target).classed("is-outgoing", true);
+      }
+    } else if (activeLink) {
+      raised.add(activeLink);
+      link.filter((item) => item === activeLink).classed("is-active", true).classed("is-bold", true);
+      node.filter((item) => item === activeLink.source).classed("is-incoming", true);
+      node.filter((item) => item === activeLink.target).classed("is-outgoing", true);
+    }
+    linkWrap.classed("is-raised", (item) => raised.has(item));
+    const hostNode = linkWrap.node()?.parentNode;
+    if (hostNode) {
+      linkWrap.each(function restore() { hostNode.appendChild(this); });
+      linkWrap.filter((item) => raised.has(item)).each(function raise() { hostNode.appendChild(this); });
+    }
+  }
+
+  let lingerTimer = 0;
+  let lingerItem = null;
+  let lingerPoint = null;
+  function clearLinger() {
+    window.clearTimeout(lingerTimer);
+    lingerTimer = 0;
+    lingerItem = null;
+    lingerPoint = null;
+  }
+  function armLinger(item, point) {
+    if (lingerItem === item && lingerTimer) return;
+    window.clearTimeout(lingerTimer);
+    lingerItem = item;
+    lingerPoint = point;
+    lingerTimer = window.setTimeout(() => {
+      lingerTimer = 0;
+      onLinger?.(item);
+    }, 1000);
+  }
+
+  node
+    .on("mouseover", (event, item) => paintHover(item, null))
+    .on("mouseout", () => paintHover(null, null))
+    .on("pointerenter", (event, item) => {
+      if (event.pointerType === "touch") return;
+      armLinger(item, { x: event.clientX, y: event.clientY });
+    })
+    .on("pointerdown", (event, item) => armLinger(item, { x: event.clientX, y: event.clientY }))
+    .on("pointermove", (event) => {
+      if (!lingerPoint || !lingerTimer) return;
+      if (Math.hypot(event.clientX - lingerPoint.x, event.clientY - lingerPoint.y) > 8) clearLinger();
+    })
+    .on("pointerup", () => clearLinger())
+    .on("pointerleave", (event) => {
+      if (event.pointerType === "touch") return;
+      clearLinger();
+    })
+    .on("pointercancel", () => clearLinger())
+    .on("contextmenu", (event) => event.preventDefault())
+    .on("click", (event, item) => {
+      event.stopPropagation();
+      onSelect?.(item);
+    });
+  link
+    .on("mouseover", (event, item) => paintHover(null, item))
+    .on("mouseout", () => paintHover(null, null));
+  return fallback ? "two-layer order (graph too large for optimal)" : null;
 }
 
 export function renderForceGraph(svgSelection, data, { onSelect } = {}) {

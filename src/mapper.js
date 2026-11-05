@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderSnomedTangled, renderTemplateTree, zoomGraph } from "./termviz-2.js";
+import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedDag, renderSnomedForce, renderSnomedTangled, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
 import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
 import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, snomedBrowserUrl } from "./snomed.js";
@@ -1060,8 +1060,14 @@ function pinConcept(code, on) {
 }
 
 function renderSnomed() {
-  const draw = state.snomedLayout === "tangled" ? renderSnomedTangled : renderSnomedForce;
-  draw(snomedSvg, state.graph || { nodes: [], links: [] }, forceOptions());
+  const draw = state.snomedLayout === "tangled"
+    ? renderSnomedTangled
+    : state.snomedLayout === "sugiyama"
+      ? renderSnomedDag
+      : renderSnomedForce;
+  const note = draw(snomedSvg, state.graph || { nodes: [], links: [] }, forceOptions());
+  const stripped = snomedCaption.textContent.replace(/ · two-layer order \(graph too large for optimal\)$/, "");
+  snomedCaption.textContent = typeof note === "string" && note ? `${stripped} · ${note}` : stripped;
 }
 
 function relayout() {
@@ -1118,7 +1124,9 @@ function wireChrome() {
   document.querySelectorAll("[data-layout]").forEach((button) => {
     button.addEventListener("click", () => {
       state.snomedLayout = button.dataset.layout;
-      document.querySelector("#snomedPane")?.classList.toggle("is-tangled", state.snomedLayout === "tangled");
+      const pane = document.querySelector("#snomedPane");
+      pane?.classList.toggle("is-tangled", state.snomedLayout === "tangled");
+      pane?.classList.toggle("is-sugiyama", state.snomedLayout === "sugiyama");
       document.querySelectorAll("[data-layout]").forEach((other) => other.classList.toggle("is-on", other === button));
       renderSnomed();
       drawSuggestionLines();

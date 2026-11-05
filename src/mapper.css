@@ -456,7 +456,8 @@ h2 {
   border-color: var(--ink);
 }
 
-#snomedPane.is-tangled [data-zoom="burst"] { visibility: hidden; }
+#snomedPane.is-tangled [data-zoom="burst"],
+#snomedPane.is-sugiyama [data-zoom="burst"] { visibility: hidden; }
 
 .legend {
   display: flex;
@@ -961,9 +962,12 @@ svg { display: block; }
 .node-hit { fill: transparent; stroke: none; pointer-events: all; }
 .force-link { stroke: #8d97a3; }
 #snomedSvg .tangle-halo { fill: none; stroke: #fff; stroke-width: 5; pointer-events: none; }
-#snomedSvg .tangle-link { fill: none; stroke-width: 1.6; }
-#snomedSvg .tangle-link.is-bold { stroke-width: 3.4; }
-#snomedSvg .tangle-links g.is-raised .tangle-halo { stroke-width: 7.5; }
+#snomedSvg .tangle-link,
+#snomedSvg .sugi-link { fill: none; stroke-width: 1.6; }
+#snomedSvg .tangle-link.is-bold,
+#snomedSvg .sugi-link.is-bold { stroke-width: 3.4; }
+#snomedSvg .tangle-links g.is-raised .tangle-halo,
+#snomedSvg .sugi-links g.is-raised .tangle-halo { stroke-width: 7.5; }
 #snomedSvg.is-tangled .force-label { display: inline; }
 #snomedSvg .node-disk { stroke-width: 1.6; }
 #snomedSvg .is-cp .node-disk { fill: none; stroke: #1c2430; stroke-width: 2.5; }
