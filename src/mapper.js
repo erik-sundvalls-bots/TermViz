@@ -861,8 +861,20 @@ function rowPoint(row) {
   return { x: from.left + from.width / 2, y: from.top + from.height / 2 };
 }
 
+function shelfHidden() {
+  return document.querySelector(".snomed-body")?.classList.contains("is-shelf-hidden");
+}
+
+function fitTree() {
+  requestAnimationFrame(() => zoomGraph(treeSvg, "fit"));
+}
+
 function drawSuggestionLines() {
   if (!linkOverlay) return;
+  if (shelfHidden()) {
+    d3.select(linkOverlay).selectAll("g.dash").remove();
+    return;
+  }
   const rows = [...detail.querySelectorAll(".guess:not(.is-off), .bind-row:not(.is-off)")];
   syncCues(rows);
   const overlay = d3.select(linkOverlay);
@@ -938,19 +950,30 @@ function wireChrome() {
       if (state.model && state.filter === "suggestions" && masterState() !== "true") {
         for (const node of state.model.suggestions.attached) setCategory(node, true);
         refreshAll();
+        fitTree();
         return;
       }
       if (state.model && state.filter === "bindings" && !bindingsAreAllOn()) {
         selectAllBindings();
         refreshAll();
+        fitTree();
         return;
       }
       renderTree();
       renderDetail();
       refreshGraph();
+      fitTree();
     });
   });
   document.querySelector("#findButton")?.addEventListener("click", () => search.focus());
+  document.querySelector("#shelfToggle")?.addEventListener("click", () => {
+    const body = document.querySelector(".snomed-body");
+    const hidden = body?.classList.toggle("is-shelf-hidden");
+    const button = document.querySelector("#shelfToggle");
+    button?.setAttribute("aria-expanded", hidden ? "false" : "true");
+    button?.setAttribute("aria-label", hidden ? "Show filtered nodes" : "Hide filtered nodes");
+    drawSuggestionLines();
+  });
   for (const viewport of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
     viewport?.querySelectorAll("[data-zoom]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -1096,6 +1119,7 @@ loadIpsModel().then((model) => {
   renderTree();
   renderDetail();
   refreshGraph();
+  fitTree();
 }).catch((error) => {
   errorBox.hidden = false;
   errorBox.textContent = error instanceof Error ? error.message : String(error);

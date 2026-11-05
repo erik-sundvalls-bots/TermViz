@@ -659,40 +659,45 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .attr("class", "node-hit")
     .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8));
 
+  let hoverHold = null;
+  function releaseHoverHold() {
+    const item = hoverHold;
+    if (!item) return;
+    hoverHold = null;
+    if (item.dragging || item.userPinned || item.layoutFixed) return;
+    item.fx = item.hoverFx ?? null;
+    item.fy = item.hoverFy ?? null;
+  }
+  function holdHover(item) {
+    if (!item || item.userPinned || item.layoutFixed) return;
+    hoverHold = item;
+    item.hoverFx = item.fx ?? null;
+    item.hoverFy = item.fy ?? null;
+    item.fx = item.x;
+    item.fy = item.y;
+  }
+
   function paintHover(activeNode, activeLink) {
-    nodes.forEach((item) => {
-      item.hoover_doi = 0;
-    });
-    links.forEach((item) => {
-      item.hoover_doi = 0;
-    });
+    releaseHoverHold();
     node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
     link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
     if (activeNode) {
-      activeNode.hoover_doi = 3;
       node.filter((item) => item === activeNode).classed("is-active", true);
       for (const edge of activeNode.incoming) {
-        edge.hoover_doi = 1;
-        edge.source.hoover_doi = Math.max(edge.source.hoover_doi, 1);
         link.filter((item) => item === edge).classed("is-incoming", true);
         node.filter((item) => item === edge.source).classed("is-incoming", true);
       }
       for (const edge of activeNode.outgoing) {
-        edge.hoover_doi = 1;
-        edge.target.hoover_doi = Math.max(edge.target.hoover_doi, 1);
         link.filter((item) => item === edge).classed("is-outgoing", true);
         node.filter((item) => item === edge.target).classed("is-outgoing", true);
       }
+      holdHover(activeNode);
     }
     if (activeLink) {
-      activeLink.hoover_doi = 1;
       link.filter((item) => item === activeLink).classed("is-active", true);
       node.filter((item) => item === activeLink.source).classed("is-incoming", true);
       node.filter((item) => item === activeLink.target).classed("is-outgoing", true);
-      activeLink.source.hoover_doi = Math.max(activeLink.source.hoover_doi, 1);
-      activeLink.target.hoover_doi = Math.max(activeLink.target.hoover_doi, 1);
     }
-    simulation.alpha(0.35).restart();
   }
 
   node
@@ -705,6 +710,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .call(d3.drag()
       .on("start", (event, item) => {
         if (!event.active) simulation.alphaTarget(0.3).restart();
+        item.dragging = true;
         item.fx = item.x;
         item.fy = item.y;
         item.dragOrigin = { x: item.x, y: item.y };
@@ -715,6 +721,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
       })
       .on("end", (event, item) => {
         if (!event.active) simulation.alphaTarget(0);
+        item.dragging = false;
+        if (hoverHold === item) hoverHold = null;
         const moved = Math.hypot((item.x ?? 0) - (item.dragOrigin?.x ?? item.x), (item.y ?? 0) - (item.dragOrigin?.y ?? item.y)) > 4;
         if (item.userPinned) {
           if (moved) item.autoPin = false;
@@ -733,11 +741,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .on("mouseout", () => paintHover(null, null));
 
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).distance((edge) => {
-      const base = 52 + (edge.hoover_doi || 0) * 22;
-      return edge.target.layoutFixed ? base + 28 : base;
-    }).strength(0.85))
-    .force("charge", d3.forceManyBody().strength((item) => -160 + (item.hoover_doi || 0) * -240))
+    .force("link", d3.forceLink(links).distance((edge) => (edge.target.layoutFixed ? 80 : 52)).strength(0.85))
+    .force("charge", d3.forceManyBody().strength(-160))
     .force("x", d3.forceX(width / 2).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.04)))
     .force("y", d3.forceY(height * 0.62).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.05)))
     .force("collide", d3.forceCollide(18))
