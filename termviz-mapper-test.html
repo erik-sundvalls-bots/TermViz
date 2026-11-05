@@ -7,9 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/TermViz/assets/mapper-BfjjeTHC.js"></script>
-    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-DOvnVeNy.js">
-    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-BgKLCpg-.css">
+    <script type="module" crossorigin src="/TermViz/assets/mapper-DvkVqp9n.js"></script>
+    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-B7lNmrwa.js">
+    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-CD6rtlLV.css">
   </head>
   <body>
     <header class="topbar">
@@ -60,6 +60,8 @@
             <h2>Template</h2>
             <span class="template-now" id="templateNow" title="International Patient Summary">International Patient Summary</span>
             <button type="button" id="loadTemplate">Load template</button>
+            <button type="button" id="loadMap">Load mapping suggestions</button>
+            <button type="button" id="treeSide" aria-pressed="false">Root right</button>
           </div>
           <div class="filter-cluster">
             <span class="filter-name">Filter</span>
@@ -101,6 +103,29 @@
       <div class="dialog-actions">
         <button type="button" id="templateCancel">Cancel</button>
         <button type="button" id="templateGo">Load</button>
+      </div>
+    </dialog>
+    <dialog id="mapDialog" class="template-dialog" aria-labelledby="mapDialogTitle">
+      <h2 id="mapDialogTitle">Load mapping suggestions</h2>
+      <p class="dialog-note">A Snap2SNOMED map is a CSV or TSV with a header. The columns are source_code, source_display, target_code, target_display, and relationship_type. Several rows can share one source_code when there is more than one candidate. relationship_type is TARGET_EQUIVALENT, TARGET_BROADER, TARGET_NARROWER, or TARGET_INEXACT.</p>
+      <ul class="dialog-links">
+        <li><a href="https://docs.snomed.org/snomed-ct-user-guides/snap2snomed-user-guide/how-to-.../2.3-import-an-existing-map-file" target="_blank" rel="noreferrer">Import an existing map file</a></li>
+        <li><a href="https://docs.snomed.org/snomed-ct-user-guides/snap2snomed-user-guide/how-to-.../3-mapping-with-snap2snomed/3.7-relationship-types" target="_blank" rel="noreferrer">Relationship types</a></li>
+        <li><a href="https://docs.snomed.org/snomed-ct-user-guides/snap2snomed-user-guide/how-to-.../2.6-review-a-map" target="_blank" rel="noreferrer">Review a map</a></li>
+        <li><a href="https://docs.snomed.org/snomed-ct-user-guides/snap2snomed-user-guide/introduction/readme" target="_blank" rel="noreferrer">Snap2SNOMED user guide</a></li>
+      </ul>
+      <label class="dialog-field" for="mapUrl">Map URL
+        <input id="mapUrl" type="url" placeholder="https://…" autocomplete="off" />
+      </label>
+      <p class="dialog-or">or</p>
+      <label class="dialog-file">
+        <input id="mapFile" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" />
+        <span id="mapFileName">Choose a file</span>
+      </label>
+      <p id="mapStatus" class="dialog-status" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" id="mapCancel">Cancel</button>
+        <button type="button" id="mapGo">Load</button>
       </div>
     </dialog>
     <div id="conceptPop" class="concept-pop" hidden>
