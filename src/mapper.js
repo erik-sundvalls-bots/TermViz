@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { NODE_COLORS, renderSnomedForce, renderTemplateTree } from "./termviz-2.js";
+import { NODE_COLORS, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
 import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
@@ -44,8 +44,14 @@ function hasBinding(node) {
   return Boolean(node.bindings?.length || node.valueBindings?.length);
 }
 
-function project(node, predicate) {
-  const children = node.children.map((child) => project(child, predicate)).filter(Boolean);
+function project(node, predicate, hide) {
+  const children = [];
+  for (const child of node.children || []) {
+    const projected = project(child, predicate, hide);
+    if (!projected) continue;
+    if (hide?.(projected)) children.push(...(projected.children || []));
+    else children.push(projected);
+  }
   if (predicate(node) || children.length) return { ...node, children, open: true };
   return null;
 }
@@ -69,12 +75,28 @@ function nodeHay(node) {
   ].join(" ").toLowerCase();
 }
 
+function isSuggestionNode(node) {
+  return Boolean(node.suggestions?.length);
+}
+
+function isBindingNode(node) {
+  return hasBinding(node) || Boolean(node.scopeBindings?.length);
+}
+
 function narrowedTree(root) {
   if (state.filter === "suggestions") {
-    return project(root, (node) => Boolean(node.suggestions?.length)) || { ...root, children: [], open: true, name: "No matches" };
+    return project(
+      root,
+      isSuggestionNode,
+      (node) => isBindingNode(node) && !isSuggestionNode(node),
+    ) || { ...root, children: [], open: true, name: "No matches" };
   }
   if (state.filter === "bindings") {
-    return project(root, (node) => hasBinding(node) || node.scopeBindings?.length) || { ...root, children: [], open: true, name: "No matches" };
+    return project(
+      root,
+      isBindingNode,
+      (node) => isSuggestionNode(node) && !isBindingNode(node),
+    ) || { ...root, children: [], open: true, name: "No matches" };
   }
   return root;
 }
@@ -301,22 +323,27 @@ function renderDetail() {
   const bound = state.model ? bindingNodes() : [];
   const bindingChecked = bindingMasterState();
   const bindingRows = bound.map((entry) => bindRow(entry, bound)).join("");
-  detail.innerHTML = `<p class="side-kicker">Filtered nodes</p>
-    <div class="side-split">
-      <div class="side-main">
+  const showSuggestions = state.filter !== "bindings";
+  const showBindings = state.filter !== "suggestions";
+  const suggestionsHtml = `<div class="side-main">
         <header class="cat-head master">
           ${switchHtml(`data-cat="all" aria-label="Show all mapping suggestions"`, master)}
           <span class="cat-name">Mapping suggestions</span>
         </header>
         <div class="side-indent">${blocks}</div>
-      </div>
-      <aside class="side-bind">
+      </div>`;
+  const bindingsHtml = `<aside class="side-bind">
         <header class="cat-head">
           ${switchHtml(`data-cat="bindings" aria-label="Show all template bindings"`, bindingChecked)}
           <span class="cat-name">Template bindings</span>
         </header>
         <div class="side-indent">${bindingRows}</div>
-      </aside>
+      </aside>`;
+  const single = showSuggestions === showBindings ? "" : " is-single";
+  detail.innerHTML = `<p class="side-kicker">Filtered nodes</p>
+    <div class="side-split${single}">
+      ${showSuggestions ? suggestionsHtml : ""}
+      ${showBindings ? bindingsHtml : ""}
     </div>`;
   drawSuggestionLines();
 }
@@ -835,8 +862,18 @@ function wireChrome() {
         return;
       }
       renderTree();
+      renderDetail();
     });
   });
+  document.querySelector("#findButton")?.addEventListener("click", () => search.focus());
+  for (const viewport of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
+    viewport?.querySelectorAll("[data-zoom]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const svg = viewport.querySelector("svg");
+        if (svg) zoomGraph(svg, button.dataset.zoom);
+      });
+    });
+  }
   search.addEventListener("input", () => {
     state.query = search.value;
     renderTree();

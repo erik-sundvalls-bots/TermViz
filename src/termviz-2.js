@@ -15,6 +15,73 @@ const RANK_COLORS = ["#0f6e6b", "#1d4e89", "#c46b1a", "#8a4b2f", "#6b3a6b"];
 /** One colour per switched-on template node, not per SNOMED guess. */
 export const NODE_COLORS = ["#c46b1a", "#1d4e89", "#0f6e6b", "#6b3a6b", "#8d2f2f", "#3d6b2f", "#8a4b2f", "#2456a0"];
 
+function zoomLayer(svg) {
+  const layer = svg.append("g").attr("class", "zoom-layer");
+  layer.attr("transform", d3.zoomTransform(svg.node()));
+  return layer;
+}
+
+/**
+ * Pinch, ctrl/cmd + wheel, and drag-to-pan. Plain wheel pans.
+ * Buttons call zoomGraph().
+ */
+export function graphZoom(svgSelection) {
+  const svg = d3.select(svgSelection);
+  const node = svg.node();
+  if (!node) return null;
+  if (node.__termvizZoom) return node.__termvizZoom;
+  const zoom = d3.zoom()
+    .scaleExtent([0.2, 8])
+    .filter((event) => {
+      if (event.type === "wheel") return event.ctrlKey || event.metaKey;
+      const target = event.target;
+      if (typeof target?.closest === "function" && target.closest(".force-node, .tpl-node")) return false;
+      return !event.button;
+    })
+    .on("zoom", (event) => {
+      svg.select("g.zoom-layer").attr("transform", event.transform);
+    });
+  svg.call(zoom);
+  svg.on("wheel.pan", (event) => {
+    if (event.ctrlKey || event.metaKey) return;
+    event.preventDefault();
+    svg.call(zoom.translateBy, -event.deltaX, -event.deltaY);
+  });
+  node.__termvizZoom = zoom;
+  node.style.touchAction = "none";
+  return zoom;
+}
+
+export function zoomGraph(svgSelection, mode) {
+  const svg = d3.select(svgSelection);
+  const zoom = graphZoom(svgSelection);
+  if (!zoom) return;
+  if (mode === "in") {
+    svg.transition().duration(180).call(zoom.scaleBy, 1.35);
+    return;
+  }
+  if (mode === "out") {
+    svg.transition().duration(180).call(zoom.scaleBy, 1 / 1.35);
+    return;
+  }
+  if (mode === "one") {
+    svg.transition().duration(220).call(zoom.transform, d3.zoomIdentity);
+    return;
+  }
+  const layer = svg.select("g.zoom-layer").node();
+  const host = svg.node();
+  if (!layer || !host) return;
+  const bounds = layer.getBBox();
+  const width = host.clientWidth || host.viewBox?.baseVal?.width || 0;
+  const height = host.clientHeight || host.viewBox?.baseVal?.height || 0;
+  if (!bounds.width || !bounds.height || !width || !height) return;
+  const pad = 28;
+  const k = Math.max(0.2, Math.min(8, Math.min((width - pad * 2) / bounds.width, (height - pad * 2) / bounds.height)));
+  const tx = (width - bounds.width * k) / 2 - bounds.x * k;
+  const ty = (height - bounds.height * k) / 2 - bounds.y * k;
+  svg.transition().duration(280).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+}
+
 function clear(svg) {
   const node = svg.node();
   if (node?.__termvizSimulation) {
@@ -207,6 +274,7 @@ function treeLabelWidth(text) {
 export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
+  graphZoom(svgSelection);
   if (!rootData) {
     svg.attr("width", "100%").attr("height", "100%");
     return;
@@ -260,11 +328,12 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
   const padTop = 16;
   const padBottom = 14;
   const padX = 8;
-  const height = padTop + y1 + padBottom;
-  const width = Math.max(280, x1 - x0 + padX * 2);
-  svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const host = svg.node()?.parentElement;
+  const viewW = Math.max(280, host?.clientWidth || 640);
+  const viewH = Math.max(140, host?.clientHeight || 320);
+  svg.attr("width", viewW).attr("height", viewH).attr("viewBox", `0 0 ${viewW} ${viewH}`);
   const yOf = (node) => padTop + (y1 - node.y);
-  const plot = svg.append("g").attr("transform", `translate(${padX - x0},0)`);
+  const plot = zoomLayer(svg).append("g").attr("transform", `translate(${padX - x0},0)`);
   const diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
   const active = activeIds instanceof Set ? activeIds : new Set(activeIds || []);
 
@@ -322,11 +391,13 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       if (color) d3.select(this).style("fill", color).style("stroke", color);
     });
 
-  node.append("text")
-    .attr("class", "tree-label")
-    .attr("text-anchor", "middle")
-    .attr("dy", -13)
-    .text((item) => item.label);
+  for (const kind of ["shadow", "ink"]) {
+    node.append("text")
+      .attr("class", `tree-label ${kind}`)
+      .attr("text-anchor", "middle")
+      .attr("dy", -13)
+      .text((item) => item.label);
+  }
 
   node.on("click", (event, item) => {
     event.stopPropagation();
@@ -336,7 +407,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
   node.on("mouseout", (event, item) => onHover?.(item.data, false));
 
   const selected = root.descendants().find((item) => item.data.id === selectedId);
-  return { width, height, selected };
+  return { width: viewW, height: viewH, selected };
 }
 
 /**
@@ -347,6 +418,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
 export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, released, onPinMove } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
+  graphZoom(svgSelection);
   const host = svg.node()?.parentElement;
   const width = Math.max(320, host?.clientWidth || 640);
   const height = Math.max(260, host?.clientHeight || 360);
@@ -382,7 +454,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     .attr("d", "M0,-5L10,0L0,5Z")
     .attr("class", "force-arrow");
 
-  const link = svg.append("g")
+  const layer = zoomLayer(svg);
+  const link = layer.append("g")
     .selectAll("line")
     .data(links)
     .join("line")
@@ -448,7 +521,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
   }
 
-  const node = svg.append("g")
+  const node = layer.append("g")
     .selectAll("g")
     .data(nodes)
     .join("g")

@@ -33,6 +33,12 @@
               <p>Turn a category on in the list.</p>
             </div>
             <svg id="snomedSvg" role="img" aria-label="SNOMED CT graph"></svg>
+            <div class="zoom-controls" aria-label="SNOMED zoom">
+              <button type="button" data-zoom="in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2z"/></svg></button>
+              <button type="button" data-zoom="out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/></svg></button>
+              <button type="button" data-zoom="one" class="zoom-one" aria-label="Original scale">1:1</button>
+              <button type="button" data-zoom="fit" aria-label="Show all nodes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3l2.3 2.3-2.89 2.87 1.42 1.42L18.7 6.7 21 9V3h-6zM9 3H3v6l2.3-2.3 2.87 2.89 1.42-1.42L6.7 5.3 9 3zm0 18l-2.3-2.3 2.89-2.87-1.42-1.42L5.3 17.3 3 15v6h6zm12-6l-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87L15 21h6v-6z"/></svg></button>
+            </div>
           </div>
           <aside class="detail" id="detailShelf" aria-label="Mapping list">
             <button type="button" class="scroll-cue" id="cueUp" hidden aria-label="More entries above">▴</button>
@@ -47,9 +53,10 @@
           <h2>Template</h2>
           <div class="filter-cluster">
             <span class="filter-name">Filter</span>
-            <label class="search" for="search">Find
-              <input id="search" type="search" placeholder="Name or SNOMED id" />
-            </label>
+            <div class="find-button">
+              <button type="button" id="findButton">Find</button>
+              <input id="search" type="search" placeholder="Name or SNOMED id" aria-label="Find" />
+            </div>
             <div class="filters" role="group" aria-label="Filter">
               <button type="button" data-filter="suggestions" class="is-on">Mapping suggestions</button>
               <button type="button" data-filter="bindings">Template bindings</button>
@@ -59,6 +66,12 @@
         </div>
         <div class="viewport" id="treeViewport">
           <svg id="treeSvg" role="img" aria-label="Template tree"></svg>
+          <div class="zoom-controls" aria-label="Template zoom">
+            <button type="button" data-zoom="in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2z"/></svg></button>
+            <button type="button" data-zoom="out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/></svg></button>
+            <button type="button" data-zoom="one" class="zoom-one" aria-label="Original scale">1:1</button>
+            <button type="button" data-zoom="fit" aria-label="Show all nodes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3l2.3 2.3-2.89 2.87 1.42 1.42L18.7 6.7 21 9V3h-6zM9 3H3v6l2.3-2.3 2.87 2.89 1.42-1.42L6.7 5.3 9 3zm0 18l-2.3-2.3 2.89-2.87-1.42-1.42L5.3 17.3 3 15v6h6zm12-6l-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87L15 21h6v-6z"/></svg></button>
+          </div>
         </div>
       </section>
     </main>
