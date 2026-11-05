@@ -634,7 +634,7 @@ let demoMapPromise;
 export function loadDemoMap() {
   if (!demoMapPromise) {
     demoMapPromise = (async () => {
-      const response = await fetch(publicUrl("maps/ips-snap2snomed.csv"));
+      const response = await fetch(publicUrl("maps/ips-snap2snomed-extended.csv"));
       if (!response.ok) throw new Error(`Could not fetch the Snap2SNOMED map (${response.status}).`);
       return parseSnapMap(await response.text());
     })();

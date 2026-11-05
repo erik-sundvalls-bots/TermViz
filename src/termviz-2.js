@@ -698,16 +698,28 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
     })
     .attr("data-id", (item) => item.id);
 
-  node.append("circle")
-    .attr("class", "node-disk")
-    .attr("r", 8)
-    .attr("fill-opacity", (item) => item.fillOpacity ?? 1)
-    .attr("stroke-width", 1.6)
-    .each(function paint(item) {
-      d3.select(this)
-        .style("fill", item.fill || "#ffffff")
-        .style("stroke", item.stroke || "#4682b4");
-    });
+  const sliceArc = d3.arc().innerRadius(0).outerRadius(8);
+  node.each(function paint(item) {
+    const host = d3.select(this);
+    const slices = item.sliceFills || [];
+    if (slices.length > 1) {
+      const pie = d3.pie().sort(null).value(() => 1)(slices);
+      host.append("g")
+        .attr("class", "node-slices")
+        .selectAll("path")
+        .data(pie)
+        .join("path")
+        .attr("d", sliceArc)
+        .style("fill", (slice) => slice.data);
+    }
+    host.append("circle")
+      .attr("class", "node-disk")
+      .attr("r", 8)
+      .attr("fill-opacity", item.fillOpacity ?? 1)
+      .attr("stroke-width", slices.length > 1 ? 2.5 : 1.6)
+      .style("fill", slices.length > 1 ? "none" : (item.fill || "#ffffff"))
+      .style("stroke", item.stroke || "#4682b4");
+  });
   node.append("circle")
     .attr("class", "pin-dot")
     .attr("r", 2.3);

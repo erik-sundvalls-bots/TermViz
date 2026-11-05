@@ -56,7 +56,9 @@ const adlEntries = manifest.map((filePath) => ({
   path: filePath,
   text: fs.readFileSync(path.join(rootDir, "public/models/ips-fileset", filePath), "utf8"),
 }));
-const mapRows = parseSnapMap(fs.readFileSync(path.join(rootDir, "public/maps/ips-snap2snomed.csv"), "utf8"));
+const mapRows = ["ips-snap2snomed.csv", "ips-snap2snomed-extended.csv"].flatMap((name) => (
+  parseSnapMap(fs.readFileSync(path.join(rootDir, "public/maps", name), "utf8"))
+));
 const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows });
 
 const seeds = new Set(mapRows.map((row) => row.code));

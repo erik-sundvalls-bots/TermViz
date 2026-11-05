@@ -5,6 +5,7 @@
   "edition": "http://snomed.info/sct/900000000000207008",
   "seeds": [
     "105590001",
+    "105903003",
     "106229004",
     "129125009",
     "14657009",
@@ -13,17 +14,22 @@
     "15240007",
     "16206004",
     "182849000",
+    "225756002",
     "225761000",
     "246153002",
+    "246188002",
     "258681007",
     "260548002",
     "260864003",
     "261665006",
     "261771004",
+    "266710000",
     "271649006",
     "271650006",
+    "272123003",
     "277923006",
     "282291009",
+    "284005007",
     "288524001",
     "288526004",
     "304252001",
@@ -36,14 +42,19 @@
     "385055001",
     "386725007",
     "387713003",
+    "396140003",
+    "397726004",
     "404684003",
+    "407559004",
     "410511007",
     "410513005",
     "410515003",
     "410516002",
     "410656007",
+    "410680006",
     "410942007",
     "418799008",
+    "419515004",
     "420891004",
     "422135004",
     "422472007",
@@ -53,12 +64,18 @@
     "444981005",
     "446134003",
     "448703006",
+    "47625008",
     "5558000",
+    "56241000179103",
     "60621009",
     "64572001",
+    "70232002",
     "71388002",
+    "736478001",
+    "736479009",
     "736542009",
     "763158003",
+    "767524001",
     "767525000",
     "781405001",
     "8319008",
@@ -81,6 +98,12 @@
         "138875005"
       ],
       "inactive": false
+    },
+    {
+      "code": "105903003",
+      "display": "General drug type",
+      "parents": [],
+      "inactive": true
     },
     {
       "code": "106229004",
@@ -119,6 +142,14 @@
       "display": "Procedure by method",
       "parents": [
         "71388002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "1290126002",
+      "display": "Drug therapy with explicit context",
+      "parents": [
+        "129125009"
       ],
       "inactive": false
     },
@@ -185,6 +216,14 @@
       "inactive": false
     },
     {
+      "code": "225756002",
+      "display": "Every four hours",
+      "parents": [
+        "307467005"
+      ],
+      "inactive": false
+    },
+    {
       "code": "225761000",
       "display": "As required",
       "parents": [
@@ -221,6 +260,28 @@
       "display": "Type of cuff",
       "parents": [
         "410657003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "246188002",
+      "display": "Finding",
+      "parents": [],
+      "inactive": true
+    },
+    {
+      "code": "246205007",
+      "display": "Quantity",
+      "parents": [
+        "246445000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "246445000",
+      "display": "Measure",
+      "parents": [
+        "408739003"
       ],
       "inactive": false
     },
@@ -318,6 +379,14 @@
       "inactive": false
     },
     {
+      "code": "266710000",
+      "display": "Drugs not taken/completed",
+      "parents": [
+        "1290126002"
+      ],
+      "inactive": false
+    },
+    {
       "code": "271649006",
       "display": "Systolic blood pressure",
       "parents": [
@@ -360,6 +429,12 @@
       "inactive": false
     },
     {
+      "code": "272123003",
+      "display": "Action frequency (qualifier value)",
+      "parents": [],
+      "inactive": false
+    },
+    {
       "code": "272181003",
       "display": "Clinical equipment and/or device",
       "parents": [
@@ -388,6 +463,20 @@
       "display": "Diagnosis interpretation",
       "parents": [
         "243814003"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "284005007",
+      "display": "Route of administration value (qualifier value)",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "284009009",
+      "display": "Route of administration value",
+      "parents": [
+        "362981000"
       ],
       "inactive": false
     },
@@ -486,6 +575,22 @@
       "display": "Four times daily",
       "parents": [
         "307438009"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307459002",
+      "display": "Frequency interval",
+      "parents": [
+        "307430002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "307467005",
+      "display": "Intervals of hours",
+      "parents": [
+        "307459002"
       ],
       "inactive": false
     },
@@ -709,10 +814,33 @@
       "inactive": false
     },
     {
+      "code": "396140003",
+      "display": "Every eight to twelve hours",
+      "parents": [
+        "307467005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "397726004",
+      "display": "Shelf life (observable entity)",
+      "parents": [],
+      "inactive": false
+    },
+    {
       "code": "404684003",
       "display": "Clinical finding",
       "parents": [
         "138875005"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "407559004",
+      "display": "Family history unknown",
+      "parents": [
+        "413350009",
+        "57177007"
       ],
       "inactive": false
     },
@@ -797,10 +925,26 @@
       "inactive": false
     },
     {
+      "code": "410680006",
+      "display": "Number",
+      "parents": [
+        "246205007"
+      ],
+      "inactive": false
+    },
+    {
       "code": "410942007",
       "display": "Drug or medicament",
       "parents": [
         "105590001"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "413350009",
+      "display": "Finding with explicit context",
+      "parents": [
+        "243796009"
       ],
       "inactive": false
     },
@@ -842,6 +986,12 @@
       "parents": [
         "404684003"
       ],
+      "inactive": false
+    },
+    {
+      "code": "419515004",
+      "display": "Therapeutic good (product)",
+      "parents": [],
       "inactive": false
     },
     {
@@ -903,6 +1053,14 @@
       "inactive": false
     },
     {
+      "code": "445755006",
+      "display": "Intravascular route",
+      "parents": [
+        "284009009"
+      ],
+      "inactive": false
+    },
+    {
       "code": "446134003",
       "display": "Evaluation of lot number (procedure)",
       "parents": [],
@@ -913,6 +1071,14 @@
       "display": "Pulse oximeter",
       "parents": [
         "59181002"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "47625008",
+      "display": "Intravenous route",
+      "parents": [
+        "445755006"
       ],
       "inactive": false
     },
@@ -937,6 +1103,20 @@
       "display": "Working diagnosis",
       "parents": [
         "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "56241000179103",
+      "display": "PRN administration (procedure)",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "code": "57177007",
+      "display": "Family history with explicit context",
+      "parents": [
+        "243796009"
       ],
       "inactive": false
     },
@@ -966,6 +1146,15 @@
       "inactive": false
     },
     {
+      "code": "70232002",
+      "display": "Frequent",
+      "parents": [
+        "272123002",
+        "7389001"
+      ],
+      "inactive": false
+    },
+    {
       "code": "71388002",
       "display": "Procedure",
       "parents": [
@@ -991,8 +1180,24 @@
       "inactive": false
     },
     {
+      "code": "736479009",
+      "display": "Dose form intended site",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
       "code": "736542009",
       "display": "Pharmaceutical dose form",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "code": "7389001",
+      "display": "Time frame",
       "parents": [
         "362981000"
       ],

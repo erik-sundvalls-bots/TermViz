@@ -736,11 +736,12 @@ function annotate(graph) {
     item.lcp = shared && !childShared;
     item.name = item.display && item.display !== id ? item.display : "";
     item.fillOpacity = 1;
+    item.sliceFills = paints.map((paint) => paint.fill);
     if (!paints.length) {
       item.fill = "#ffffff";
       item.stroke = "#9aa8b5";
     } else if (shared) {
-      item.fill = "#ffffff";
+      item.fill = paints[0].fill;
       item.stroke = "#1c2430";
     } else {
       item.fill = paints[0].fill;

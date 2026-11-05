@@ -254,6 +254,8 @@ main {
   line-height: 1.4;
 }
 
+.dialog-note a { color: var(--teal-deep); }
+
 #mapDialog { width: min(520px, calc(100vw - 28px)); }
 
 .dialog-links {
@@ -938,7 +940,9 @@ svg { display: block; }
 .node-hit { fill: transparent; stroke: none; pointer-events: all; }
 .force-link { stroke: #8d97a3; }
 #snomedSvg .node-disk { stroke-width: 1.6; }
-#snomedSvg .is-cp .node-disk { fill: #fff; stroke: #1c2430; stroke-width: 2.5; }
+#snomedSvg .is-cp .node-disk { fill: none; stroke: #1c2430; stroke-width: 2.5; }
+#snomedSvg .node-slices { pointer-events: none; }
+#snomedSvg .node-slices path { stroke: rgba(255, 255, 255, 0.85); stroke-width: 0.6; }
 #snomedSvg .is-lcp .node-disk { stroke-width: 1.6; }
 #snomedSvg .force-node { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 #snomedSvg .pin-dot { fill: transparent; stroke: none; pointer-events: none; }

@@ -18,7 +18,8 @@ const adlEntries = manifest.map((filePath) => ({
   text: fs.readFileSync(path.join(root, "public/models/ips-fileset", filePath), "utf8"),
 }));
 
-const mapRows = parseSnapMap(fs.readFileSync(path.join(root, "public/maps/ips-snap2snomed.csv"), "utf8"));
+const mapRows = parseSnapMap(fs.readFileSync(path.join(root, "public/maps/ips-snap2snomed-extended.csv"), "utf8"));
+const previousRows = parseSnapMap(fs.readFileSync(path.join(root, "public/maps/ips-snap2snomed.csv"), "utf8"));
 const model = buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows });
 const failed = model.archetypeReports.filter((report) => report.how === "failed");
 const stubs = model.archetypeReports.filter((report) => report.how === "terminology-stub");
@@ -56,6 +57,8 @@ const bundledIds = new Set(bundled.concepts.map((item) => String(item.code)));
 const mapCodes = [...new Set(mapRows.map((row) => row.code))];
 const absent = mapCodes.filter((code) => !bundledIds.has(code));
 if (absent.length) problems.push(`map codes missing from the bundled closure: ${absent.join(", ")}`);
+const previousAbsent = [...new Set(previousRows.map((row) => row.code))].filter((code) => !bundledIds.has(code));
+if (previousAbsent.length) problems.push(`previous map codes missing from the bundled closure: ${previousAbsent.join(", ")}`);
 if (model.comparison.missingFromOpt !== 0) problems.push("unexpected missing bindings");
 if (model.comparison.conflicts !== 0) problems.push("binding conflicts");
 if (model.comparison.both < 26) problems.push("expected the 26 shared SNOMED bindings");
