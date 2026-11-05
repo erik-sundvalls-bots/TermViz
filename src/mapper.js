@@ -37,7 +37,7 @@ const state = {
   mapReviews: new Map(),
   mapRelations: new Map(),
   treeSide: false,
-  snomedLayout: "force",
+  snomedLayout: "sugiyama",
 };
 
 function chip(text) {
@@ -815,6 +815,7 @@ async function refreshGraph() {
       if (el) openPop(d3.select(el).datum());
     }
     drawSuggestionLines();
+    if (state.snomedLayout !== "force") requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
     renderStats();
   } catch (error) {
     if (token !== state.snomedToken) return;
@@ -925,6 +926,7 @@ function setShowLabel(item, on) {
     el?.classList.add("is-label-off");
   }
   document.querySelector("#popLabel")?.setAttribute("aria-checked", on ? "true" : "false");
+  if (state.snomedLayout === "sugiyama") renderSnomed({ preserve: true });
 }
 
 function lineIsHot(item) {
@@ -1082,13 +1084,20 @@ function pinConcept(code, on) {
   node?.classList.toggle("is-pinned", on);
 }
 
-function renderSnomed() {
+function renderSnomed({ preserve = false } = {}) {
   const draw = state.snomedLayout === "tangled"
     ? renderSnomedTangled
     : state.snomedLayout === "sugiyama"
       ? renderSnomedDag
       : renderSnomedForce;
-  const note = draw(snomedSvg, state.graph || { nodes: [], links: [] }, forceOptions());
+  const note = draw(snomedSvg, state.graph || { nodes: [], links: [] }, {
+    ...forceOptions(),
+    preserve,
+    onFrame: () => {
+      drawSuggestionLines();
+      placePop();
+    },
+  });
   const stripped = snomedCaption.textContent.replace(/ · two-layer order \(graph too large for optimal\)$/, "");
   snomedCaption.textContent = typeof note === "string" && note ? `${stripped} · ${note}` : stripped;
 }

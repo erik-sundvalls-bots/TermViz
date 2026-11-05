@@ -1358,13 +1358,111 @@ function sugiyamaPath(points) {
   return d3.line().curve(d3.curveBumpY)(points.slice().reverse());
 }
 
+let sugiyamaMemory = null;
+
+function sugiyamaIds(nodes) {
+  return nodes.map((node) => String(node.id)).sort().join("|");
+}
+
+function rememberSugiyama(nodes, links, maxLines) {
+  sugiyamaMemory = {
+    ids: sugiyamaIds(nodes),
+    pos: new Map(nodes.map((node) => [String(node.id), { x: node.x, y: node.y }])),
+    width: new Map(nodes.map((node) => [String(node.id), node.layoutWidth ?? SUGIYAMA_DISK])),
+    maxLines,
+    points: new Map(links.filter((link) => link.points).map((link) => [
+      `${link.source.id}|${link.target.id}`,
+      link.points.map((point) => [...point]),
+    ])),
+  };
+}
+
+/**
+ * Keep the current order and only open or close space for a label.
+ * The concept that changed stays put. Neighbours on its rank slide
+ * just far enough for the new width, half to each side.
+ */
+function adjustSugiyama(nodes, links, maxLines) {
+  const memory = sugiyamaMemory;
+  const ranks = new Map();
+  for (const node of nodes) {
+    const at = memory.pos.get(String(node.id));
+    node.x = at.x;
+    node.y = at.y;
+    const key = Math.round(at.y);
+    const rank = ranks.get(key) || [];
+    rank.push(node);
+    ranks.set(key, rank);
+  }
+  const dx = new Map(nodes.map((node) => [String(node.id), 0]));
+  const dy = new Map(nodes.map((node) => [String(node.id), 0]));
+  for (const node of nodes) {
+    const id = String(node.id);
+    const extra = (node.layoutWidth ?? SUGIYAMA_DISK) - (memory.width.get(id) ?? SUGIYAMA_DISK);
+    if (Math.abs(extra) < 0.5) continue;
+    const origin = memory.pos.get(id);
+    const half = extra / 2;
+    for (const other of ranks.get(Math.round(origin.y)) || []) {
+      if (other === node) continue;
+      const otherId = String(other.id);
+      const side = memory.pos.get(otherId).x < origin.x ? -half : half;
+      dx.set(otherId, dx.get(otherId) + side);
+    }
+  }
+  const lineDelta = (maxLines - memory.maxLines) * SUGIYAMA_LINE;
+  if (lineDelta) {
+    const rankYs = [...ranks.keys()].sort((a, b) => a - b);
+    const rankIndex = new Map(rankYs.map((y, index) => [y, index]));
+    for (const node of nodes) {
+      const index = rankIndex.get(Math.round(memory.pos.get(String(node.id)).y)) || 0;
+      dy.set(String(node.id), lineDelta * (index + 1));
+    }
+  }
+  let moved = false;
+  for (const node of nodes) {
+    const id = String(node.id);
+    node.x = memory.pos.get(id).x + dx.get(id);
+    node.y = memory.pos.get(id).y + dy.get(id);
+    if (Math.abs(dx.get(id)) > 0.5 || Math.abs(dy.get(id)) > 0.5) moved = true;
+  }
+  for (const link of links) {
+    const key = `${link.source.id}|${link.target.id}`;
+    const oldPoints = memory.points.get(key);
+    if (!oldPoints?.length) continue;
+    const parentId = String(link.target.id);
+    const childId = String(link.source.id);
+    const y0 = oldPoints[0][1];
+    const y1 = oldPoints[oldPoints.length - 1][1];
+    const span = y1 - y0 || 1;
+    link.points = oldPoints.map(([x, y]) => {
+      const t = (y - y0) / span;
+      return [
+        x + (dx.get(parentId) || 0) * (1 - t) + (dx.get(childId) || 0) * t,
+        y + (dy.get(parentId) || 0) * (1 - t) + (dy.get(childId) || 0) * t,
+      ];
+    });
+  }
+  return { moved };
+}
+
 /**
  * Top-to-bottom Sugiyama layout (d3-dag): longest-path layering, optimal
  * decrossing, quadratic coordinates. Edges point at the parent, as in the
  * force graph. Optimal decrossing refuses a graph it judges too large; that
  * case falls back to two-layer decrossing and the caller is told.
  */
-export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, labels, labelHidden } = {}) {
+export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, labels, labelHidden, preserve = false, onFrame } = {}) {
+  const livePos = new Map();
+  const livePath = new Map();
+  d3.select(svgSelection).selectAll(".force-node").each(function read(datum) {
+    if (!datum?.id) return;
+    const match = /translate\(([-\d.]+),([-\d.]+)\)/.exec(this.getAttribute("transform") || "");
+    if (match) livePos.set(String(datum.id), { x: Number(match[1]), y: Number(match[2]) });
+  });
+  d3.select(svgSelection).selectAll(".sugi-link").each(function read(datum) {
+    if (!datum?.source || !datum?.target) return;
+    livePath.set(`${datum.source.id}|${datum.target.id}`, this.getAttribute("d") || "");
+  });
   const svg = d3.select(svgSelection);
   clear(svg);
   svg.classed("is-tangled", false);
@@ -1426,42 +1524,55 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     item.labelLines = lines;
     const shown = !item.labelOff && (item.showLabel || item.suggestion || item.cp);
     if (!shown) continue;
-    const textWidth = Math.max(...lines.map((line) => measure(line)));
-    widths.set(String(item.id), Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4)));
-    maxLines = Math.max(maxLines, lines.length);
+    const textWidth = shown ? Math.max(...lines.map((line) => measure(line))) : 0;
+    item.layoutWidth = shown ? Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4)) : SUGIYAMA_DISK;
+    widths.set(String(item.id), item.layoutWidth);
+    if (shown) maxLines = Math.max(maxLines, lines.length);
   }
   measurer.remove();
   const radius = 8;
-  const above = radius + 4 + (maxLines - 1) * SUGIYAMA_LINE + 11;
-  const gapY = Math.max(28, above - radius + 10);
-  const { dag, fallback } = layoutSugiyama(
-    pairs,
-    (dagNode) => [widths.get(String(dagNode.data)) ?? SUGIYAMA_DISK, 16],
-    [8, gapY],
-  );
-  let minX = Infinity;
-  let minY = Infinity;
-  for (const dagNode of dag.nodes()) {
-    if (typeof dagNode.data !== "string") continue;
-    minX = Math.min(minX, dagNode.x);
-    minY = Math.min(minY, dagNode.y);
+  const sameGraph = preserve && sugiyamaMemory && sugiyamaMemory.ids === sugiyamaIds(nodes);
+  let fallback = false;
+  let gentle = false;
+  if (sameGraph) {
+    gentle = adjustSugiyama(nodes, links, maxLines).moved;
+  } else {
+    const above = radius + 4 + (maxLines - 1) * SUGIYAMA_LINE + 11;
+    const gapY = Math.max(28, above - radius + 10);
+    const laid = layoutSugiyama(
+      pairs,
+      (dagNode) => [widths.get(String(dagNode.data)) ?? SUGIYAMA_DISK, 16],
+      [8, gapY],
+    );
+    fallback = laid.fallback;
+    const { dag } = laid;
+    let minX = Infinity;
+    let minY = Infinity;
+    for (const dagNode of dag.nodes()) {
+      if (typeof dagNode.data !== "string") continue;
+      minX = Math.min(minX, dagNode.x);
+      minY = Math.min(minY, dagNode.y);
+    }
+    const shiftX = 16 - (Number.isFinite(minX) ? minX : 0);
+    const shiftY = above - (Number.isFinite(minY) ? minY : 0);
+    const placed = new Map([...dag.nodes()].map((dagNode) => [String(dagNode.data), dagNode]));
+    for (const node of nodes) {
+      const at = placed.get(String(node.id));
+      node.x = (at?.x ?? 0) + shiftX;
+      node.y = (at?.y ?? 0) + shiftY;
+    }
+    const geometry = new Map();
+    for (const dagLink of dag.links()) {
+      const parent = String(dagLink.source.data);
+      const child = String(dagLink.target.data);
+      if (parent === child) continue;
+      geometry.set(`${child}|${parent}`, dagLink.points.map(([x, y]) => [x + shiftX, y + shiftY]));
+    }
+    for (const link of links) link.points = geometry.get(`${link.source.id}|${link.target.id}`);
   }
-  const dx = 16 - (Number.isFinite(minX) ? minX : 0);
-  const dy = above - (Number.isFinite(minY) ? minY : 0);
-  const placed = new Map([...dag.nodes()].map((dagNode) => [String(dagNode.data), dagNode]));
-  for (const node of nodes) {
-    const at = placed.get(String(node.id));
-    node.x = (at?.x ?? 0) + dx;
-    node.y = (at?.y ?? 0) + dy;
-  }
-  const geometry = new Map();
-  for (const dagLink of dag.links()) {
-    const parent = String(dagLink.source.data);
-    const child = String(dagLink.target.data);
-    if (parent === child) continue;
-    geometry.set(`${child}|${parent}`, dagLink.points.map(([x, y]) => [x + dx, y + dy]));
-  }
-  for (const link of links) link.points = geometry.get(`${link.source.id}|${link.target.id}`);
+  const fromPos = new Map(sugiyamaMemory ? [...sugiyamaMemory.pos] : []);
+  for (const [id, at] of livePos) fromPos.set(id, at);
+  rememberSugiyama(nodes, links, maxLines);
 
   const defs = svg.append("defs");
   defs.append("marker")
@@ -1540,6 +1651,37 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     }
   });
   node.append("circle").attr("class", "node-hit").attr("r", radius);
+
+  if (gentle) {
+    const curves = linkWrap.selectAll("path");
+    node.attr("transform", (item) => {
+      const at = fromPos.get(String(item.id)) || item;
+      return `translate(${at.x},${at.y})`;
+    });
+    curves.attr("d", (item) => livePath.get(`${item.source.id}|${item.target.id}`) || sugiyamaPath(item.points));
+    const place = new Map();
+    for (const item of nodes) {
+      const at = fromPos.get(String(item.id)) || item;
+      place.set(String(item.id), {
+        x: d3.interpolateNumber(at.x, item.x),
+        y: d3.interpolateNumber(at.y, item.y),
+      });
+    }
+    const draw = new Map();
+    for (const item of drawn) {
+      const key = `${item.source.id}|${item.target.id}`;
+      draw.set(key, d3.interpolateString(livePath.get(key) || sugiyamaPath(item.points), sugiyamaPath(item.points)));
+    }
+    layer.transition("sugiyama-constancy").duration(420).ease(d3.easeCubicOut)
+      .tween("slide", () => (t) => {
+        node.attr("transform", (item) => {
+          const at = place.get(String(item.id));
+          return `translate(${at.x(t)},${at.y(t)})`;
+        });
+        curves.attr("d", (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points));
+        onFrame?.();
+      });
+  }
 
   function paintHover(activeNode, activeLink) {
     node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);

@@ -16,13 +16,13 @@
     </header>
     <p class="error" id="error" hidden></p>
     <main id="bench">
-      <section class="pane pane-snomed" id="snomedPane" aria-label="SNOMED CT graph">
+      <section class="pane pane-snomed is-sugiyama" id="snomedPane" aria-label="SNOMED CT graph">
         <div class="pane-bar">
           <h2>SNOMED CT</h2>
           <div class="layout-switch" role="group" aria-label="SNOMED layout">
-            <button type="button" data-layout="force" class="is-on">Force</button>
+            <button type="button" data-layout="force">Force</button>
             <button type="button" data-layout="tangled">Tangled tree</button>
-            <button type="button" data-layout="sugiyama">Sugiyama</button>
+            <button type="button" data-layout="sugiyama" class="is-on">Sugiyama</button>
           </div>
           <p class="caption" id="snomedCaption"></p>
           <div class="legend" aria-hidden="true">
