@@ -906,6 +906,356 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
   return { simulation };
 }
 
+/**
+ * Left-to-right tangled tree for a DAG. The curve routing follows
+ * Matteo Abrate's tangled-tree layout (MIT), as published by Takanori Fujiwara.
+ */
+function constructTangleLayout(levels, {
+  nodeWidth = 168,
+  nodeHeight = 36,
+  padding = 18,
+  bundleWidth = 16,
+  metroD = 5,
+  minFamilyHeight = 18,
+  c = 16,
+} = {}) {
+  const bigc = nodeWidth + c;
+  levels.forEach((level, index) => level.forEach((node) => { node.level = index; }));
+  const nodes = levels.flat();
+  const nodesIndex = new Map(nodes.map((node) => [node.id, node]));
+  for (const node of nodes) {
+    node.parents = (node.parents || []).map((id) => nodesIndex.get(id)).filter(Boolean);
+  }
+
+  for (const [index, level] of levels.entries()) {
+    const bundles = new Map();
+    for (const node of level) {
+      if (!node.parents.length) continue;
+      const id = node.parents.map((parent) => parent.id).sort().join("-X-");
+      let bundle = bundles.get(id);
+      if (!bundle) {
+        bundle = {
+          id,
+          parents: node.parents.slice(),
+          level: index,
+          span: index - Math.min(...node.parents.map((parent) => parent.level)),
+        };
+        bundles.set(id, bundle);
+      }
+      node.bundle = bundle;
+    }
+    level.bundles = [...bundles.values()];
+    level.bundles.forEach((bundle, bundleIndex) => { bundle.i = bundleIndex; });
+  }
+
+  const links = [];
+  for (const node of nodes) {
+    for (const parent of node.parents) {
+      links.push({ source: node, bundle: node.bundle, target: parent });
+    }
+  }
+  const bundles = levels.flatMap((level) => level.bundles);
+  for (const bundle of bundles) {
+    for (const parent of bundle.parents) {
+      parent.bundlesIndex = parent.bundlesIndex || {};
+      parent.bundlesIndex[bundle.id] = parent.bundlesIndex[bundle.id] || [];
+      parent.bundlesIndex[bundle.id].push(bundle);
+    }
+  }
+  for (const node of nodes) {
+    node.bundles = Object.values(node.bundlesIndex || {});
+    node.bundles.sort((a, b) => d3.descending(d3.max(a, (bundle) => bundle.span), d3.max(b, (bundle) => bundle.span)));
+    node.bundles.forEach((bundle, index) => { bundle.i = index; });
+    node.height = Math.max(0, node.bundles.length - 1) * metroD;
+  }
+  for (const link of links) {
+    link.bundle.links = link.bundle.links || [];
+    link.bundle.links.push(link);
+  }
+
+  let xOffset = padding;
+  let yOffset = padding;
+  for (const level of levels) {
+    xOffset += level.bundles.length * bundleWidth;
+    for (const node of level) {
+      node.x = node.level * nodeWidth + xOffset;
+      node.y = nodeHeight + yOffset + node.height / 2;
+      yOffset += nodeHeight + node.height;
+    }
+  }
+
+  let totalLength = 0;
+  for (const level of levels) {
+    for (const bundle of level.bundles) {
+      bundle.x = d3.max(bundle.parents, (parent) => parent.x) + nodeWidth + (level.bundles.length - 1 - bundle.i) * bundleWidth;
+      bundle.y = totalLength * nodeHeight;
+    }
+    totalLength += level.length;
+  }
+
+  for (const link of links) {
+    const group = link.target.bundlesIndex[link.bundle.id];
+    link.xt = link.target.x;
+    link.yt = link.target.y + group.i * metroD - (link.target.bundles.length * metroD) / 2 + metroD / 2;
+    link.xb = link.bundle.x;
+    link.yb = link.bundle.y;
+    link.xs = link.source.x;
+    link.ys = link.source.y;
+  }
+
+  let yNegativeOffset = 0;
+  for (const level of levels) {
+    const slack = d3.min(level.bundles, (bundle) => d3.min(bundle.links, (link) => link.ys - 2 * c - (link.yt + c)));
+    yNegativeOffset += -minFamilyHeight + (slack || 0);
+    for (const node of level) node.y -= yNegativeOffset;
+  }
+  for (const link of links) {
+    const group = link.target.bundlesIndex[link.bundle.id];
+    link.yt = link.target.y + group.i * metroD - (link.target.bundles.length * metroD) / 2 + metroD / 2;
+    link.ys = link.source.y;
+    link.c1 = link.source.level - link.target.level > 1
+      ? Math.max(8, Math.min(bigc, link.xb - link.xt, link.yb - link.yt) - c)
+      : c;
+    link.c2 = c;
+  }
+
+  const minX = d3.min(nodes, (node) => node.x) ?? padding;
+  const minY = d3.min(nodes, (node) => node.y) ?? padding;
+  const dx = padding - minX;
+  const dy = padding - minY;
+  for (const node of nodes) {
+    node.x += dx;
+    node.y += dy;
+  }
+  for (const link of links) {
+    link.xt += dx;
+    link.yt += dy;
+    link.xb += dx;
+    link.yb += dy;
+    link.xs += dx;
+    link.ys += dy;
+  }
+  return { nodes, links };
+}
+
+function tanglePath(link) {
+  const { xt, yt, xb, yb, xs, ys, c1, c2 } = link;
+  return `M${xs} ${ys} L${xb + c2} ${ys} A${c2} ${c2} 90 0 1 ${xb} ${ys - c2} L${xb} ${yt + c1} A${c1} ${c1} 90 0 0 ${xb - c1} ${yt} L${xt} ${yt}`;
+}
+
+export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, labels, labelHidden } = {}) {
+  const svg = d3.select(svgSelection);
+  clear(svg);
+  graphZoom(svgSelection);
+  installCategoryPatterns(svgSelection);
+  const host = svg.node()?.parentElement;
+  const width = Math.max(320, host?.clientWidth || 640);
+  const height = Math.max(260, host?.clientHeight || 360);
+  svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const nodes = (graph?.nodes || []).map((node) => ({ ...node, incoming: [], outgoing: [] }));
+  if (!nodes.length) return null;
+  const byId = new Map(nodes.map((node) => [String(node.id), node]));
+  const links = (graph.links || [])
+    .map((link) => ({
+      source: byId.get(String(link.source?.id ?? link.source)),
+      target: byId.get(String(link.target?.id ?? link.target)),
+    }))
+    .filter((link) => link.source && link.target);
+  for (const link of links) {
+    link.target.incoming.push(link);
+    link.source.outgoing.push(link);
+  }
+
+  const depthOf = new Map();
+  function depth(id, seen) {
+    if (depthOf.has(id)) return depthOf.get(id);
+    if (seen.has(id)) return 0;
+    seen.add(id);
+    const parents = (byId.get(id)?.outgoing || []).map((edge) => String(edge.target.id));
+    const value = parents.length ? 1 + Math.max(...parents.map((parent) => depth(parent, seen))) : 0;
+    depthOf.set(id, value);
+    return value;
+  }
+  for (const node of nodes) depth(String(node.id), new Set());
+  const levelCount = Math.max(0, ...depthOf.values()) + 1;
+  const levels = Array.from({ length: levelCount }, () => []);
+  const ordered = [...nodes].sort((a, b) => visibleName(a).localeCompare(visibleName(b)) || String(a.id).localeCompare(String(b.id)));
+  for (const node of ordered) {
+    levels[depthOf.get(String(node.id))].push({
+      id: String(node.id),
+      parents: node.outgoing.map((edge) => String(edge.target.id)),
+    });
+  }
+  const layout = constructTangleLayout(levels);
+  const placed = new Map(layout.nodes.map((node) => [node.id, node]));
+  for (const node of nodes) {
+    const at = placed.get(String(node.id));
+    node.x = at?.x ?? 0;
+    node.y = at?.y ?? 0;
+  }
+  const geometry = new Map(layout.links.map((link) => [`${link.source.id}|${link.target.id}`, link]));
+  for (const link of links) link.geom = geometry.get(`${link.source.id}|${link.target.id}`);
+
+  const labelSet = labels instanceof Set ? labels : new Set();
+  const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
+  for (const item of nodes) {
+    const id = String(item.id);
+    if (labelOff.has(id)) {
+      item.showLabel = false;
+      item.labelOff = true;
+    } else if (labelSet.has(id) || item.outgoing.length === 0) item.showLabel = true;
+  }
+
+  const defs = svg.append("defs");
+  defs.append("marker")
+    .attr("id", "snomed-isa")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 12)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5Z")
+    .attr("class", "force-arrow");
+
+  const layer = zoomLayer(svg);
+  const drawn = links.filter((link) => link.geom);
+  layer.append("g")
+    .selectAll("path")
+    .data(drawn)
+    .join("path")
+    .attr("class", "tangle-halo")
+    .attr("d", (link) => tanglePath(link.geom));
+  const link = layer.append("g")
+    .selectAll("path")
+    .data(drawn)
+    .join("path")
+    .attr("class", "force-link tangle-link")
+    .attr("marker-end", "url(#snomed-isa)")
+    .attr("d", (link) => tanglePath(link.geom));
+
+  const radius = 7;
+  const node = layer.append("g")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .attr("class", (item) => {
+      const classes = ["force-node"];
+      if (item.suggestion) classes.push("is-suggestion");
+      if (item.cp) classes.push("is-cp");
+      if (item.lcp) classes.push("is-lcp");
+      if (item.inactive) classes.push("is-inactive");
+      if (item.showLabel) classes.push("is-labeled");
+      if (item.labelOff) classes.push("is-label-off");
+      return classes.join(" ");
+    })
+    .attr("data-id", (item) => item.id)
+    .attr("transform", (item) => `translate(${item.x},${item.y})`);
+
+  const sliceArc = d3.arc().innerRadius(0).outerRadius(radius);
+  node.each(function paint(item) {
+    const host = d3.select(this);
+    const slices = item.sliceFills || [];
+    if (slices.length > 1) {
+      const pie = d3.pie().sort(null).value(() => 1)(slices);
+      host.append("g")
+        .attr("class", "node-slices")
+        .selectAll("path")
+        .data(pie)
+        .join("path")
+        .attr("d", sliceArc)
+        .style("fill", (slice) => slice.data);
+    }
+    host.append("circle")
+      .attr("class", "node-disk")
+      .attr("r", radius)
+      .style("fill", slices.length > 1 ? "none" : (item.fill || "#ffffff"))
+      .style("stroke", item.stroke || "#4682b4");
+  });
+  node.each(function label(item) {
+    const lines = wrapLabel(visibleName(item), 24);
+    const group = d3.select(this);
+    for (const kind of ["shadow", "ink"]) {
+      const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "start");
+      lines.forEach((line, index) => {
+        const dy = lines.length === 1 ? "0.32em" : (index === 0 ? -5 : 12);
+        text.append("tspan").attr("x", radius + 6).attr("dy", dy).text(line);
+      });
+    }
+  });
+  node.append("circle").attr("class", "node-hit").attr("r", radius + 2);
+
+  function paintHover(activeNode, activeLink) {
+    node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    if (activeNode) {
+      node.filter((item) => item === activeNode).classed("is-active", true);
+      for (const edge of activeNode.incoming) {
+        link.filter((item) => item === edge).classed("is-incoming", true);
+        node.filter((item) => item === edge.source).classed("is-incoming", true);
+      }
+      for (const edge of activeNode.outgoing) {
+        link.filter((item) => item === edge).classed("is-outgoing", true);
+        node.filter((item) => item === edge.target).classed("is-outgoing", true);
+      }
+    }
+    if (activeLink) {
+      link.filter((item) => item === activeLink).classed("is-active", true);
+      node.filter((item) => item === activeLink.source).classed("is-incoming", true);
+      node.filter((item) => item === activeLink.target).classed("is-outgoing", true);
+    }
+  }
+
+  let lingerTimer = 0;
+  let lingerItem = null;
+  let lingerPoint = null;
+  function clearLinger() {
+    window.clearTimeout(lingerTimer);
+    lingerTimer = 0;
+    lingerItem = null;
+    lingerPoint = null;
+  }
+  function armLinger(item, point) {
+    if (lingerItem === item && lingerTimer) return;
+    window.clearTimeout(lingerTimer);
+    lingerItem = item;
+    lingerPoint = point;
+    lingerTimer = window.setTimeout(() => {
+      lingerTimer = 0;
+      onLinger?.(item);
+    }, 1000);
+  }
+
+  node
+    .on("mouseover", (event, item) => paintHover(item, null))
+    .on("mouseout", () => paintHover(null, null))
+    .on("pointerenter", (event, item) => {
+      if (event.pointerType === "touch") return;
+      armLinger(item, { x: event.clientX, y: event.clientY });
+    })
+    .on("pointerdown", (event, item) => armLinger(item, { x: event.clientX, y: event.clientY }))
+    .on("pointermove", (event) => {
+      if (!lingerPoint || !lingerTimer) return;
+      if (Math.hypot(event.clientX - lingerPoint.x, event.clientY - lingerPoint.y) > 8) clearLinger();
+    })
+    .on("pointerup", () => clearLinger())
+    .on("pointerleave", (event) => {
+      if (event.pointerType === "touch") return;
+      clearLinger();
+    })
+    .on("pointercancel", () => clearLinger())
+    .on("contextmenu", (event) => event.preventDefault())
+    .on("click", (event, item) => {
+      event.stopPropagation();
+      onSelect?.(item);
+    });
+  link
+    .on("mouseover", (event, item) => paintHover(null, item))
+    .on("mouseout", () => paintHover(null, null));
+  return null;
+}
+
 export function renderForceGraph(svgSelection, data, { onSelect } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);

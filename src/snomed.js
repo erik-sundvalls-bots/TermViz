@@ -148,6 +148,13 @@ export function cachedConcept(code) {
   return memory.get(String(code)) || null;
 }
 
+export function conceptIsPlaceable(code) {
+  const known = cachedConcept(code);
+  if (!known || known.inactive || known.error) return false;
+  if (!(known.parents || []).length && String(code) !== SNOMED_ROOT) return false;
+  return true;
+}
+
 export function cacheSize() {
   return memory.size;
 }

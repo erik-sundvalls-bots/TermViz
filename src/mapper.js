@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
+import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderSnomedTangled, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
 import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
-import { cacheSize, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
+import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -37,6 +37,7 @@ const state = {
   mapReviews: new Map(),
   mapRelations: new Map(),
   treeSide: false,
+  snomedLayout: "force",
 };
 
 function chip(text) {
@@ -784,7 +785,7 @@ async function refreshGraph() {
   const unique = [...new Set(activeListings().flatMap((item) => item.codes))];
   if (!unique.length) {
     state.graph = null;
-    renderSnomedForce(snomedSvg, { nodes: [], links: [] }, forceOptions());
+    renderSnomed();
     snomedEmpty.hidden = false;
     snomedCaption.textContent = "Nothing switched on.";
     drawSuggestionLines();
@@ -808,7 +809,7 @@ async function refreshGraph() {
       ? `${graph.nodes.length} concepts · ${misses} lookups failed`
       : `${graph.nodes.length} concepts${shared ? ` · ${shared} shared` : ""}`;
     const reopen = state.popId;
-    renderSnomedForce(snomedSvg, graph, forceOptions());
+    renderSnomed();
     if (reopen) {
       const el = snomedSvg.querySelector(`[data-id="${CSS.escape(reopen)}"]`);
       if (el) openPop(d3.select(el).datum());
@@ -1058,10 +1059,15 @@ function pinConcept(code, on) {
   node?.classList.toggle("is-pinned", on);
 }
 
+function renderSnomed() {
+  const draw = state.snomedLayout === "tangled" ? renderSnomedTangled : renderSnomedForce;
+  draw(snomedSvg, state.graph || { nodes: [], links: [] }, forceOptions());
+}
+
 function relayout() {
   if (!state.model) return;
   renderTree();
-  if (state.graph) renderSnomedForce(snomedSvg, state.graph, forceOptions());
+  if (state.graph) renderSnomed();
   else drawSuggestionLines();
   placePop();
 }
@@ -1108,6 +1114,16 @@ function wireChrome() {
       if (performance.now() - started < 340) requestAnimationFrame(follow);
     };
     follow();
+  });
+  document.querySelectorAll("[data-layout]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.snomedLayout = button.dataset.layout;
+      document.querySelector("#snomedPane")?.classList.toggle("is-tangled", state.snomedLayout === "tangled");
+      document.querySelectorAll("[data-layout]").forEach((other) => other.classList.toggle("is-on", other === button));
+      renderSnomed();
+      drawSuggestionLines();
+      requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
+    });
   });
   for (const viewport of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
     viewport?.querySelectorAll("[data-zoom]").forEach((button) => {
@@ -1275,7 +1291,25 @@ function templateLabel(id) {
   return text.replace(/^openEHR-EHR-[A-Z]+\./, "").replace(/\.v\d+.*$/, "").replaceAll("_", " ") || text;
 }
 
+function pruneSuggestions(model) {
+  const attached = [];
+  (function walk(node) {
+    if (!node) return;
+    if (node.suggestions?.length) {
+      node.suggestions = node.suggestions.filter((item) => conceptIsPlaceable(item.code));
+      if (!node.suggestions.length) {
+        node.suggestions = null;
+        node.suggestionSetId = null;
+      }
+    }
+    if (node.suggestions?.length) attached.push(node);
+    for (const child of node.children || []) walk(child);
+  })(model.tree);
+  if (model.suggestions) model.suggestions.attached = attached;
+}
+
 function showModel(model) {
+  pruneSuggestions(model);
   state.model = model;
   state.activeIds = new Set();
   state.extraCodes = new Map();
@@ -1459,7 +1493,11 @@ function restoreSuggestions(root, bag) {
 
 async function applyMapRows(rows) {
   if (!state.model?.tree) throw new Error("Load a template before a map.");
-  if (!rows.length) throw new Error("The file has no Snap2SNOMED rows.");
+  const unseen = [...new Set(rows.map((row) => row.code).filter((code) => !cachedConcept(code)))];
+  if (unseen.length) await closureToRoot(unseen);
+  const skipped = rows.filter((row) => !conceptIsPlaceable(row.code));
+  rows = rows.filter((row) => conceptIsPlaceable(row.code));
+  if (!rows.length) throw new Error(skipped.length ? "Every target code is inactive or missing from the terminology server." : "The file has no Snap2SNOMED rows.");
   const previous = snapshotSuggestions(state.model.tree);
   clearSuggestions(state.model.tree);
   const result = attachSnapMap(state.model.tree, rows);
@@ -1487,7 +1525,7 @@ async function applyMapRows(rows) {
   const failed = await refreshGraph();
   fitTree();
   if (failed) throw failed;
-  return result;
+  return { ...result, skipped: skipped.length };
 }
 
 function mapMessage(text, failed) {
@@ -1532,8 +1570,11 @@ async function loadMapFromDialog() {
     const fileName = document.querySelector("#mapFileName");
     if (fileName) fileName.textContent = "Choose a file";
     if (urlField) urlField.value = "";
-    if (result.missing.length) {
-      mapMessage(`Loaded ${result.attached.length} paths. Not in this template: ${result.missing.join(", ")}`, false);
+    const notes = [];
+    if (result.skipped) notes.push(`Left out ${result.skipped} inactive or unknown codes.`);
+    if (result.missing.length) notes.push(`Not in this template: ${result.missing.join(", ")}`);
+    if (notes.length) {
+      mapMessage(`Loaded ${result.attached.length} paths. ${notes.join(" ")}`, false);
       return;
     }
     dialog?.close();
