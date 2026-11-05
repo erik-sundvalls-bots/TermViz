@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { CATEGORY_HATCHES, NODE_COLORS, categoryPatternId, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
+import { CATEGORY_HATCHES, NODE_COLORS, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
 import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
@@ -143,7 +143,7 @@ function blockStyle(node) {
   const style = assignStyle(node.id);
   const ink = inkOf(style.color);
   if (node.suggestions?.length) {
-    return `--node-color:${style.color};--node-ink:${ink};--hatch-angle:${hatchFor(style).angle}deg`;
+    return `--node-color:${style.color};--node-ink:${ink};--hatch-ink:${hatchInk(style.color)};--hatch-angle:${hatchFor(style).angle}deg`;
   }
   return `--node-color:${style.color};--node-ink:${ink}`;
 }
@@ -235,24 +235,36 @@ function paintedIds() {
   return ids;
 }
 
-function codesFor(node) {
+function codesFor(node, { suggestions = true, bindings = true } = {}) {
   const codes = [];
-  for (const item of node.suggestions || []) {
-    if (codeOn(node, item.code)) codes.push(String(item.code));
+  if (suggestions) {
+    for (const item of node.suggestions || []) {
+      if (codeOn(node, item.code)) codes.push(String(item.code));
+    }
   }
-  for (const code of state.extraCodes.get(node.id) || []) codes.push(String(code));
+  if (bindings) {
+    for (const code of state.extraCodes.get(node.id) || []) codes.push(String(code));
+  }
   return [...new Set(codes)];
 }
 
-function contributingNodes() {
-  const ids = new Set();
-  for (const node of state.model?.suggestions?.attached || []) {
-    if ((node.suggestions || []).some((item) => codeOn(node, item.code))) ids.add(node.id);
+function activeListings() {
+  const byId = new Map();
+  const add = (node, hatched) => {
+    const codes = codesFor(node, { suggestions: hatched, bindings: !hatched });
+    if (!codes.length) return;
+    const current = byId.get(node.id) || { node, codes: [], hatched: false };
+    current.codes.push(...codes);
+    current.hatched = current.hatched || hatched;
+    byId.set(node.id, current);
+  };
+  if (state.filter !== "bindings") {
+    for (const node of state.model?.suggestions?.attached || []) add(node, true);
   }
-  for (const [id, codes] of state.extraCodes) {
-    if (codes?.length) ids.add(id);
+  if (state.filter !== "suggestions" && state.model) {
+    for (const { node } of bindingNodes()) add(node, false);
   }
-  return [...ids].map((id) => findNode(id)).filter(Boolean);
+  return [...byId.values()].map((item) => ({ ...item, codes: [...new Set(item.codes)] }));
 }
 
 function categoryState(node) {
@@ -553,39 +565,47 @@ function annotate(graph) {
     parents.set(child, [...(parents.get(child) || []), parent]);
     children.set(parent, [...(children.get(parent) || []), child]);
   }
-  const owners = new Map();
+  const marks = new Map();
   const suggestionOf = new Map();
-  for (const node of contributingNodes()) {
-    const direct = new Set(codesFor(node));
-    const closure = new Set();
-    for (const code of direct) {
-      for (const id of ancestorsOf(code, parents)) closure.add(id);
+  for (const listing of activeListings()) {
+    const node = listing.node;
+    const style = assignStyle(node.id);
+    const mark = {
+      nodeId: node.id,
+      fill: listing.hatched ? `url(#${categoryPatternId("snomedSvg", style.index)})` : style.color,
+      stroke: inkOf(style.color),
+    };
+    for (const code of listing.codes) {
       const suggestion = (node.suggestions || []).find((item) => String(item.code) === code);
-      const style = assignStyle(node.id);
-      const list = suggestionOf.get(code) || [];
-      list.push({
-        color: style.color,
-        fill: suggestion ? `url(#${categoryPatternId("snomedSvg", style.index)})` : style.color,
-        stroke: inkOf(style.color),
-        templateName: node.name,
-        rank: suggestion?.rank ?? null,
-        score: suggestion?.score ?? null,
-        reason: suggestion?.reason || "",
-      });
-      suggestionOf.set(code, list);
-    }
-    for (const id of closure) {
-      const set = owners.get(id) || new Set();
-      set.add(node.id);
-      owners.set(id, set);
+      if (suggestion) {
+        const list = suggestionOf.get(code) || [];
+        list.push({
+          color: style.color,
+          fill: mark.fill,
+          stroke: mark.stroke,
+          templateName: node.name,
+          rank: suggestion.rank ?? null,
+          score: suggestion.score ?? null,
+          reason: suggestion.reason || "",
+        });
+        suggestionOf.set(code, list);
+      }
+      for (const id of ancestorsOf(code, parents)) {
+        const list = marks.get(id) || [];
+        if (!list.some((item) => item.nodeId === node.id)) list.push(mark);
+        marks.set(id, list);
+      }
     }
   }
+  const kept = [];
   for (const item of graph.nodes) {
     const id = String(item.id);
-    const share = owners.get(id)?.size || 0;
+    const paints = marks.get(id) || [];
+    if (!paints.length) continue;
+    const share = new Set(paints.map((paint) => paint.nodeId)).size;
     const guesses = suggestionOf.get(id) || [];
     const shared = share >= 2;
-    const childShared = (children.get(id) || []).some((child) => (owners.get(child)?.size || 0) >= 2);
+    const childShared = (children.get(id) || []).some((child) => (marks.get(child)?.length || 0) >= 2);
     item.suggestion = guesses.length > 0;
     item.sources = guesses;
     item.commonality = share;
@@ -596,14 +616,19 @@ function annotate(graph) {
     if (shared) {
       item.fill = "#ffffff";
       item.stroke = "#1c2430";
-    } else if (guesses.length === 1) {
-      item.fill = guesses[0].fill;
-      item.stroke = guesses[0].stroke;
     } else {
-      item.fill = "#ffffff";
-      item.stroke = "#4682b4";
+      item.fill = paints[0].fill;
+      item.stroke = paints[0].stroke;
     }
+    kept.push(item);
   }
+  const keptIds = new Set(kept.map((item) => String(item.id)));
+  graph.nodes = kept;
+  graph.links = (graph.links || []).filter((link) => {
+    const source = String(link.source?.id ?? link.source);
+    const target = String(link.target?.id ?? link.target);
+    return keptIds.has(source) && keptIds.has(target);
+  });
   return graph;
 }
 
@@ -626,7 +651,7 @@ function forceOptions() {
 
 async function refreshGraph() {
   const token = ++state.snomedToken;
-  const unique = [...new Set(contributingNodes().flatMap(codesFor))];
+  const unique = [...new Set(activeListings().flatMap((item) => item.codes))];
   if (!unique.length) {
     state.graph = null;
     renderSnomedForce(snomedSvg, { nodes: [], links: [] }, forceOptions());
@@ -889,6 +914,7 @@ function wireChrome() {
       }
       renderTree();
       renderDetail();
+      refreshGraph();
     });
   });
   document.querySelector("#findButton")?.addEventListener("click", () => search.focus());

@@ -34,10 +34,19 @@ export const CATEGORY_HATCHES = [
   { angle: -15, dash: "3 1.6" },
 ];
 
-export function inkOf(hex) {
+function mixHex(hex, amount) {
   const n = Number.parseInt(String(hex).slice(1), 16);
-  const mix = (channel) => Math.max(0, Math.min(255, Math.round(channel * 0.45)));
+  const mix = (channel) => Math.max(0, Math.min(255, Math.round(channel * amount)));
   return `#${[mix((n >> 16) & 255), mix((n >> 8) & 255), mix(n & 255)].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export function inkOf(hex) {
+  return mixHex(hex, 0.55);
+}
+
+/** A deeper tint of the category colour, still clearly that colour rather than black. */
+export function hatchInk(hex) {
+  return mixHex(hex, 0.76);
 }
 
 export function categoryPatternId(svgId, index) {
@@ -53,17 +62,17 @@ export function installCategoryPatterns(svgSelection) {
     const pattern = defs.append("pattern")
       .attr("id", categoryPatternId(rootId, index))
       .attr("patternUnits", "userSpaceOnUse")
-      .attr("width", 7)
-      .attr("height", 7)
+      .attr("width", 8)
+      .attr("height", 8)
       .attr("patternTransform", `rotate(${hatch.angle})`);
-    pattern.append("rect").attr("width", 7).attr("height", 7).attr("fill", color);
+    pattern.append("rect").attr("width", 8).attr("height", 8).attr("fill", color);
     const line = pattern.append("line")
       .attr("x1", 0)
       .attr("y1", 0)
       .attr("x2", 0)
-      .attr("y2", 7)
-      .attr("stroke", inkOf(color))
-      .attr("stroke-width", hatch.dash ? 1.35 : 1.7);
+      .attr("y2", 8)
+      .attr("stroke", hatchInk(color))
+      .attr("stroke-width", 1.05);
     if (hatch.dash) line.attr("stroke-dasharray", hatch.dash);
   });
 }
@@ -598,10 +607,13 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
   node.append("circle")
     .attr("class", "node-disk")
     .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8))
-    .attr("fill", (item) => item.fill || "#ffffff")
     .attr("fill-opacity", (item) => item.fillOpacity ?? 1)
-    .attr("stroke", (item) => item.stroke || "#4682b4")
-    .attr("stroke-width", (item) => (item.lcp ? 3.4 : item.cp ? 2.5 : 1.6));
+    .attr("stroke-width", (item) => (item.lcp ? 3.4 : item.cp ? 2.5 : 1.6))
+    .each(function paint(item) {
+      d3.select(this)
+        .style("fill", item.fill || "#ffffff")
+        .style("stroke", item.stroke || "#4682b4");
+    });
   node.append("circle")
     .attr("class", "pin-dot")
     .attr("r", 2.3);

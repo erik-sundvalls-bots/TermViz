@@ -511,8 +511,8 @@ h2 {
 .side-block.is-hatched .switch[aria-checked="true"] {
   background: repeating-linear-gradient(
     var(--hatch-angle),
-    var(--node-color) 0 3px,
-    var(--node-ink) 3px 4.5px
+    var(--node-color) 0 4px,
+    var(--hatch-ink, var(--node-color)) 4px 4.7px
   );
 }
 
