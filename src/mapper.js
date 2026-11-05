@@ -58,6 +58,11 @@ function project(node, predicate, hide) {
   return null;
 }
 
+function openAll(node) {
+  node.open = true;
+  for (const child of node.children || []) openAll(child);
+}
+
 function markOpen(node, depth = 0) {
   let below = false;
   for (const child of node.children) {
@@ -398,9 +403,9 @@ function renderDetail() {
         </header>
         <div class="side-indent">${bindingRows}</div>
       </aside>`;
-  const single = showSuggestions === showBindings ? "" : " is-single";
+  const layout = state.filter === "all" ? " is-stacked" : (showSuggestions === showBindings ? "" : " is-single");
   detail.innerHTML = `<p class="side-kicker">Filtered nodes</p>
-    <div class="side-split${single}">
+    <div class="side-split${layout}">
       ${showSuggestions ? suggestionsHtml : ""}
       ${showBindings ? bindingsHtml : ""}
     </div>`;
@@ -869,8 +874,29 @@ function fitTree() {
   requestAnimationFrame(() => zoomGraph(treeSvg, "fit"));
 }
 
+let viewFrame = 0;
+function scheduleLines() {
+  if (viewFrame) return;
+  viewFrame = requestAnimationFrame(() => {
+    viewFrame = 0;
+    drawSuggestionLines();
+  });
+}
+
+function clipLinesToTopPane() {
+  const pane = document.querySelector("#snomedPane");
+  if (!pane || !linkOverlay) return;
+  const box = pane.getBoundingClientRect();
+  const top = Math.max(0, box.top);
+  const right = Math.max(0, window.innerWidth - box.right);
+  const bottom = Math.max(0, window.innerHeight - box.bottom);
+  const left = Math.max(0, box.left);
+  linkOverlay.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+}
+
 function drawSuggestionLines() {
   if (!linkOverlay) return;
+  clipLinesToTopPane();
   if (shelfHidden()) {
     d3.select(linkOverlay).selectAll("g.dash").remove();
     return;
@@ -947,6 +973,7 @@ function wireChrome() {
     button.addEventListener("click", () => {
       state.filter = button.dataset.filter;
       filterButtons.forEach((other) => other.classList.toggle("is-on", other === button));
+      if (state.model && state.filter === "all") openAll(state.model.tree);
       if (state.model && state.filter === "suggestions" && masterState() !== "true") {
         for (const node of state.model.suggestions.attached) setCategory(node, true);
         refreshAll();
@@ -1107,6 +1134,7 @@ wireChrome();
 for (const element of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
   element?.addEventListener("scroll", drawSuggestionLines, { passive: true });
 }
+snomedSvg.addEventListener("termviz-view", scheduleLines);
 snomedCaption.textContent = "Reading the International Patient Summary…";
 
 loadIpsModel().then((model) => {

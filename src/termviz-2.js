@@ -102,6 +102,7 @@ export function graphZoom(svgSelection) {
     })
     .on("zoom", (event) => {
       svg.select("g.zoom-layer").attr("transform", event.transform);
+      node.dispatchEvent(new CustomEvent("termviz-view", { bubbles: true }));
     });
   svg.call(zoom);
   svg.on("wheel.pan", (event) => {

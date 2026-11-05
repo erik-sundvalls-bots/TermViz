@@ -485,7 +485,14 @@ h2 {
   align-items: start;
 }
 
-.side-split.is-single { grid-template-columns: minmax(0, 1fr); }
+.side-split.is-single,
+.side-split.is-stacked { grid-template-columns: minmax(0, 1fr); }
+
+.side-split.is-stacked .side-bind {
+  position: static;
+  max-height: none;
+  margin-top: 10px;
+}
 
 .side-indent { padding-left: 10px; }
 
@@ -616,12 +623,10 @@ h2 {
 
 .guess-anchor {
   position: absolute;
-  left: -4px;
+  left: 0;
   top: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--node-color, var(--amber));
+  width: 0;
+  height: 0;
   transform: translateY(-50%);
 }
 
