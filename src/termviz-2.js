@@ -541,8 +541,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
   const releasedSet = released instanceof Set ? released : new Set();
   const labelSet = labels instanceof Set ? labels : new Set();
   const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
-  const rootY = 32;
-  const rowY = Math.max(108, Math.min(156, Math.round(height * 0.2)));
+  const rootY = 56;
+  const arcRadius = 180;
 
   const tops = nodes.filter((item) => item.outgoing.length === 0);
   const topSet = new Set(tops);
@@ -576,19 +576,36 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     place(item, width / 2 + (index - (tops.length - 1) / 2) * 100, rootY, { pinned: false, auto: false, fixed: true });
   });
 
-  const elastic = [];
+  const elasticByParent = new Map();
   for (const item of firstLevel) {
     const id = String(item.id);
     if (releasedSet.has(id)) continue;
     const pin = pinOf.get(id);
     if (pin && !pin.auto) {
       place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
-    } else elastic.push(item);
+      continue;
+    }
+    const parent = item.outgoing.find((edge) => topSet.has(edge.target))?.target;
+    const list = elasticByParent.get(parent) || [];
+    list.push(item);
+    elasticByParent.set(parent, list);
   }
-  elastic.forEach((item, index) => {
-    const x = width * (index + 1) / (elastic.length + 1);
-    place(item, x, rowY, { pinned: true, auto: true, fixed: false });
-  });
+  for (const [parent, children] of elasticByParent) {
+    const cx = parent?.x ?? width / 2;
+    const cy = parent?.y ?? rootY;
+    const room = Math.min(cx - 28, width - cx - 28, height - cy - 40);
+    const radius = Math.min(arcRadius, Math.max(110, room));
+    const count = children.length;
+    children.forEach((item, index) => {
+      const angle = count === 1 ? Math.PI / 2 : Math.PI * (1 - index / (count - 1));
+      place(
+        item,
+        cx + radius * Math.cos(angle),
+        cy + radius * Math.sin(angle),
+        { pinned: true, auto: true, fixed: false },
+      );
+    });
+  }
 
   for (const item of nodes) {
     if (item.userPinned || item.layoutFixed) continue;
