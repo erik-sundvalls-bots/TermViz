@@ -949,20 +949,40 @@ function syncCues(rows) {
   cueDown.hidden = !below;
 }
 
+function overlayPoint(clientX, clientY) {
+  if (!linkOverlay) return { x: clientX, y: clientY };
+  const point = linkOverlay.createSVGPoint();
+  point.x = clientX;
+  point.y = clientY;
+  const inverse = linkOverlay.getScreenCTM()?.inverse();
+  if (!inverse) return { x: clientX, y: clientY };
+  const local = point.matrixTransform(inverse);
+  return { x: local.x, y: local.y };
+}
+
+function circleCenter(circle) {
+  const svg = circle.ownerSVGElement;
+  const matrix = circle.getScreenCTM();
+  if (!svg || !matrix) return null;
+  const point = svg.createSVGPoint();
+  const screen = point.matrixTransform(matrix);
+  return overlayPoint(screen.x, screen.y);
+}
+
 function rowPoint(row) {
   const port = detail.getBoundingClientRect();
   const box = row.getBoundingClientRect();
   if (box.bottom < port.top + 1) {
     const cue = document.querySelector("#cueUp").getBoundingClientRect();
-    return { x: cue.left + cue.width / 2, y: cue.top + cue.height / 2 };
+    return overlayPoint(cue.left + cue.width / 2, cue.top + cue.height / 2);
   }
   if (box.top > port.bottom - 1) {
     const cue = document.querySelector("#cueDown").getBoundingClientRect();
-    return { x: cue.left + cue.width / 2, y: cue.top + cue.height / 2 };
+    return overlayPoint(cue.left + cue.width / 2, cue.top + cue.height / 2);
   }
   const anchor = row.querySelector(".guess-anchor") || row;
   const from = anchor.getBoundingClientRect();
-  return { x: from.left + from.width / 2, y: from.top + from.height / 2 };
+  return overlayPoint(from.left + from.width / 2, from.top + from.height / 2);
 }
 
 function shelfHidden() {
@@ -1014,9 +1034,8 @@ function drawSuggestionLines() {
     const from = rowPoint(row);
     for (const code of codes) {
       const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
-      if (!circle) continue;
-      const to = circle.getBoundingClientRect();
-      if (to.width === 0 && to.height === 0) continue;
+      const to = circle ? circleCenter(circle) : null;
+      if (!to) continue;
       lines.push({
         key: `${nodeId}:${code}`,
         nodeId,
@@ -1024,8 +1043,8 @@ function drawSuggestionLines() {
         color,
         x1: from.x,
         y1: from.y,
-        x2: to.left + to.width / 2,
-        y2: to.top + to.height / 2,
+        x2: to.x,
+        y2: to.y,
       });
     }
   }
@@ -1041,7 +1060,11 @@ function drawSuggestionLines() {
     .attr("y2", (item) => item.y2)
     .attr("stroke", (item) => item.color)
     .attr("stroke-dasharray", "7 5")
-    .attr("stroke-linecap", "round");
+    .attr("stroke-linecap", "round")
+    .each(function land(item) {
+      const length = this.getTotalLength?.() || Math.hypot(item.x2 - item.x1, item.y2 - item.y1);
+      d3.select(this).attr("stroke-dashoffset", length - 6);
+    });
   paintDash();
 }
 
@@ -1076,6 +1099,8 @@ function relayout() {
   if (state.graph) renderSnomed();
   else drawSuggestionLines();
   placePop();
+  if (state.graph && state.snomedLayout !== "force") requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
+  else drawSuggestionLines();
 }
 
 function wireChrome() {

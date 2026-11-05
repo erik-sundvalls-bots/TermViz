@@ -120,16 +120,22 @@ export function zoomGraph(svgSelection, mode) {
   const svg = d3.select(svgSelection);
   const zoom = graphZoom(svgSelection);
   if (!zoom) return;
+  const node = svg.node();
+  const play = (duration, apply) => {
+    svg.transition().duration(duration).call(apply).on("end.termviz", () => {
+      node?.dispatchEvent(new CustomEvent("termviz-view", { bubbles: true }));
+    });
+  };
   if (mode === "in") {
-    svg.transition().duration(180).call(zoom.scaleBy, 1.35);
+    play(180, (selection) => selection.call(zoom.scaleBy, 1.35));
     return;
   }
   if (mode === "out") {
-    svg.transition().duration(180).call(zoom.scaleBy, 1 / 1.35);
+    play(180, (selection) => selection.call(zoom.scaleBy, 1 / 1.35));
     return;
   }
   if (mode === "one") {
-    svg.transition().duration(220).call(zoom.transform, d3.zoomIdentity);
+    play(220, (selection) => selection.call(zoom.transform, d3.zoomIdentity));
     return;
   }
   const layer = svg.select("g.zoom-layer").node();
@@ -143,7 +149,7 @@ export function zoomGraph(svgSelection, mode) {
   const k = Math.max(0.2, Math.min(8, Math.min((width - pad * 2) / bounds.width, (height - pad * 2) / bounds.height)));
   const tx = (width - bounds.width * k) / 2 - bounds.x * k;
   const ty = (height - bounds.height * k) / 2 - bounds.y * k;
-  svg.transition().duration(280).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+  play(280, (selection) => selection.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k)));
 }
 
 const REST_CHARGE = -160;
@@ -1287,17 +1293,55 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
   return null;
 }
 
-const SUGIYAMA_NODE = [132, 16];
-const SUGIYAMA_GAP = [12, 42];
+const SUGIYAMA_LABEL_MAX = 92;
+const SUGIYAMA_LINE = 13;
+const SUGIYAMA_DISK = 20;
 
-function layoutSugiyama(pairs) {
+function wrapToWidth(name, maxWidth, measure) {
+  const words = String(name || "").split(/\s+/).filter(Boolean);
+  if (!words.length) return [""];
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (current && measure(next) > maxWidth) {
+      lines.push(current);
+      current = word;
+    } else current = next;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function labelMeasurer(svgNode) {
+  const probe = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  probe.style.display = "inline";
+  probe.style.visibility = "hidden";
+  probe.style.pointerEvents = "none";
+  const font = getComputedStyle(svgNode).fontFamily;
+  svgNode.appendChild(probe);
+  return {
+    measure(text, { lcp = false } = {}) {
+      probe.style.fontFamily = font;
+      probe.style.fontSize = lcp ? "13px" : "11px";
+      probe.style.fontWeight = lcp ? "700" : "400";
+      probe.textContent = text;
+      return probe.getComputedTextLength();
+    },
+    remove() {
+      probe.remove();
+    },
+  };
+}
+
+function layoutSugiyama(pairs, nodeSize, gap) {
   const connect = graphConnect().single(true);
   const operators = (decross) => sugiyama()
     .layering(layeringLongestPath())
     .decross(decross)
     .coord(coordQuad())
-    .nodeSize(SUGIYAMA_NODE)
-    .gap(SUGIYAMA_GAP);
+    .nodeSize(nodeSize)
+    .gap(gap);
   const dag = connect(pairs);
   try {
     operators(decrossOpt())(dag);
@@ -1351,29 +1395,6 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     const id = String(node.id);
     if (!linked.has(id)) pairs.push([id, id]);
   }
-  const { dag, fallback } = layoutSugiyama(pairs);
-  let minX = Infinity;
-  let minY = Infinity;
-  for (const dagNode of dag.nodes()) {
-    minX = Math.min(minX, dagNode.x);
-    minY = Math.min(minY, dagNode.y);
-  }
-  const dx = 36 - (Number.isFinite(minX) ? minX : 0);
-  const dy = 48 - (Number.isFinite(minY) ? minY : 0);
-  const placed = new Map([...dag.nodes()].map((dagNode) => [String(dagNode.data), dagNode]));
-  for (const node of nodes) {
-    const at = placed.get(String(node.id));
-    node.x = (at?.x ?? 0) + dx;
-    node.y = (at?.y ?? 0) + dy;
-  }
-  const geometry = new Map();
-  for (const dagLink of dag.links()) {
-    const parent = String(dagLink.source.data);
-    const child = String(dagLink.target.data);
-    if (parent === child) continue;
-    geometry.set(`${child}|${parent}`, dagLink.points.map(([x, y]) => [x + dx, y + dy]));
-  }
-  for (const link of links) link.points = geometry.get(`${link.source.id}|${link.target.id}`);
 
   const labelSet = labels instanceof Set ? labels : new Set();
   const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
@@ -1395,6 +1416,52 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       item.labelOff = true;
     } else if (labelSet.has(id)) item.showLabel = true;
   }
+
+  const measurer = labelMeasurer(svg.node());
+  const widths = new Map();
+  let maxLines = 1;
+  for (const item of nodes) {
+    const measure = (text) => measurer.measure(text, { lcp: Boolean(item.lcp) });
+    const lines = wrapToWidth(visibleName(item), SUGIYAMA_LABEL_MAX, measure);
+    item.labelLines = lines;
+    const shown = !item.labelOff && (item.showLabel || item.suggestion || item.cp);
+    if (!shown) continue;
+    const textWidth = Math.max(...lines.map((line) => measure(line)));
+    widths.set(String(item.id), Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4)));
+    maxLines = Math.max(maxLines, lines.length);
+  }
+  measurer.remove();
+  const radius = 8;
+  const above = radius + 4 + (maxLines - 1) * SUGIYAMA_LINE + 11;
+  const gapY = Math.max(28, above - radius + 10);
+  const { dag, fallback } = layoutSugiyama(
+    pairs,
+    (dagNode) => [widths.get(String(dagNode.data)) ?? SUGIYAMA_DISK, 16],
+    [8, gapY],
+  );
+  let minX = Infinity;
+  let minY = Infinity;
+  for (const dagNode of dag.nodes()) {
+    if (typeof dagNode.data !== "string") continue;
+    minX = Math.min(minX, dagNode.x);
+    minY = Math.min(minY, dagNode.y);
+  }
+  const dx = 16 - (Number.isFinite(minX) ? minX : 0);
+  const dy = above - (Number.isFinite(minY) ? minY : 0);
+  const placed = new Map([...dag.nodes()].map((dagNode) => [String(dagNode.data), dagNode]));
+  for (const node of nodes) {
+    const at = placed.get(String(node.id));
+    node.x = (at?.x ?? 0) + dx;
+    node.y = (at?.y ?? 0) + dy;
+  }
+  const geometry = new Map();
+  for (const dagLink of dag.links()) {
+    const parent = String(dagLink.source.data);
+    const child = String(dagLink.target.data);
+    if (parent === child) continue;
+    geometry.set(`${child}|${parent}`, dagLink.points.map(([x, y]) => [x + dx, y + dy]));
+  }
+  for (const link of links) link.points = geometry.get(`${link.source.id}|${link.target.id}`);
 
   const defs = svg.append("defs");
   defs.append("marker")
@@ -1424,7 +1491,6 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     .attr("marker-end", "url(#snomed-isa)")
     .attr("d", (item) => sugiyamaPath(item.points));
 
-  const radius = 8;
   const node = layer.append("g")
     .selectAll("g")
     .data(nodes)
@@ -1463,12 +1529,13 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       .style("stroke", item.stroke || "#4682b4");
   });
   node.each(function label(item) {
-    const lines = wrapLabel(visibleName(item), 22);
+    const lines = item.labelLines || [visibleName(item)];
+    const first = -(radius + 4) - (lines.length - 1) * SUGIYAMA_LINE;
     const group = d3.select(this);
     for (const kind of ["shadow", "ink"]) {
       const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "middle");
       lines.forEach((line, index) => {
-        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? -14 : 13).text(line);
+        text.append("tspan").attr("x", 0).attr("dy", index === 0 ? first : SUGIYAMA_LINE).text(line);
       });
     }
   });
