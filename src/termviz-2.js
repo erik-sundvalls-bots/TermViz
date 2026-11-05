@@ -542,6 +542,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
 export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLinger, pins, released, onPinMove, labels, labelHidden } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
+  svg.classed("is-tangled", false);
   graphZoom(svgSelection);
   installCategoryPatterns(svgSelection);
   const host = svg.node()?.parentElement;
@@ -1043,9 +1044,10 @@ function tanglePath(link) {
   return `M${xs} ${ys} L${xb + c2} ${ys} A${c2} ${c2} 90 0 1 ${xb} ${ys - c2} L${xb} ${yt + c1} A${c1} ${c1} 90 0 0 ${xb - c1} ${yt} L${xt} ${yt}`;
 }
 
-export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, labels, labelHidden } = {}) {
+export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, labelHidden } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
+  svg.classed("is-tangled", true);
   graphZoom(svgSelection);
   installCategoryPatterns(svgSelection);
   const host = svg.node()?.parentElement;
@@ -1096,14 +1098,13 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
   const geometry = new Map(layout.links.map((link) => [`${link.source.id}|${link.target.id}`, link]));
   for (const link of links) link.geom = geometry.get(`${link.source.id}|${link.target.id}`);
 
-  const labelSet = labels instanceof Set ? labels : new Set();
   const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
   for (const item of nodes) {
     const id = String(item.id);
     if (labelOff.has(id)) {
       item.showLabel = false;
       item.labelOff = true;
-    } else if (labelSet.has(id) || item.outgoing.length === 0) item.showLabel = true;
+    } else item.showLabel = true;
   }
 
   const defs = svg.append("defs");
@@ -1121,19 +1122,18 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
 
   const layer = zoomLayer(svg);
   const drawn = links.filter((link) => link.geom);
-  layer.append("g")
-    .selectAll("path")
+  const linkWrap = layer.append("g")
+    .attr("class", "tangle-links")
+    .selectAll("g")
     .data(drawn)
-    .join("path")
+    .join("g");
+  linkWrap.append("path")
     .attr("class", "tangle-halo")
-    .attr("d", (link) => tanglePath(link.geom));
-  const link = layer.append("g")
-    .selectAll("path")
-    .data(drawn)
-    .join("path")
+    .attr("d", (item) => tanglePath(item.geom));
+  const link = linkWrap.append("path")
     .attr("class", "force-link tangle-link")
     .attr("marker-end", "url(#snomed-isa)")
-    .attr("d", (link) => tanglePath(link.geom));
+    .attr("d", (item) => tanglePath(item.geom));
 
   const radius = 7;
   const node = layer.append("g")
@@ -1186,24 +1186,52 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
   });
   node.append("circle").attr("class", "node-hit").attr("r", radius + 2);
 
-  function paintHover(activeNode, activeLink) {
-    node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
-    link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
-    if (activeNode) {
-      node.filter((item) => item === activeNode).classed("is-active", true);
-      for (const edge of activeNode.incoming) {
-        link.filter((item) => item === edge).classed("is-incoming", true);
-        node.filter((item) => item === edge.source).classed("is-incoming", true);
-      }
-      for (const edge of activeNode.outgoing) {
-        link.filter((item) => item === edge).classed("is-outgoing", true);
-        node.filter((item) => item === edge.target).classed("is-outgoing", true);
+  function walk(start, direction, nodesOut, linksOut) {
+    const seen = new Set([start]);
+    const stack = [start];
+    while (stack.length) {
+      const current = stack.pop();
+      const edges = direction === "up" ? current.outgoing : current.incoming;
+      for (const edge of edges || []) {
+        linksOut.add(edge);
+        const next = direction === "up" ? edge.target : edge.source;
+        if (!next || seen.has(next)) continue;
+        seen.add(next);
+        nodesOut.add(next);
+        stack.push(next);
       }
     }
-    if (activeLink) {
-      link.filter((item) => item === activeLink).classed("is-active", true);
-      node.filter((item) => item === activeLink.source).classed("is-incoming", true);
-      node.filter((item) => item === activeLink.target).classed("is-outgoing", true);
+  }
+
+  function paintHover(activeNode, activeLink) {
+    node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
+    link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false).classed("is-bold", false);
+    linkWrap.classed("is-raised", false);
+    const upNodes = new Set();
+    const downNodes = new Set();
+    const upLinks = new Set();
+    const downLinks = new Set();
+    if (activeNode) {
+      node.filter((item) => item === activeNode).classed("is-active", true);
+      walk(activeNode, "up", upNodes, upLinks);
+      walk(activeNode, "down", downNodes, downLinks);
+    } else if (activeLink) {
+      upLinks.add(activeLink);
+      if (activeLink.target) walk(activeLink.target, "up", upNodes, upLinks);
+      if (activeLink.source) walk(activeLink.source, "down", downNodes, downLinks);
+      upNodes.add(activeLink.target);
+      downNodes.add(activeLink.source);
+    }
+    node.filter((item) => upNodes.has(item)).classed("is-outgoing", true);
+    node.filter((item) => downNodes.has(item)).classed("is-incoming", true);
+    link.filter((item) => upLinks.has(item)).classed("is-outgoing", true).classed("is-bold", true);
+    link.filter((item) => downLinks.has(item)).classed("is-incoming", true).classed("is-bold", true);
+    const raised = new Set([...upLinks, ...downLinks]);
+    linkWrap.classed("is-raised", (item) => raised.has(item));
+    const host = linkWrap.node()?.parentNode;
+    if (host) {
+      linkWrap.each(function restore() { host.appendChild(this); });
+      linkWrap.filter((item) => raised.has(item)).each(function raise() { host.appendChild(this); });
     }
   }
 
