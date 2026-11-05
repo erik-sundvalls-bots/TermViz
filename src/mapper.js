@@ -1,7 +1,7 @@
 import * as d3 from "d3";
-import { D3_VERSION, NODE_COLORS, renderSnomedForce, renderTemplateTree } from "./termviz-2.js";
+import { NODE_COLORS, renderSnomedForce, renderTemplateTree } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
-import { cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
+import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -153,6 +153,48 @@ function bindingOn(node, code) {
   return (state.extraCodes.get(node.id) || []).map(String).includes(String(code));
 }
 
+function bindingNodes() {
+  const nodes = [];
+  (function walk(node, ancestors) {
+    if (bindingEntries(node).length) nodes.push({ node, ancestors });
+    for (const child of node.children || []) walk(child, ancestors.concat(node.name));
+  })(state.model.tree, []);
+  return nodes;
+}
+
+function bindingContext(entry, all) {
+  const same = all.filter((item) => item.node.name === entry.node.name);
+  if (same.length < 2) return entry.node.name;
+  for (let index = entry.ancestors.length - 1; index >= 0; index -= 1) {
+    const contexts = same.map((item) => item.ancestors[index] || "");
+    if (new Set(contexts).size > 1) return `${entry.node.name} · ${entry.ancestors[index]}`;
+  }
+  return entry.node.name;
+}
+
+function bindingsAreAllOn() {
+  const nodes = bindingNodes();
+  return nodes.length > 0 && nodes.every(({ node }) => {
+    const codes = bindingEntries(node);
+    return codes.every((binding) => bindingOn(node, binding.code));
+  });
+}
+
+function selectAllBindings() {
+  for (const { node } of bindingNodes()) {
+    colorFor(node.id);
+    state.extraCodes.set(node.id, bindingEntries(node).map((binding) => String(binding.code)));
+  }
+}
+
+function paintedIds() {
+  const ids = new Set(state.activeIds);
+  for (const [id, codes] of state.extraCodes) {
+    if (codes?.length) ids.add(id);
+  }
+  return ids;
+}
+
 function codesFor(node) {
   const codes = [];
   for (const item of node.suggestions || []) {
@@ -198,27 +240,13 @@ function guessRow(node, item) {
   const color = colorFor(node.id);
   const term = termFor(item.code);
   const pct = Number.isFinite(item.score) ? Math.round(item.score * 100) : "";
-  return `<article class="guess${on ? "" : " is-off"}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(color)}" title="${escapeHtml(item.reason || "")}">
+  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(color)}" title="${escapeHtml(item.reason || "")}">
     <span class="guess-anchor" aria-hidden="true"></span>
     ${switchHtml(`data-row="${escapeHtml(item.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
     <span class="rank">${item.rank ?? ""}</span>
     ${termLink(item.code, term)}
     ${codeLink(item.code)}
     <span class="pct">${pct === "" ? "" : pct}</span>
-  </article>`;
-}
-
-function bindingRow(node, binding) {
-  const on = bindingOn(node, binding.code);
-  const color = colorFor(node.id);
-  const label = binding.label || binding.atCode || "Binding";
-  return `<article class="guess${on ? "" : " is-off"}" data-code="${escapeHtml(binding.code)}" data-color="${escapeHtml(color)}">
-    <span class="guess-anchor" aria-hidden="true"></span>
-    ${switchHtml(`data-binding="${escapeHtml(binding.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(label)}"`, on ? "true" : "false")}
-    <span class="rank"></span>
-    <span class="binding-label">${escapeHtml(label)}</span>
-    ${codeLink(binding.code)}
-    <span class="pct"></span>
   </article>`;
 }
 
@@ -235,40 +263,68 @@ function nodeBlock(node) {
   </section>`;
 }
 
-function bindingsBlock(node) {
-  const rows = bindingEntries(node);
-  if (!rows.length) return "";
+function bindNodeState(node) {
+  const codes = bindingEntries(node);
+  if (!codes.length) return "false";
+  const on = codes.filter((binding) => bindingOn(node, binding.code)).length;
+  if (on === 0) return "false";
+  if (on === codes.length) return "true";
+  return "mixed";
+}
+
+function bindingMasterState() {
+  const nodes = bindingNodes();
+  if (!nodes.length || nodes.every(({ node }) => bindNodeState(node) === "false")) return "false";
+  if (nodes.every(({ node }) => bindNodeState(node) === "true")) return "true";
+  return "mixed";
+}
+
+function bindRow(entry, all) {
+  const node = entry.node;
+  const checked = bindNodeState(node);
+  const on = checked !== "false";
   const color = colorFor(node.id);
-  const onCount = rows.filter((binding) => bindingOn(node, binding.code)).length;
-  const checked = onCount === 0 ? "false" : onCount === rows.length ? "true" : "mixed";
-  return `<section class="side-block" data-node-id="${escapeHtml(node.id)}" style="--node-color:${escapeHtml(color)}">
-    <header class="cat-head">
-      ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show bindings"`, checked)}
-      <span class="cat-name">Bindings · ${escapeHtml(node.name)}</span>
-    </header>
-    ${rows.map((binding) => bindingRow(node, binding)).join("")}
-  </section>`;
+  const codes = bindingEntries(node).filter((binding) => bindingOn(node, binding.code)).map((binding) => String(binding.code));
+  const label = bindingContext(entry, all);
+  const where = entry.ancestors.concat(node.name).join(" / ");
+  return `<article class="bind-row${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-codes="${escapeHtml(codes.join(" "))}" data-color="${escapeHtml(color)}" title="${escapeHtml(where)}" style="--node-color:${escapeHtml(color)}">
+    <span class="guess-anchor" aria-hidden="true"></span>
+    ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(label)}"`, checked)}
+    <span class="name">${escapeHtml(label)}</span>
+  </article>`;
 }
 
 function renderDetail() {
   const suggestions = state.model?.suggestions?.attached || [];
-  const focus = findNode(state.focusId);
   const master = masterState();
   const blocks = suggestions.map(nodeBlock).join("");
-  const bindings = focus ? bindingsBlock(focus) : "";
-  detail.innerHTML = `<header class="cat-head master">
-      ${switchHtml(`data-cat="all" aria-label="Show all suggestions"`, master)}
-      <span class="cat-name">Suggestions</span>
-    </header>
-    ${blocks}
-    ${bindings}`;
+  const bound = state.model ? bindingNodes() : [];
+  const bindingChecked = bindingMasterState();
+  const bindingRows = bound.map((entry) => bindRow(entry, bound)).join("");
+  detail.innerHTML = `<p class="side-kicker">Filtered nodes</p>
+    <div class="side-split">
+      <div class="side-main">
+        <header class="cat-head master">
+          ${switchHtml(`data-cat="all" aria-label="Show all mapping suggestions"`, master)}
+          <span class="cat-name">Mapping suggestions</span>
+        </header>
+        <div class="side-indent">${blocks}</div>
+      </div>
+      <aside class="side-bind">
+        <header class="cat-head">
+          ${switchHtml(`data-cat="bindings" aria-label="Show all template bindings"`, bindingChecked)}
+          <span class="cat-name">Template bindings</span>
+        </header>
+        <div class="side-indent">${bindingRows}</div>
+      </aside>
+    </div>`;
   drawSuggestionLines();
 }
 
 function renderTree() {
   renderTemplateTree(treeSvg, displayTree(), {
     selectedId: state.focusId,
-    activeIds: state.activeIds,
+    activeIds: paintedIds(),
     colorFor: (data) => (nodePainted(data) ? colorFor(data.id) : null),
     onSelect: onTreeSelect,
     onHover: (data, on) => pairHighlight(data.id, on),
@@ -286,12 +342,18 @@ function nodePainted(data) {
   return state.activeIds.has(data.id) || Boolean(state.extraCodes.get(data.id)?.length);
 }
 
+function countLabel(count, singular, plural) {
+  return chip(`<strong>${count}</strong> ${count === 1 ? singular : plural}`);
+}
+
 function renderStats() {
-  const { comparison, counts } = state.model;
+  const { comparison, counts, suggestions } = state.model;
+  const guesses = (suggestions?.attached || []).reduce((sum, node) => sum + (node.suggestions?.length || 0), 0);
   stats.replaceChildren(
-    chip(`<strong>${counts.nodes}</strong> nodes`),
-    chip(`<strong>${comparison.both}</strong> bindings`),
-    chip(`D3 ${D3_VERSION}`),
+    countLabel(BUNDLED_CONCEPTS, "SNOMED CT node cached", "SNOMED CT nodes cached"),
+    countLabel(counts.nodes, "template node", "template nodes"),
+    countLabel(comparison.both, "template binding", "template bindings"),
+    countLabel(guesses, "mapping suggestion", "mapping suggestions"),
   );
 }
 
@@ -376,10 +438,21 @@ function toggleAllBindings(node) {
   refreshAll();
 }
 
+function toggleBindingMaster() {
+  if (bindingMasterState() === "true") {
+    for (const { node } of bindingNodes()) state.extraCodes.delete(node.id);
+  } else selectAllBindings();
+  refreshAll();
+}
+
 function onTreeSelect(node) {
   state.focusId = node.id;
   if (node.suggestions?.length) {
     toggleCategory(node);
+    return;
+  }
+  if (bindingEntries(node).length) {
+    toggleAllBindings(node);
     return;
   }
   renderTree();
@@ -391,7 +464,7 @@ function pairHighlight(id, on) {
   detail.querySelectorAll(".is-pair").forEach((element) => element.classList.remove("is-pair"));
   if (!on || !id) return;
   const treeNode = treeSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  const side = detail.querySelector(`.side-block[data-node-id="${CSS.escape(id)}"]`);
+  const side = detail.querySelector(`[data-node-id="${CSS.escape(id)}"]`);
   treeNode?.classList.add("is-pair");
   side?.classList.add("is-pair");
   const treePort = document.querySelector("#treeViewport");
@@ -618,13 +691,10 @@ function setUserPin(item, on) {
   snomedSvg.__termvizSimulation?.alpha(0.5).restart();
 }
 
-function lineKey(code, color) {
-  return `${code}:${color}`;
-}
-
 function lineIsHot(item) {
   if (!state.hot) return false;
   if (state.hot.type === "code") return item.code === state.hot.code;
+  if (state.hot.type === "node") return item.nodeId === state.hot.nodeId;
   return item.key === state.hot.key;
 }
 
@@ -661,7 +731,7 @@ function rowPoint(row) {
 
 function drawSuggestionLines() {
   if (!linkOverlay) return;
-  const rows = [...detail.querySelectorAll(".guess:not(.is-off)")];
+  const rows = [...detail.querySelectorAll(".guess:not(.is-off), .bind-row:not(.is-off)")];
   syncCues(rows);
   const overlay = d3.select(linkOverlay);
   const width = window.innerWidth;
@@ -669,22 +739,26 @@ function drawSuggestionLines() {
   overlay.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
   const lines = [];
   for (const row of rows) {
-    const code = row.dataset.code;
     const color = row.dataset.color || "#1c2430";
-    const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
-    if (!circle) continue;
-    const to = circle.getBoundingClientRect();
-    if (to.width === 0 && to.height === 0) continue;
+    const nodeId = row.dataset.nodeId || "";
+    const codes = (row.dataset.codes || row.dataset.code || "").split(/\s+/).filter(Boolean);
     const from = rowPoint(row);
-    lines.push({
-      key: lineKey(code, color),
-      code,
-      color,
-      x1: from.x,
-      y1: from.y,
-      x2: to.left + to.width / 2,
-      y2: to.top + to.height / 2,
-    });
+    for (const code of codes) {
+      const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
+      if (!circle) continue;
+      const to = circle.getBoundingClientRect();
+      if (to.width === 0 && to.height === 0) continue;
+      lines.push({
+        key: `${nodeId}:${code}`,
+        nodeId,
+        code,
+        color,
+        x1: from.x,
+        y1: from.y,
+        x2: to.left + to.width / 2,
+        y2: to.top + to.height / 2,
+      });
+    }
   }
   const group = overlay.selectAll("g.dash").data(lines, (item) => item.key).join("g").attr("class", "dash");
   group.selectAll("line.dash-hit")
@@ -750,6 +824,16 @@ function wireChrome() {
     button.addEventListener("click", () => {
       state.filter = button.dataset.filter;
       filterButtons.forEach((other) => other.classList.toggle("is-on", other === button));
+      if (state.model && state.filter === "suggestions" && masterState() !== "true") {
+        for (const node of state.model.suggestions.attached) setCategory(node, true);
+        refreshAll();
+        return;
+      }
+      if (state.model && state.filter === "bindings" && !bindingsAreAllOn()) {
+        selectAllBindings();
+        refreshAll();
+        return;
+      }
       renderTree();
     });
   });
@@ -763,34 +847,36 @@ function wireChrome() {
     event.preventDefault();
     const node = findNode(button.dataset.node);
     if (button.dataset.cat === "all") toggleMaster();
+    else if (button.dataset.cat === "bindings") toggleBindingMaster();
     else if (button.dataset.cat === "node" && node) toggleCategory(node);
     else if (button.dataset.row && node) toggleCode(node, button.dataset.row);
     else if (button.dataset.bindCat && node) toggleAllBindings(node);
     else if (button.dataset.binding && node) setBinding(node, button.dataset.binding, button.getAttribute("aria-checked") !== "true");
   });
   detail.addEventListener("mouseover", (event) => {
-    const block = event.target.closest?.(".side-block");
+    const block = event.target.closest?.("[data-node-id]");
     if (block?.dataset.nodeId) pairHighlight(block.dataset.nodeId, true);
-    const guess = event.target.closest?.(".guess");
+    const guess = event.target.closest?.(".guess, .bind-row");
     if (!guess || !detail.contains(guess)) return;
-    pinConcept(guess.dataset.code, true);
-    state.hot = { type: "key", key: lineKey(guess.dataset.code, guess.dataset.color || "#1c2430") };
+    const codes = (guess.dataset.codes || guess.dataset.code || "").split(/\s+/).filter(Boolean);
+    for (const code of codes) pinConcept(code, true);
+    state.hot = guess.classList.contains("bind-row")
+      ? { type: "node", nodeId: guess.dataset.nodeId }
+      : { type: "key", key: `${guess.dataset.nodeId || ""}:${guess.dataset.code}` };
     paintDash();
   });
   detail.addEventListener("mouseout", (event) => {
-    const block = event.target.closest?.(".side-block");
-    const nextBlock = event.relatedTarget?.closest?.(".side-block");
+    const block = event.target.closest?.("[data-node-id]");
+    const nextBlock = event.relatedTarget?.closest?.("[data-node-id]");
     if (block && nextBlock !== block) pairHighlight(block.dataset.nodeId, false);
-    const guess = event.target.closest?.(".guess");
+    const guess = event.target.closest?.(".guess, .bind-row");
     if (!guess) return;
-    const next = event.relatedTarget?.closest?.(".guess");
+    const next = event.relatedTarget?.closest?.(".guess, .bind-row");
     if (next === guess) return;
-    pinConcept(guess.dataset.code, false);
-    const key = lineKey(guess.dataset.code, guess.dataset.color || "#1c2430");
-    if (state.hot?.type === "key" && state.hot.key === key) {
-      state.hot = null;
-      paintDash();
-    }
+    const codes = (guess.dataset.codes || guess.dataset.code || "").split(/\s+/).filter(Boolean);
+    for (const code of codes) pinConcept(code, false);
+    state.hot = null;
+    paintDash();
   });
   snomedSvg.addEventListener("mouseover", (event) => {
     const node = event.target.closest?.(".force-node");
@@ -877,10 +963,8 @@ loadIpsModel().then((model) => {
   state.model = model;
   markOpen(model.tree);
   renderStats();
-  for (const node of model.suggestions.attached) {
-    colorFor(node.id);
-    state.activeIds.add(node.id);
-  }
+  for (const node of model.suggestions.attached) setCategory(node, true);
+  selectAllBindings();
   state.focusId = model.suggestions.attached[0]?.id ?? null;
   renderTree();
   renderDetail();

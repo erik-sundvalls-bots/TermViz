@@ -187,6 +187,23 @@ export function renderAncestorDag(svgSelection, graph, { suggestions = [], selec
  * Dendrogram with the root at the bottom, the same way the 2013 cluster
  * layout drew it (`treeHeight - d.y`). Leaves line up along the top.
  */
+const TREE_LABEL_FONT = "600 11px \"Source Sans 3\", \"Segoe UI\", sans-serif";
+let labelMeasure;
+
+function treeLabel(name) {
+  const text = name || "";
+  return text.length > 20 ? `${text.slice(0, 19)}…` : text;
+}
+
+function treeLabelWidth(text) {
+  if (!labelMeasure && typeof document !== "undefined") {
+    labelMeasure = document.createElement("canvas").getContext("2d");
+  }
+  if (!labelMeasure) return Math.max(16, text.length * 6);
+  labelMeasure.font = TREE_LABEL_FONT;
+  return Math.max(16, labelMeasure.measureText(text).width);
+}
+
 export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
@@ -195,24 +212,59 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     return;
   }
   const root = d3.hierarchy(rootData, (node) => (node.open === false ? null : node.children));
-  const layout = d3.cluster().nodeSize([108, 76]);
-  layout(root);
+  const labelGap = 6;
+  const depthGap = 34;
+  root.each((node) => {
+    node.label = treeLabel(node.data.name || "");
+    node.labelWidth = treeLabelWidth(node.label);
+  });
+  d3.cluster().nodeSize([1, depthGap]).separation((a, b) => (a.labelWidth + b.labelWidth) / 2 + labelGap)(root);
+  const depths = d3.groups(root.descendants(), (node) => node.depth)
+    .sort((a, b) => b[0] - a[0]);
+  function shiftSubtree(node, delta) {
+    node.each((item) => {
+      item.x += delta;
+    });
+  }
+  function extent(node) {
+    let min = node.x - node.labelWidth / 2;
+    let max = node.x + node.labelWidth / 2;
+    node.each((item) => {
+      min = Math.min(min, item.x - item.labelWidth / 2);
+      max = Math.max(max, item.x + item.labelWidth / 2);
+    });
+    return [min, max];
+  }
+  for (const [, row] of depths) {
+    row.sort((a, b) => a.x - b.x);
+    for (const node of row) {
+      if (!node.children?.length) continue;
+      const xs = node.children.map((child) => child.x);
+      node.x = (Math.min(...xs) + Math.max(...xs)) / 2;
+    }
+    let edge = -Infinity;
+    for (const node of row) {
+      const [min] = extent(node);
+      if (min < edge + labelGap) shiftSubtree(node, edge + labelGap - min);
+      edge = extent(node)[1];
+    }
+  }
   let x0 = Infinity;
   let x1 = -Infinity;
   let y1 = 0;
   root.each((node) => {
-    if (node.x < x0) x0 = node.x;
-    if (node.x > x1) x1 = node.x;
+    x0 = Math.min(x0, node.x - node.labelWidth / 2);
+    x1 = Math.max(x1, node.x + node.labelWidth / 2);
     if (node.y > y1) y1 = node.y;
   });
-  const padTop = 36;
-  const padBottom = 28;
-  const padLeft = 64;
+  const padTop = 16;
+  const padBottom = 14;
+  const padX = 8;
   const height = padTop + y1 + padBottom;
-  const width = Math.max(280, x1 - x0 + padLeft + 80);
+  const width = Math.max(280, x1 - x0 + padX * 2);
   svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
   const yOf = (node) => padTop + (y1 - node.y);
-  const plot = svg.append("g").attr("transform", `translate(${padLeft - x0},0)`);
+  const plot = svg.append("g").attr("transform", `translate(${padX - x0},0)`);
   const diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
   const active = activeIds instanceof Set ? activeIds : new Set(activeIds || []);
 
@@ -236,7 +288,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       if (data.id === selectedId) classes.push("is-selected");
       if (active.has(data.id)) classes.push("is-on");
       if (data.suggestions?.length) classes.push("has-suggestions");
-      const bound = [...(data.bindings || []), ...(data.valueBindings || [])];
+      const bound = [...(data.bindings || []), ...(data.valueBindings || []), ...(data.scopeBindings || [])];
       if (bound.some((binding) => binding.status === "missing-from-opt")) {
         classes.push("has-enriched");
       } else if (bound.length) classes.push("has-binding");
@@ -273,12 +325,8 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
   node.append("text")
     .attr("class", "tree-label")
     .attr("text-anchor", "middle")
-    .attr("dy", -12)
-    .text((item) => {
-      const name = item.data.name || "";
-      const limit = active.has(item.data.id) ? 28 : 18;
-      return name.length > limit ? `${name.slice(0, limit - 1)}…` : name;
-    });
+    .attr("dy", -13)
+    .text((item) => item.label);
 
   node.on("click", (event, item) => {
     event.stopPropagation();

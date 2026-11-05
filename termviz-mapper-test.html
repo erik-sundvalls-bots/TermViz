@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TermViz — IPS SNOMED mapper</title>
+    <title>TERMVIZ DEMO v2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -11,10 +11,7 @@
   </head>
   <body>
     <header class="topbar">
-      <div class="brand">
-        <p class="eyebrow">TermViz</p>
-        <h1>IPS mapping bench</h1>
-      </div>
+      <a class="brand-mark" href="%BASE_URL%">TERMVIZ DEMO v2</a>
       <div class="stats" id="stats"></div>
     </header>
     <p class="error" id="error" hidden></p>
@@ -54,8 +51,8 @@
               <input id="search" type="search" placeholder="Name or SNOMED id" />
             </label>
             <div class="filters" role="group" aria-label="Filter">
-              <button type="button" data-filter="suggestions" class="is-on">Suggestions</button>
-              <button type="button" data-filter="bindings">Bindings</button>
+              <button type="button" data-filter="suggestions" class="is-on">Mapping suggestions</button>
+              <button type="button" data-filter="bindings">Template bindings</button>
               <button type="button" data-filter="all">Whole template</button>
             </div>
           </div>
