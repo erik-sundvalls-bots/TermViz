@@ -30,6 +30,8 @@ const state = {
   muted: new Map(),
   pins: new Map(),
   released: new Set(),
+  shownLabels: new Set(),
+  hiddenLabels: new Set(),
   popId: null,
 };
 
@@ -248,23 +250,53 @@ function codesFor(node, { suggestions = true, bindings = true } = {}) {
   return [...new Set(codes)];
 }
 
+function switchedBindingCodes(node, scope) {
+  const source = scope
+    ? (node.scopeBindings || [])
+    : [...(node.bindings || []), ...(node.valueBindings || [])];
+  const codes = [];
+  for (const binding of source) {
+    const code = String(binding.code || "");
+    if (code && bindingOn(node, code)) codes.push(code);
+  }
+  return [...new Set(codes)];
+}
+
 function activeListings() {
   const byId = new Map();
-  const add = (node, hatched) => {
-    const codes = codesFor(node, { suggestions: hatched, bindings: !hatched });
-    if (!codes.length) return;
-    const current = byId.get(node.id) || { node, codes: [], hatched: false };
+  const add = (node, hatched, codes, scopeCodes = []) => {
+    if (!codes.length && !scopeCodes.length) return;
+    const current = byId.get(node.id) || { node, codes: [], scopeCodes: [], hatched: false };
     current.codes.push(...codes);
+    current.scopeCodes.push(...scopeCodes);
     current.hatched = current.hatched || hatched;
     byId.set(node.id, current);
   };
   if (state.filter !== "bindings") {
-    for (const node of state.model?.suggestions?.attached || []) add(node, true);
+    for (const node of state.model?.suggestions?.attached || []) {
+      add(node, true, codesFor(node, { bindings: false }));
+    }
   }
   if (state.filter !== "suggestions" && state.model) {
-    for (const { node } of bindingNodes()) add(node, false);
+    for (const { node } of bindingNodes()) {
+      add(node, false, switchedBindingCodes(node, false), switchedBindingCodes(node, true));
+    }
   }
-  return [...byId.values()].map((item) => ({ ...item, codes: [...new Set(item.codes)] }));
+  const listings = [...byId.values()].map((item) => ({
+    ...item,
+    codes: [...new Set(item.codes)],
+    scopeCodes: [...new Set(item.scopeCodes)],
+  }));
+  // An archetype root lists every code in its scope. Those copies are the
+  // same binding as the element that carries the code, so they must not
+  // turn the concept into an uncolored shared node.
+  const claimed = new Set(listings.flatMap((item) => item.codes));
+  for (const item of listings) {
+    for (const code of item.scopeCodes) {
+      if (!claimed.has(code)) item.codes.push(code);
+    }
+  }
+  return listings.filter((item) => item.codes.length);
 }
 
 function categoryState(node) {
@@ -297,7 +329,7 @@ function guessRow(node, item) {
     <span class="rank">${item.rank ?? ""}</span>
     ${termLink(item.code, term)}
     ${codeLink(item.code)}
-    <span class="pct">${pct === "" ? "" : pct}</span>
+    <span class="pct">${pct === "" ? "" : `${pct}%`}</span>
   </article>`;
 }
 
@@ -641,6 +673,8 @@ function forceOptions() {
     onSelect: (item) => openPop(item),
     pins: state.pins,
     released: state.released,
+    labels: state.shownLabels,
+    labelHidden: state.hiddenLabels,
     onPinMove: (item) => {
       const id = String(item.id);
       state.released.delete(id);
@@ -711,6 +745,7 @@ function openPop(item) {
     return `<p><strong>${escapeHtml(`${head}${score}`)}</strong>${source.reason ? ` ${escapeHtml(source.reason)}` : ""}</p>`;
   }).join("");
   document.querySelector("#popPin").setAttribute("aria-checked", item.userPinned ? "true" : "false");
+  document.querySelector("#popLabel").setAttribute("aria-checked", item.showLabel ? "true" : "false");
   pop.hidden = false;
   placePop();
 }
@@ -767,6 +802,25 @@ function setUserPin(item, on) {
   }
   document.querySelector("#popPin")?.setAttribute("aria-checked", on ? "true" : "false");
   snomedSvg.__termvizSimulation?.alpha(0.5).restart();
+}
+
+function setShowLabel(item, on) {
+  const id = String(item.id);
+  const el = snomedSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  item.showLabel = on;
+  item.labelOff = !on;
+  if (on) {
+    state.hiddenLabels.delete(id);
+    state.shownLabels.add(id);
+    el?.classList.add("is-labeled");
+    el?.classList.remove("is-label-off");
+  } else {
+    state.shownLabels.delete(id);
+    state.hiddenLabels.add(id);
+    el?.classList.remove("is-labeled");
+    el?.classList.add("is-label-off");
+  }
+  document.querySelector("#popLabel")?.setAttribute("aria-checked", on ? "true" : "false");
 }
 
 function lineIsHot(item) {
@@ -839,27 +893,6 @@ function drawSuggestionLines() {
     }
   }
   const group = overlay.selectAll("g.dash").data(lines, (item) => item.key).join("g").attr("class", "dash");
-  group.selectAll("line.dash-hit")
-    .data((item) => [item])
-    .join("line")
-    .attr("class", "dash-hit")
-    .attr("x1", (item) => item.x1)
-    .attr("y1", (item) => item.y1)
-    .attr("x2", (item) => item.x2)
-    .attr("y2", (item) => item.y2)
-    .attr("stroke", (item) => item.color)
-    .attr("stroke-opacity", 0)
-    .attr("stroke-width", 14)
-    .on("mouseover", (event, item) => {
-      state.hot = { type: "key", key: item.key };
-      paintDash();
-    })
-    .on("mouseout", (event, item) => {
-      if (state.hot?.type === "key" && state.hot.key === item.key) {
-        state.hot = null;
-        paintDash();
-      }
-    });
   group.selectAll("line.dash-link")
     .data((item) => [item])
     .join("line")
@@ -995,6 +1028,11 @@ function wireChrome() {
     const el = state.popId && snomedSvg.querySelector(`[data-id="${CSS.escape(state.popId)}"]`);
     const item = el ? d3.select(el).datum() : null;
     if (item) setUserPin(item, !item.userPinned);
+  });
+  document.querySelector("#popLabel").addEventListener("click", () => {
+    const el = state.popId && snomedSvg.querySelector(`[data-id="${CSS.escape(state.popId)}"]`);
+    const item = el ? d3.select(el).datum() : null;
+    if (item) setShowLabel(item, !item.showLabel);
   });
   document.querySelector("#snomedViewport").addEventListener("click", (event) => {
     if (event.target === snomedSvg || event.target.id === "snomedViewport") closePop();

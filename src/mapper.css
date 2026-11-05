@@ -172,7 +172,7 @@ main {
   overflow: visible;
 }
 
-.link-overlay .dash-hit { pointer-events: stroke; cursor: pointer; }
+.link-overlay .dash-hit,
 .link-overlay .dash-link { pointer-events: none; }
 
 .pane-bar, .tool-bar {
@@ -212,8 +212,8 @@ h2 {
 
 .zoom-controls {
   position: absolute;
-  top: 6px;
-  left: 8px;
+  right: 8px;
+  bottom: 6px;
   z-index: 4;
   display: flex;
   gap: 1px;
@@ -659,6 +659,7 @@ svg { display: block; }
 .tpl-node.has-suggestions circle { fill: #fff; stroke: #1c2430; stroke-width: 2.2; }
 .tpl-node.is-selected circle, .tpl-node.is-pair circle { stroke: var(--ink); stroke-width: 3; }
 .tree-label { font-size: 11px; pointer-events: none; }
+.tree-label.ink { pointer-events: painted; }
 .tree-label.shadow { stroke: #fff; stroke-width: 3px; stroke-opacity: 0.92; }
 .tree-label.ink { fill: var(--ink); }
 .tpl-node.is-selected .tree-label, .tpl-node.is-on .tree-label, .tpl-node.has-suggestions .tree-label { font-weight: 650; }
@@ -669,6 +670,8 @@ svg { display: block; }
 #forceSvg .force-node.is-lcp circle { fill: #0f6e6b; }
 #forceSvg .force-node.is-lcp text { fill: white; }
 .force-label { font-size: 11px; pointer-events: none; }
+.force-label.ink { pointer-events: painted; }
+.node-hit { fill: transparent; stroke: none; pointer-events: all; }
 .force-link { stroke: #8d97a3; }
 #snomedSvg .node-disk { stroke-width: 1.6; }
 #snomedSvg .is-cp .node-disk { fill: #fff; stroke: #1c2430; stroke-width: 2.5; }
@@ -682,7 +685,13 @@ svg { display: block; }
 #snomedSvg .is-outgoing .force-label,
 #snomedSvg .is-cp .force-label,
 #snomedSvg .is-suggestion .force-label,
-#snomedSvg .is-pinned .force-label { display: inline; }
+#snomedSvg .is-pinned .force-label,
+#snomedSvg .is-labeled .force-label { display: inline; }
+#snomedSvg .is-label-off .force-label { display: none; }
+#snomedSvg .is-label-off.is-active .force-label,
+#snomedSvg .is-label-off.is-incoming .force-label,
+#snomedSvg .is-label-off.is-outgoing .force-label,
+#snomedSvg .is-label-off.is-pinned .force-label { display: inline; }
 #snomedSvg .force-label.shadow { stroke: #fff; stroke-width: 3px; stroke-opacity: 0.92; }
 #snomedSvg .force-label.ink { fill: #1c2430; }
 #snomedSvg .is-lcp .force-label.ink { font-size: 13px; font-weight: 700; }

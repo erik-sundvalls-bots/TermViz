@@ -465,6 +465,13 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       .attr("dy", -13)
       .text((item) => item.label);
   }
+  node.append("circle")
+    .attr("class", "node-hit")
+    .attr("r", (item) => {
+      if (item.data.suggestions?.length) return 8;
+      if (active.has(item.data.id)) return 6.5;
+      return 4.2;
+    });
 
   node.on("click", (event, item) => {
     event.stopPropagation();
@@ -482,7 +489,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
  * stay quiet until hover or until a concept is shared, and hovering a
  * node pushes its parents and children apart.
  */
-export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, released, onPinMove } = {}) {
+export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins, released, onPinMove, labels, labelHidden } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
@@ -532,6 +539,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
 
   const pinOf = pins instanceof Map ? pins : new Map();
   const releasedSet = released instanceof Set ? released : new Set();
+  const labelSet = labels instanceof Set ? labels : new Set();
+  const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
   const rootY = 32;
   const rowY = Math.max(108, Math.min(156, Math.round(height * 0.2)));
 
@@ -589,6 +598,22 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     place(item, pin.x, pin.y, { pinned: true, auto: false, fixed: false });
   }
 
+  for (const item of [...tops, ...firstLevel]) {
+    const id = String(item.id);
+    if (labelOff.has(id)) item.showLabel = false;
+    else {
+      labelSet.add(id);
+      item.showLabel = true;
+    }
+  }
+  for (const item of nodes) {
+    const id = String(item.id);
+    if (labelOff.has(id)) {
+      item.showLabel = false;
+      item.labelOff = true;
+    } else if (labelSet.has(id)) item.showLabel = true;
+  }
+
   const node = layer.append("g")
     .selectAll("g")
     .data(nodes)
@@ -600,6 +625,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
       if (item.lcp) classes.push("is-lcp");
       if (item.inactive) classes.push("is-inactive");
       if (item.userPinned) classes.push("is-user-pinned");
+      if (item.showLabel) classes.push("is-labeled");
+      if (item.labelOff) classes.push("is-label-off");
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.id);
@@ -628,6 +655,9 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
       });
     }
   });
+  node.append("circle")
+    .attr("class", "node-hit")
+    .attr("r", (item) => (item.lcp ? 16 : item.cp ? 13 : item.suggestion ? 11 : 8));
 
   function paintHover(activeNode, activeLink) {
     nodes.forEach((item) => {
