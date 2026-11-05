@@ -1,18 +1,9 @@
 source_code,source_display,target_code,target_display,relationship_type
 openEHR-EHR-ACTION.medication.v1/description[at0017]/items[at0020],Medication item,763158003,Medicinal product (product),TARGET_EQUIVALENT
-openEHR-EHR-ACTION.medication.v1/description[at0017]/items[at0020],Medication item,373873007,Pharmaceutical / biologic product (product),TARGET_BROADER
-openEHR-EHR-ACTION.medication.v1/description[at0017]/items[at0020],Medication item,105903003,Prescribable entity (product),TARGET_BROADER
-openEHR-EHR-ACTION.medication.v1/description[at0017]/items[at0020],Medication item,419515004,Therapeutic good (product),TARGET_BROADER
 openEHR-EHR-CLUSTER.medication.v1/items[at0071],Form,736542009,Pharmaceutical dose form (dose form),TARGET_EQUIVALENT
 openEHR-EHR-CLUSTER.medication.v1/items[at0071],Form,385055001,Dose form (qualifier value),TARGET_INEXACT
 openEHR-EHR-CLUSTER.medication.v1/items[at0071],Form,736478001,Administrable dose form (dose form),TARGET_NARROWER
 openEHR-EHR-CLUSTER.medication.v1/items[at0071],Form,736479009,Manufactured dose form (dose form),TARGET_NARROWER
-openEHR-EHR-CLUSTER.medication.v1/items[at0071],Form,246188002,Form (attribute),TARGET_BROADER
-openEHR-EHR-CLUSTER.medication.v1/items[at0150],Batch ID,420891004,Batch number (attribute),TARGET_EQUIVALENT
-openEHR-EHR-CLUSTER.medication.v1/items[at0150],Batch ID,446134003,Evaluation of lot number (procedure),TARGET_BROADER
-openEHR-EHR-CLUSTER.medication.v1/items[at0003],Expiry,261771004,Date of expiry (observable entity),TARGET_EQUIVALENT
-openEHR-EHR-CLUSTER.medication.v1/items[at0003],Expiry,422472007,Expiry date (attribute),TARGET_EQUIVALENT
-openEHR-EHR-CLUSTER.medication.v1/items[at0003],Expiry,397726004,Shelf life (observable entity),TARGET_INEXACT
 openEHR-EHR-CLUSTER.dosage.v1/items[at0144],Dose amount,410656007,Amount (qualifier value),TARGET_BROADER
 openEHR-EHR-CLUSTER.dosage.v1/items[at0144],Dose amount,444981005,Dose form strength (qualifier value),TARGET_INEXACT
 openEHR-EHR-CLUSTER.dosage.v1/items[at0144],Dose amount,396140003,Single dose amount (observable entity),TARGET_NARROWER
@@ -23,16 +14,11 @@ openEHR-EHR-CLUSTER.dosage.v1/items[at0145],Dose unit,767524001,Unit of measure 
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0003],Frequency,260864003,Frequency (qualifier value),TARGET_EQUIVALENT
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0003],Frequency,307439001,Medication frequency (qualifier value),TARGET_NARROWER
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0003],Frequency,70232002,General frequency (qualifier value),TARGET_BROADER
-openEHR-EHR-CLUSTER.timing_daily.v1/items[at0003],Frequency,272123003,Action frequency (qualifier value),TARGET_BROADER
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0003],Frequency,225756002,Rate and frequency (qualifier value),TARGET_BROADER
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0024],As required,225761000,As required (qualifier value),TARGET_EQUIVALENT
 openEHR-EHR-CLUSTER.timing_daily.v1/items[at0024],As required,422135004,As needed for (qualifier value),TARGET_NARROWER
-openEHR-EHR-CLUSTER.timing_daily.v1/items[at0024],As required,56241000179103,PRN administration (procedure),TARGET_NARROWER
-openEHR-EHR-ACTION.medication.v1/items[at0147],Route,284005007,Route of administration value (qualifier value),TARGET_EQUIVALENT
 openEHR-EHR-ACTION.medication.v1/items[at0147],Route,410942007,Drug route (attribute),TARGET_BROADER
-openEHR-EHR-ACTION.medication.v1/items[at0147],Route,260548002,Oral route (qualifier value),TARGET_NARROWER
 openEHR-EHR-ACTION.medication.v1/items[at0147],Route,47625008,Intravenous route (qualifier value),TARGET_NARROWER
 openEHR-EHR-EVALUATION.exclusion_global.v1/items[at0002]/value[at0005],Global exclusion of medication use,182849000,No history of medication taken (situation),TARGET_EQUIVALENT
 openEHR-EHR-EVALUATION.exclusion_global.v1/items[at0002]/value[at0005],Global exclusion of medication use,407559004,Patient not on medication (situation),TARGET_EQUIVALENT
-openEHR-EHR-EVALUATION.exclusion_global.v1/items[at0002]/value[at0005],Global exclusion of medication use,428191000124101,No current prescription for medication (situation),TARGET_NARROWER
 openEHR-EHR-EVALUATION.exclusion_global.v1/items[at0002]/value[at0005],Global exclusion of medication use,266710000,Not taking medication (situation),TARGET_NARROWER
