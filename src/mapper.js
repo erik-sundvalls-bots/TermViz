@@ -1,7 +1,7 @@
 import * as d3 from "d3";
-import { CATEGORY_HATCHES, NODE_COLORS, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
-import { loadIpsModel } from "./ips-model.js";
-import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
+import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
+import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
+import { cacheSize, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -429,7 +429,7 @@ function renderTree() {
       return { color: style.color, fill: style.color, stroke };
     },
     onSelect: onTreeSelect,
-    onHover: (data, on) => pairHighlight(data.id, on),
+    onHover: (data, on) => hoverFromTree(data.id, on),
     onToggle: state.filter === "all" && !state.query
       ? (node) => {
           node.open = !node.open;
@@ -449,12 +449,14 @@ function countLabel(count, singular, plural) {
 }
 
 function renderStats() {
+  if (!state.model) return;
   const { comparison, counts, suggestions } = state.model;
   const guesses = (suggestions?.attached || []).reduce((sum, node) => sum + (node.suggestions?.length || 0), 0);
+  const bindings = (comparison?.rows || []).filter((row) => row.opt || row.arch).length;
   stats.replaceChildren(
-    countLabel(BUNDLED_CONCEPTS, "SNOMED CT node cached", "SNOMED CT nodes cached"),
+    countLabel(cacheSize(), "SNOMED CT node cached", "SNOMED CT nodes cached"),
     countLabel(counts.nodes, "template node", "template nodes"),
-    countLabel(comparison.both, "template binding", "template bindings"),
+    countLabel(bindings, "template binding", "template bindings"),
     countLabel(guesses, "mapping suggestion", "mapping suggestions"),
   );
 }
@@ -578,11 +580,44 @@ function pairHighlight(id, on) {
       treeNode.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
   }
-  if (side) {
+  if (side && !shelfHidden()) {
     const box = side.getBoundingClientRect();
     const view = detail.getBoundingClientRect();
     if (box.top < view.top || box.bottom > view.bottom) side.scrollIntoView({ block: "nearest" });
   }
+}
+
+function listingRows(id) {
+  if (!id) return [];
+  return [...detail.querySelectorAll(`.guess[data-node-id="${CSS.escape(id)}"], .bind-row[data-node-id="${CSS.escape(id)}"]`)]
+    .filter((row) => !row.classList.contains("is-off"));
+}
+
+function rowCodes(row) {
+  return (row.dataset.codes || row.dataset.code || "").split(/\s+/).filter(Boolean);
+}
+
+let treeHoverId = null;
+
+function hoverFromTree(id, on) {
+  if (treeHoverId && treeHoverId !== (on ? id : null)) {
+    for (const code of listingRows(treeHoverId).flatMap(rowCodes)) pinConcept(code, false);
+  }
+  if (!on) {
+    pairHighlight(id, false);
+    if (state.hot?.fromTree) {
+      state.hot = null;
+      paintDash();
+    }
+    treeHoverId = null;
+    return;
+  }
+  treeHoverId = id;
+  pairHighlight(id, true);
+  const codes = [...new Set(listingRows(id).flatMap(rowCodes))];
+  for (const code of codes) pinConcept(code, true);
+  state.hot = codes.length ? { type: "node", nodeId: id, fromTree: true } : null;
+  paintDash();
 }
 
 function ancestorsOf(code, parents) {
@@ -721,6 +756,7 @@ async function refreshGraph() {
       if (el) openPop(d3.select(el).datum());
     }
     drawSuggestionLines();
+    renderStats();
   } catch (error) {
     if (token !== state.snomedToken) return;
     snomedCaption.textContent = "The terminology server did not answer.";
@@ -901,10 +937,6 @@ function clipLinesToTopPane() {
 function drawSuggestionLines() {
   if (!linkOverlay) return;
   clipLinesToTopPane();
-  if (shelfHidden()) {
-    d3.select(linkOverlay).selectAll("g.dash").remove();
-    return;
-  }
   const rows = [...detail.querySelectorAll(".guess:not(.is-off), .bind-row:not(.is-off)")];
   syncCues(rows);
   const overlay = d3.select(linkOverlay);
@@ -1003,13 +1035,23 @@ function wireChrome() {
     const button = document.querySelector("#shelfToggle");
     button?.setAttribute("aria-expanded", hidden ? "false" : "true");
     button?.setAttribute("aria-label", hidden ? "Show filtered nodes" : "Hide filtered nodes");
-    drawSuggestionLines();
+    const started = performance.now();
+    const follow = () => {
+      drawSuggestionLines();
+      if (performance.now() - started < 340) requestAnimationFrame(follow);
+    };
+    follow();
   });
   for (const viewport of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
     viewport?.querySelectorAll("[data-zoom]").forEach((button) => {
       button.addEventListener("click", () => {
         const svg = viewport.querySelector("svg");
-        if (svg) zoomGraph(svg, button.dataset.zoom);
+        if (!svg) return;
+        if (button.dataset.zoom === "burst") {
+          burstGraph(svg);
+          return;
+        }
+        zoomGraph(svg, button.dataset.zoom);
       });
     });
   }
@@ -1141,18 +1183,80 @@ for (const element of [document.querySelector("#snomedViewport"), document.query
 snomedSvg.addEventListener("termviz-view", scheduleLines);
 snomedCaption.textContent = "Reading the International Patient Summary…";
 
-loadIpsModel().then((model) => {
+function templateLabel(id) {
+  const text = String(id || "Template");
+  if (/^https?:/i.test(text)) {
+    const file = decodeURIComponent(text.split("/").pop()?.split("?")[0] || text);
+    return file.replace(/\.(opt|oet|xml|adl|adls|json)$/i, "") || file;
+  }
+  return text.replace(/^openEHR-EHR-[A-Z]+\./, "").replace(/\.v\d+.*$/, "").replaceAll("_", " ") || text;
+}
+
+function showModel(model) {
   state.model = model;
-  markOpen(model.tree);
-  renderStats();
-  for (const node of model.suggestions.attached) setCategory(node, true);
+  state.activeIds = new Set();
+  state.extraCodes = new Map();
+  state.muted = new Map();
+  state.colors = new Map();
+  state.colorIndex = 0;
+  state.query = "";
+  state.focusId = null;
+  state.popId = null;
+  if (search) search.value = "";
+  const label = templateLabel(model.templateId);
+  const now = document.querySelector("#templateNow");
+  if (now) {
+    now.textContent = label;
+    now.title = model.templateId;
+  }
+  const hasSuggestions = (model.suggestions?.attached || []).length > 0;
+  state.filter = hasSuggestions ? "suggestions" : "bindings";
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    button.classList.toggle("is-on", button.dataset.filter === state.filter);
+  });
+  if (hasSuggestions) markOpen(model.tree);
+  else openAll(model.tree);
+  for (const node of model.suggestions?.attached || []) setCategory(node, true);
   selectAllBindings();
-  state.focusId = model.suggestions.attached[0]?.id ?? null;
+  state.focusId = model.suggestions?.attached?.[0]?.id || bindingNodes()[0]?.id || null;
+  renderStats();
   renderTree();
   renderDetail();
   refreshGraph();
   fitTree();
-}).catch((error) => {
+}
+
+async function loadChosen(loader) {
+  const button = document.querySelector("#loadTemplate");
+  errorBox.hidden = true;
+  if (button) button.disabled = true;
+  snomedCaption.textContent = "Reading the template…";
+  try {
+    showModel(await loader());
+  } catch (error) {
+    errorBox.hidden = false;
+    errorBox.textContent = error instanceof Error ? error.message : String(error);
+    snomedCaption.textContent = "The template could not be read.";
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+const templateUrl = document.querySelector("#templateUrl");
+document.querySelector("#loadTemplate")?.addEventListener("click", () => {
+  loadChosen(() => loadTemplateFromUrl(templateUrl?.value || ""));
+});
+templateUrl?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") loadChosen(() => loadTemplateFromUrl(templateUrl.value));
+});
+document.querySelector("#templateFile")?.addEventListener("change", (event) => {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (!file) return;
+  loadChosen(async () => loadTemplateFromText(await file.text(), { name: file.name }));
+});
+
+loadIpsModel().then(showModel).catch((error) => {
   errorBox.hidden = false;
   errorBox.textContent = error instanceof Error ? error.message : String(error);
   snomedCaption.textContent = "The template could not be read.";

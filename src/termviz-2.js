@@ -145,6 +145,24 @@ export function zoomGraph(svgSelection, mode) {
   svg.transition().duration(280).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
 }
 
+const REST_CHARGE = -160;
+
+export function burstGraph(svgSelection) {
+  const node = svgSelection instanceof Element ? svgSelection : svgSelection?.node?.();
+  const simulation = node?.__termvizSimulation;
+  if (!simulation) return;
+  const charge = simulation.force("charge");
+  if (!charge) return;
+  window.clearTimeout(node.__termvizBurst);
+  charge.strength(REST_CHARGE * 7);
+  simulation.alpha(0.85).restart();
+  node.__termvizBurst = window.setTimeout(() => {
+    if (node.__termvizSimulation !== simulation) return;
+    charge.strength(REST_CHARGE);
+    simulation.alpha(0.35).restart();
+  }, 800);
+}
+
 function clear(svg) {
   const node = svg.node();
   if (node?.__termvizSimulation) {
@@ -542,8 +560,8 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
   const releasedSet = released instanceof Set ? released : new Set();
   const labelSet = labels instanceof Set ? labels : new Set();
   const labelOff = labelHidden instanceof Set ? labelHidden : new Set();
-  const rootY = 56;
-  const arcRadius = 180;
+    const rootY = height / 2;
+    const arcRadius = Math.min(200, Math.max(120, Math.min(width, height) * 0.32));
 
   const tops = nodes.filter((item) => item.outgoing.length === 0);
   const topSet = new Set(tops);
@@ -598,7 +616,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
     const radius = Math.min(arcRadius, Math.max(110, room));
     const count = children.length;
     children.forEach((item, index) => {
-      const angle = count === 1 ? Math.PI / 2 : Math.PI * (1 - index / (count - 1));
+        const angle = -Math.PI / 2 + (2 * Math.PI * index) / count;
       place(
         item,
         cx + radius * Math.cos(angle),
@@ -760,9 +778,9 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
 
   const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).distance((edge) => (edge.target.layoutFixed ? 80 : 52)).strength(0.85))
-    .force("charge", d3.forceManyBody().strength(-160))
+    .force("charge", d3.forceManyBody().strength(REST_CHARGE))
     .force("x", d3.forceX(width / 2).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.04)))
-    .force("y", d3.forceY(height * 0.62).strength((item) => (item.layoutFixed || item.userPinned ? 0 : 0.05)))
+    .force("y", d3.forceY(height / 2).strength(0))
     .force("collide", d3.forceCollide(18))
     .on("tick", () => {
       link

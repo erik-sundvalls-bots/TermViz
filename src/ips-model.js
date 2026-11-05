@@ -430,7 +430,7 @@ export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl }) {
     node.children.forEach(tally);
   })(tree);
   return {
-    templateId: operationalTemplate.archetype_id?.value || "International Patient Summary",
+    templateId: templateIdentity(operationalTemplate, "International Patient Summary"),
     language: operationalTemplate.original_language || "en",
     warnings: warnings || [],
     tree,
@@ -443,6 +443,157 @@ export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl }) {
   };
 }
 
+function templateIdentity(opt, fallback) {
+  const raw = opt?.template_id?.value || opt?.template_id || opt?.archetype_id?.value || fallback || "Template";
+  return String(raw);
+}
+
+function mergeBindingBags(base, extra) {
+  const out = { ...base };
+  for (const [archetypeId, bag] of Object.entries(extra || {})) {
+    out[archetypeId] = { ...(out[archetypeId] || {}), ...bag };
+  }
+  return out;
+}
+
+function harvestOptBindings(root) {
+  const bags = {};
+  const seen = new WeakSet();
+  function visit(value, archetypeId) {
+    if (!value || typeof value !== "object") return;
+    if (seen.has(value)) return;
+    seen.add(value);
+    const id = normArchetypeId(value.archetype_id?.value || value.archetype_ref || archetypeId || "");
+    const bindings = value.term_bindings || value.ontology?.term_bindings;
+    if (bindings && id) {
+      const snomed = snomedBindingsFromArchetype({ ontology: { term_bindings: bindings } });
+      if (Object.keys(snomed).length) bags[id] = { ...(bags[id] || {}), ...snomed };
+    }
+    const nested = Array.isArray(value) ? value : Object.values(value);
+    for (const child of nested) visit(child, id);
+  }
+  visit(root, "");
+  return bags;
+}
+
+export function buildTemplateModel({
+  operationalTemplate,
+  sourceText = "",
+  adlEntries = [],
+  parseAdl,
+  warnings = [],
+  sourceName,
+}) {
+  const termDefs = operationalTemplate.archetype_term_definitions || {};
+  const tree = buildClinicalTree(operationalTemplate.definition, termDefs);
+  if (!tree) throw new Error("ehrtslib parsed the template, but the definition tree was empty.");
+  const fromXml = sourceText.includes("<") ? extractOptSnomedBindings(sourceText) : {};
+  const optBindings = mergeBindingBags(fromXml, harvestOptBindings(operationalTemplate));
+  const archetypes = adlEntries.length && parseAdl
+    ? readArchetypeSnomedBindings(adlEntries, parseAdl)
+    : { bindings: {}, reports: [] };
+  const comparison = compareBindings(optBindings, archetypes.bindings);
+  attachBindingLists(tree, comparison, termDefs);
+  const suggestions = attachSuggestions(tree);
+  const counts = { nodes: 0, boundNodes: 0, enrichedNodes: 0 };
+  (function tally(node) {
+    counts.nodes += 1;
+    if (node.bindings.length || node.valueBindings.length) counts.boundNodes += 1;
+    if (node.bindings.some((binding) => binding.status === "missing-from-opt")) counts.enrichedNodes += 1;
+    node.children.forEach(tally);
+  })(tree);
+  return {
+    templateId: templateIdentity(operationalTemplate, sourceName),
+    language: operationalTemplate.original_language || "en",
+    warnings: warnings || [],
+    tree,
+    comparison,
+    archetypeReports: archetypes.reports,
+    suggestions,
+    counts,
+    optBindingArchetypes: Object.keys(optBindings).length,
+    archetypeBindingArchetypes: Object.keys(archetypes.bindings).length,
+  };
+}
+
+let ehrtsPromise;
+
+export function loadEhrts() {
+  if (!ehrtsPromise) {
+    ehrtsPromise = (async () => {
+      const bundle = await fetch(publicUrl("vendor/ehrtslib-0.11.0-parser.min.js"));
+      if (!bundle.ok) throw new Error(`Could not load the ehrtslib parser (${bundle.status}).`);
+      const source = await bundle.text();
+      const blobUrl = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
+      return import(/* @vite-ignore */ blobUrl);
+    })();
+  }
+  return ehrtsPromise;
+}
+
+export async function loadTemplateFromText(text, { name } = {}) {
+  const ehr = await loadEhrts();
+  const parsed = ehr.parseTemplateInput(text);
+  let operationalTemplate = parsed.operationalTemplate;
+  let warnings = [...(parsed.warnings || [])];
+  if (!operationalTemplate) {
+    const workspace = new ehr.TemplateWorkspace();
+    workspace.addFile(name || "template", text);
+    const resolved = workspace.resolveOperational();
+    operationalTemplate = resolved?.operationalTemplate;
+    warnings = [...warnings, ...(resolved?.warnings || [])];
+  }
+  if (!operationalTemplate) {
+    throw new Error(warnings.find(Boolean) || "ehrtslib could not read this template. OPT, OET, web template JSON, and ADL are accepted. An ADL template that is not already operational needs its archetype fileset.");
+  }
+  return buildTemplateModel({
+    operationalTemplate,
+    sourceText: text,
+    parseAdl: ehr.parseAdl,
+    warnings,
+    sourceName: name,
+  });
+}
+
+export async function loadTemplateFromUrl(url) {
+  const target = String(url || "").trim();
+  if (!target) throw new Error("Enter a template URL.");
+  const ehr = await loadEhrts();
+  if (/github\.com|githubusercontent\.com/i.test(target)) {
+    const closure = await ehr.loadGitHubTemplateClosure(target);
+    const workspace = new ehr.TemplateWorkspace();
+    const adlEntries = [];
+    for (const entry of closure.entries) {
+      workspace.addFile(entry.path, entry.content);
+      if (/\.adls?$/i.test(entry.path)) adlEntries.push({ path: entry.path, text: entry.content });
+    }
+    workspace.setGenerationRootPath(closure.rootPath);
+    const resolved = workspace.resolveOperational();
+    if (!resolved?.operationalTemplate) {
+      throw new Error(closure.warnings?.[0] || "ehrtslib could not build an operational template from that GitHub file.");
+    }
+    const root = closure.entries.find((entry) => entry.path === closure.rootPath);
+    return buildTemplateModel({
+      operationalTemplate: resolved.operationalTemplate,
+      sourceText: root?.content || "",
+      adlEntries,
+      parseAdl: ehr.parseAdl,
+      warnings: [...(resolved.warnings || []), ...(closure.warnings || [])],
+      sourceName: target,
+    });
+  }
+  let response;
+  try {
+    response = await fetch(target);
+  } catch {
+    throw new Error("The browser could not fetch that URL. Upload the file, or use a host that allows cross-origin requests.");
+  }
+  if (!response.ok) throw new Error(`Could not fetch the template (${response.status}).`);
+  const text = await response.text();
+  const name = target.split("/").pop()?.split("?")[0] || target;
+  return loadTemplateFromText(text, { name });
+}
+
 function publicUrl(path) {
   const base = import.meta.env.BASE_URL || "/";
   const prefix = base.endsWith("/") ? base : `${base}/`;
@@ -450,15 +601,7 @@ function publicUrl(path) {
 }
 
 export async function loadIpsModel() {
-  // Vite refuses a bare import of a file in public/. Fetch it and import the blob
-  // so the published ehrtslib parser runs as the library shipped it.
-  const bundle = await fetch(publicUrl("vendor/ehrtslib-0.11.0-parser.min.js"));
-  if (!bundle.ok) {
-    throw new Error(`Could not load the ehrtslib parser (${bundle.status}).`);
-  }
-  const source = await bundle.text();
-  const blobUrl = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
-  const ehr = await import(/* @vite-ignore */ blobUrl);
+  const ehr = await loadEhrts();
   const optResponse = await fetch(publicUrl("models/International_Patient_Summary.opt"));
   if (!optResponse.ok) throw new Error(`Could not fetch the OPT (${optResponse.status}).`);
   const optXml = await optResponse.text();

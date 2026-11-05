@@ -190,6 +190,53 @@ main {
   min-width: 0;
 }
 
+.tool-bar { flex-wrap: wrap; }
+
+.template-load {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.template-now {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.template-load input[type="url"] {
+  flex: 1 1 140px;
+  min-width: 110px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+.template-load button,
+.template-load .upload-template {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.template-load button:hover,
+.template-load .upload-template:hover {
+  border-color: var(--teal);
+}
+
 h2 {
   margin: 0;
   font-size: 12px;
