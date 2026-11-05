@@ -506,6 +506,20 @@ h2 {
   border-radius: 8px;
 }
 
+.bind-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bind-tree .bind-tree {
+  margin-left: 12px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
+}
+
+.bind-branch { margin: 0; padding: 0; }
+
 .bind-row {
   position: relative;
   display: flex;

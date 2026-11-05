@@ -209,14 +209,14 @@ function bindingNodes() {
   return nodes;
 }
 
-function bindingContext(entry, all) {
-  const same = all.filter((item) => item.node.name === entry.node.name);
-  if (same.length < 2) return entry.node.name;
-  for (let index = entry.ancestors.length - 1; index >= 0; index -= 1) {
-    const contexts = same.map((item) => item.ancestors[index] || "");
-    if (new Set(contexts).size > 1) return `${entry.node.name} · ${entry.ancestors[index]}`;
+function bindingForest() {
+  function walk(node, ancestors) {
+    const next = ancestors.concat(node.name);
+    const children = (node.children || []).flatMap((child) => walk(child, next));
+    if (!bindingEntries(node).length) return children;
+    return [{ node, ancestors, children }];
   }
-  return entry.node.name;
+  return state.model ? walk(state.model.tree, []) : [];
 }
 
 function bindingsAreAllOn() {
@@ -366,27 +366,30 @@ function bindingMasterState() {
   return "mixed";
 }
 
-function bindRow(entry, all) {
+function bindRow(entry) {
   const node = entry.node;
   const checked = bindNodeState(node);
   const on = checked !== "false";
   const codes = bindingEntries(node).filter((binding) => bindingOn(node, binding.code)).map((binding) => String(binding.code));
-  const label = bindingContext(entry, all);
   const where = entry.ancestors.concat(node.name).join(" / ");
   return `<article class="bind-row${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-codes="${escapeHtml(codes.join(" "))}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}" title="${escapeHtml(where)}" style="${escapeHtml(blockStyle(node))}">
     <span class="guess-anchor" aria-hidden="true"></span>
-    ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(label)}"`, checked)}
-    <span class="name">${escapeHtml(label)}</span>
+    ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(node.name)}"`, checked)}
+    <span class="name">${escapeHtml(node.name)}</span>
   </article>`;
+}
+
+function bindBranch(entry) {
+  const nested = entry.children.map((child) => bindBranch(child)).join("");
+  return `<li class="bind-branch">${bindRow(entry)}${nested ? `<ul class="bind-tree">${nested}</ul>` : ""}</li>`;
 }
 
 function renderDetail() {
   const suggestions = state.model?.suggestions?.attached || [];
   const master = masterState();
   const blocks = suggestions.map(nodeBlock).join("");
-  const bound = state.model ? bindingNodes() : [];
   const bindingChecked = bindingMasterState();
-  const bindingRows = bound.map((entry) => bindRow(entry, bound)).join("");
+  const bindingRows = bindingForest().map((entry) => bindBranch(entry)).join("");
   const showSuggestions = state.filter !== "bindings";
   const showBindings = state.filter !== "suggestions";
   const suggestionsHtml = `<div class="side-main">
@@ -401,7 +404,7 @@ function renderDetail() {
           ${switchHtml(`data-cat="bindings" aria-label="Show all template bindings"`, bindingChecked)}
           <span class="cat-name">Template bindings</span>
         </header>
-        <div class="side-indent">${bindingRows}</div>
+        <ul class="bind-tree side-indent">${bindingRows}</ul>
       </aside>`;
   const layout = state.filter === "all" ? " is-stacked" : (showSuggestions === showBindings ? "" : " is-single");
   detail.innerHTML = `<p class="side-kicker">Filtered nodes</p>
