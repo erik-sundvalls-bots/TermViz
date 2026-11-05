@@ -12,8 +12,61 @@ export const D3_VERSION = "7.9.2";
 
 const RANK_COLORS = ["#0f6e6b", "#1d4e89", "#c46b1a", "#8a4b2f", "#6b3a6b"];
 
-/** One colour per switched-on template node, not per SNOMED guess. */
-export const NODE_COLORS = ["#c46b1a", "#1d4e89", "#0f6e6b", "#6b3a6b", "#8d2f2f", "#3d6b2f", "#8a4b2f", "#2456a0"];
+/**
+ * ColorBrewer Set3, 12 qualitative classes (Cynthia Brewer).
+ * One colour per switched-on template node, not per SNOMED guess.
+ * Mapping-suggestion categories also get a hatch; the angle and dash differ per class.
+ */
+export const NODE_COLORS = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
+
+export const CATEGORY_HATCHES = [
+  { angle: 45, dash: null },
+  { angle: 135, dash: null },
+  { angle: 90, dash: "1.2 1.6" },
+  { angle: 0, dash: "2.2 1.4" },
+  { angle: 30, dash: null },
+  { angle: 60, dash: "1.6 2" },
+  { angle: -30, dash: null },
+  { angle: 75, dash: "2.4 1.2" },
+  { angle: 15, dash: null },
+  { angle: -60, dash: "1 1.8" },
+  { angle: 105, dash: null },
+  { angle: -15, dash: "3 1.6" },
+];
+
+export function inkOf(hex) {
+  const n = Number.parseInt(String(hex).slice(1), 16);
+  const mix = (channel) => Math.max(0, Math.min(255, Math.round(channel * 0.45)));
+  return `#${[mix((n >> 16) & 255), mix((n >> 8) & 255), mix(n & 255)].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export function categoryPatternId(svgId, index) {
+  return `${svgId}-cat-${index % NODE_COLORS.length}`;
+}
+
+export function installCategoryPatterns(svgSelection) {
+  const svg = d3.select(svgSelection);
+  const rootId = svg.attr("id") || "fig";
+  const defs = svg.append("defs").attr("class", "category-patterns");
+  NODE_COLORS.forEach((color, index) => {
+    const hatch = CATEGORY_HATCHES[index];
+    const pattern = defs.append("pattern")
+      .attr("id", categoryPatternId(rootId, index))
+      .attr("patternUnits", "userSpaceOnUse")
+      .attr("width", 7)
+      .attr("height", 7)
+      .attr("patternTransform", `rotate(${hatch.angle})`);
+    pattern.append("rect").attr("width", 7).attr("height", 7).attr("fill", color);
+    const line = pattern.append("line")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 0)
+      .attr("y2", 7)
+      .attr("stroke", inkOf(color))
+      .attr("stroke-width", hatch.dash ? 1.35 : 1.7);
+    if (hatch.dash) line.attr("stroke-dasharray", hatch.dash);
+  });
+}
 
 function zoomLayer(svg) {
   const layer = svg.append("g").attr("class", "zoom-layer");
@@ -275,6 +328,7 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
+  installCategoryPatterns(svgSelection);
   if (!rootData) {
     svg.attr("width", "100%").attr("height", "100%");
     return;
@@ -387,8 +441,12 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       return 4.2;
     })
     .each(function paint(item) {
-      const color = colorFor?.(item.data);
-      if (color) d3.select(this).style("fill", color).style("stroke", color);
+      const paint = colorFor?.(item.data);
+      if (!paint) return;
+      const color = typeof paint === "string" ? paint : paint.color;
+      const fill = typeof paint === "string" ? paint : (paint.fill || color);
+      const stroke = typeof paint === "string" ? inkOf(paint) : (paint.stroke || inkOf(color));
+      d3.select(this).style("fill", fill).style("stroke", stroke);
     });
 
   for (const kind of ["shadow", "ink"]) {
@@ -419,6 +477,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, pins,
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
+  installCategoryPatterns(svgSelection);
   const host = svg.node()?.parentElement;
   const width = Math.max(320, host?.clientWidth || 640);
   const height = Math.max(260, host?.clientHeight || 360);

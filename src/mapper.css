@@ -508,6 +508,14 @@ h2 {
   border-color: transparent;
 }
 
+.side-block.is-hatched .switch[aria-checked="true"] {
+  background: repeating-linear-gradient(
+    var(--hatch-angle),
+    var(--node-color) 0 3px,
+    var(--node-ink) 3px 4.5px
+  );
+}
+
 .switch[aria-checked="true"]::after { transform: translateX(11px); }
 
 .switch[aria-checked="mixed"] {
@@ -548,7 +556,7 @@ h2 {
   grid-template-columns: 16px 12px minmax(0, 1fr) auto auto;
   gap: 0 5px;
   align-items: center;
-  border-left: 2px solid var(--node-color, var(--line));
+  border-left: 2px solid var(--node-ink, var(--node-color, var(--line)));
   padding: 1px 0 1px 7px;
   font-size: 12.5px;
   line-height: 1.25;

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { NODE_COLORS, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
+import { CATEGORY_HATCHES, NODE_COLORS, categoryPatternId, inkOf, renderSnomedForce, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel } from "./ips-model.js";
 import { BUNDLED_CONCEPTS, cachedConcept, closureToRoot, snomedBrowserUrl } from "./snomed.js";
 
@@ -122,12 +122,30 @@ function activeNodes() {
   return [...state.activeIds].map((id) => findNode(id)).filter(Boolean);
 }
 
-function colorFor(id) {
+function assignStyle(id) {
   if (!state.colors.has(id)) {
-    state.colors.set(id, NODE_COLORS[state.colorIndex % NODE_COLORS.length]);
+    const index = state.colorIndex % NODE_COLORS.length;
+    state.colors.set(id, { color: NODE_COLORS[index], index });
     state.colorIndex += 1;
   }
   return state.colors.get(id);
+}
+
+function colorFor(id) {
+  return assignStyle(id).color;
+}
+
+function hatchFor(style) {
+  return CATEGORY_HATCHES[style.index % CATEGORY_HATCHES.length];
+}
+
+function blockStyle(node) {
+  const style = assignStyle(node.id);
+  const ink = inkOf(style.color);
+  if (node.suggestions?.length) {
+    return `--node-color:${style.color};--node-ink:${ink};--hatch-angle:${hatchFor(style).angle}deg`;
+  }
+  return `--node-color:${style.color};--node-ink:${ink}`;
 }
 
 function codeLink(code) {
@@ -259,10 +277,9 @@ function switchHtml(attrs, checked) {
 
 function guessRow(node, item) {
   const on = codeOn(node, item.code);
-  const color = colorFor(node.id);
   const term = termFor(item.code);
   const pct = Number.isFinite(item.score) ? Math.round(item.score * 100) : "";
-  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(color)}" title="${escapeHtml(item.reason || "")}">
+  return `<article class="guess${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-code="${escapeHtml(item.code)}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}" title="${escapeHtml(item.reason || "")}">
     <span class="guess-anchor" aria-hidden="true"></span>
     ${switchHtml(`data-row="${escapeHtml(item.code)}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
     <span class="rank">${item.rank ?? ""}</span>
@@ -273,10 +290,9 @@ function guessRow(node, item) {
 }
 
 function nodeBlock(node) {
-  const color = colorFor(node.id);
   const checked = categoryState(node);
   const rows = (node.suggestions || []).map((item) => guessRow(node, item)).join("");
-  return `<section class="side-block" data-node-id="${escapeHtml(node.id)}" style="--node-color:${escapeHtml(color)}">
+  return `<section class="side-block is-hatched" data-node-id="${escapeHtml(node.id)}" style="${escapeHtml(blockStyle(node))}">
     <header class="cat-head">
       ${switchHtml(`data-cat="node" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(node.name)}"`, checked)}
       <span class="cat-name">${escapeHtml(node.name)}</span>
@@ -305,11 +321,10 @@ function bindRow(entry, all) {
   const node = entry.node;
   const checked = bindNodeState(node);
   const on = checked !== "false";
-  const color = colorFor(node.id);
   const codes = bindingEntries(node).filter((binding) => bindingOn(node, binding.code)).map((binding) => String(binding.code));
   const label = bindingContext(entry, all);
   const where = entry.ancestors.concat(node.name).join(" / ");
-  return `<article class="bind-row${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-codes="${escapeHtml(codes.join(" "))}" data-color="${escapeHtml(color)}" title="${escapeHtml(where)}" style="--node-color:${escapeHtml(color)}">
+  return `<article class="bind-row${on ? "" : " is-off"}" data-node-id="${escapeHtml(node.id)}" data-codes="${escapeHtml(codes.join(" "))}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}" title="${escapeHtml(where)}" style="${escapeHtml(blockStyle(node))}">
     <span class="guess-anchor" aria-hidden="true"></span>
     ${switchHtml(`data-bind-cat="1" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(label)}"`, checked)}
     <span class="name">${escapeHtml(label)}</span>
@@ -352,7 +367,15 @@ function renderTree() {
   renderTemplateTree(treeSvg, displayTree(), {
     selectedId: state.focusId,
     activeIds: paintedIds(),
-    colorFor: (data) => (nodePainted(data) ? colorFor(data.id) : null),
+    colorFor: (data) => {
+      if (!nodePainted(data)) return null;
+      const style = assignStyle(data.id);
+      const stroke = inkOf(style.color);
+      if (data.suggestions?.length) {
+        return { color: style.color, fill: `url(#${categoryPatternId("treeSvg", style.index)})`, stroke };
+      }
+      return { color: style.color, fill: style.color, stroke };
+    },
     onSelect: onTreeSelect,
     onHover: (data, on) => pairHighlight(data.id, on),
     onToggle: state.filter === "all" && !state.query
@@ -538,9 +561,12 @@ function annotate(graph) {
     for (const code of direct) {
       for (const id of ancestorsOf(code, parents)) closure.add(id);
       const suggestion = (node.suggestions || []).find((item) => String(item.code) === code);
+      const style = assignStyle(node.id);
       const list = suggestionOf.get(code) || [];
       list.push({
-        color: colorFor(node.id),
+        color: style.color,
+        fill: suggestion ? `url(#${categoryPatternId("snomedSvg", style.index)})` : style.color,
+        stroke: inkOf(style.color),
         templateName: node.name,
         rank: suggestion?.rank ?? null,
         score: suggestion?.score ?? null,
@@ -571,8 +597,8 @@ function annotate(graph) {
       item.fill = "#ffffff";
       item.stroke = "#1c2430";
     } else if (guesses.length === 1) {
-      item.fill = guesses[0].color;
-      item.stroke = guesses[0].color;
+      item.fill = guesses[0].fill;
+      item.stroke = guesses[0].stroke;
     } else {
       item.fill = "#ffffff";
       item.stroke = "#4682b4";
