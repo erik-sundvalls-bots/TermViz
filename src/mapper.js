@@ -3,7 +3,7 @@ import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk,
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
 import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
 import { leastCommonParents } from "./lcp.js";
-import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, directChildren, snomedBrowserUrl } from "./snomed.js";
+import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, directChildren, lookupDescriptions, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -37,6 +37,7 @@ const state = {
   importedCodes: new Set(),
   popNote: "",
   growToken: 0,
+  descToken: 0,
   popId: null,
   grabNodeId: null,
   mapReviews: new Map(),
@@ -930,21 +931,47 @@ function conceptLabel(item) {
   return item?.name || item?.display || "Unnamed concept";
 }
 
+function renderDescriptions(rows) {
+  if (!rows.length) return `<p class="pop-desc-status">No descriptions were returned.</p>`;
+  return `<ul class="pop-descriptions">${rows.map((row) => {
+    return `<li><span class="kind">${escapeHtml(row.kind)}</span>${escapeHtml(row.term)}</li>`;
+  }).join("")}</ul>`;
+}
+
+async function showDescriptions(code) {
+  const host = document.querySelector("#popDescriptions");
+  if (!host) return;
+  const id = String(code);
+  const known = cachedConcept(id);
+  if (Array.isArray(known?.descriptions)) {
+    host.innerHTML = renderDescriptions(known.descriptions);
+    return;
+  }
+  const token = ++state.descToken;
+  host.innerHTML = `<p class="pop-desc-status">Loading descriptions…</p>`;
+  try {
+    const rows = await lookupDescriptions(id);
+    if (token !== state.descToken || state.popId !== id) return;
+    host.innerHTML = renderDescriptions(rows);
+    placePop();
+  } catch (error) {
+    if (token !== state.descToken || state.popId !== id) return;
+    host.innerHTML = `<p class="pop-desc-status">${escapeHtml(error instanceof Error ? error.message : "Descriptions could not be loaded.")}</p>`;
+    placePop();
+  }
+}
+
 function openPop(item) {
   if (!item) return;
   state.popId = String(item.id);
   const pop = document.querySelector("#conceptPop");
   document.querySelector("#popTitle").textContent = conceptLabel(item);
   document.querySelector("#popCode").innerHTML = codeLink(item.id);
-  const parents = (item.outgoing || []).map((edge) => conceptLabel(edge.target)).filter(Boolean);
-  const children = (item.incoming || []).map((edge) => conceptLabel(edge.source)).filter(Boolean);
   const facts = [];
   if (item.inactive) facts.push(["Status", "Inactive"]);
-  if (Number.isFinite(item.depth)) facts.push(["From root", String(item.depth)]);
-  facts.push(["Parents", parents.join(", ") || "SNOMED CT root"]);
-  if (children.length) facts.push(["Children here", children.slice(0, 8).join(", ")]);
   if (item.commonality > 1) facts.push(["Shared by", `${item.commonality} template nodes`]);
   document.querySelector("#popFacts").innerHTML = facts.map(([name, value]) => `<dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd>`).join("");
+  showDescriptions(item.id);
   const note = state.popNote;
   state.popNote = "";
   const status = document.querySelector("#popGrowStatus");
@@ -986,6 +1013,7 @@ function placePop() {
 
 function closePop() {
   state.growToken += 1;
+  state.descToken += 1;
   const pop = document.querySelector("#conceptPop");
   if (pop) pop.hidden = true;
   state.popId = null;

@@ -89,7 +89,29 @@
         "86084001",
         "736015003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Hemoglobin saturation with oxygen (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Haemoglobin saturation with oxygen"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Hemoglobin saturation with oxygen"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Blood oxygen saturation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "O2 -oxygen saturation"
+        }
+      ]
     },
     {
       "code": "105590001",
@@ -97,13 +119,37 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Substance (substance)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Substance"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Substances"
+        }
+      ]
     },
     {
       "code": "105903003",
       "display": "General drug type",
       "parents": [],
-      "inactive": true
+      "inactive": true,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "General drug type (product)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "General drug type"
+        }
+      ]
     },
     {
       "code": "106229004",
@@ -111,7 +157,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Qualifier for type of diagnosis (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Qualifier for type of diagnosis"
+        }
+      ]
     },
     {
       "code": "106237007",
@@ -119,7 +175,17 @@
       "parents": [
         "900000000000441003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Linkage concept (linkage concept)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Linkage concept"
+        }
+      ]
     },
     {
       "code": "118223001",
@@ -127,7 +193,17 @@
       "parents": [
         "404684003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Patient status finding (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Patient status finding"
+        }
+      ]
     },
     {
       "code": "118598001",
@@ -135,7 +211,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Property (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Property"
+        }
+      ]
     },
     {
       "code": "128927009",
@@ -143,7 +229,17 @@
       "parents": [
         "71388002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Procedure by method (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Procedure by method"
+        }
+      ]
     },
     {
       "code": "1290126002",
@@ -151,7 +247,17 @@
       "parents": [
         "129125009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Drug therapy with explicit context (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Drug therapy with explicit context"
+        }
+      ]
     },
     {
       "code": "129125009",
@@ -159,13 +265,49 @@
       "parents": [
         "243796009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Procedure with explicit context (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Procedure with explicit context"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Context-dependent procedure"
+        }
+      ]
     },
     {
       "code": "138875005",
       "display": "SNOMED CT Concept",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "SNOMED CT Concept (SNOMED RT+CTV3)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "SNOMED CT Concept"
+        },
+        {
+          "kind": "Synonym",
+          "term": "© 2002-2025 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO."
+        },
+        {
+          "kind": "Synonym",
+          "term": "SNOMED Clinical Terms version: 20250801 [R] (August 2025 Release)"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SNOMED CT has been created by combining SNOMED RT and a computer-based nomenclature and classification known as Read Codes Version 3, which was created on behalf of the U.K. Department of Health."
+        }
+      ]
     },
     {
       "code": "14657009",
@@ -173,7 +315,25 @@
       "parents": [
         "106229004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Established diagnosis (contextual qualifier) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Established diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "DX"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Established diagnosis (contextual qualifier)"
+        }
+      ]
     },
     {
       "code": "14734007",
@@ -181,7 +341,25 @@
       "parents": [
         "71388002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Administrative procedure (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Administrative procedure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Administrative procedures"
+        },
+        {
+          "kind": "Definition",
+          "term": "Procedure related to the administrative aspects of health care, including admission, discharge, transfer, disposition, referral, business, legal, financial, quality review, peer review, data reporting, notification, and so forth"
+        }
+      ]
     },
     {
       "code": "148006",
@@ -189,7 +367,33 @@
       "parents": [
         "106229004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Preliminary diagnosis (contextual qualifier) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Preliminary diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "PDX"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Preliminary diagnosis (contextual qualifier)"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Provisional diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Temporary diagnosis"
+        }
+      ]
     },
     {
       "code": "15240007",
@@ -197,7 +401,21 @@
       "parents": [
         "410512000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Current (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Current"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Currently"
+        }
+      ]
     },
     {
       "code": "16206004",
@@ -205,7 +423,25 @@
       "parents": [
         "364392006"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Oxygen delivery (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Oxygen delivery"
+        },
+        {
+          "kind": "Synonym",
+          "term": "DO2 - Oxygen delivery"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oxygen flux"
+        }
+      ]
     },
     {
       "code": "182849000",
@@ -213,7 +449,17 @@
       "parents": [
         "416237000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "No drug therapy prescribed (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "No drug therapy prescribed"
+        }
+      ]
     },
     {
       "code": "225756002",
@@ -221,7 +467,33 @@
       "parents": [
         "307467005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Every four hours (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Every four hours"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Every 4 hours"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Four hourly"
+        },
+        {
+          "kind": "Synonym",
+          "term": "q4h - Every four hours"
+        },
+        {
+          "kind": "Synonym",
+          "term": "qqh - quarta quaque hora"
+        }
+      ]
     },
     {
       "code": "225761000",
@@ -229,7 +501,33 @@
       "parents": [
         "307485003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "As required (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "As required"
+        },
+        {
+          "kind": "Synonym",
+          "term": "prn"
+        },
+        {
+          "kind": "Synonym",
+          "term": "PRN - As required"
+        },
+        {
+          "kind": "Synonym",
+          "term": "prn - When required"
+        },
+        {
+          "kind": "Synonym",
+          "term": "When required"
+        }
+      ]
     },
     {
       "code": "243796009",
@@ -237,7 +535,25 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Situation with explicit context (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Situation with explicit context"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Context-dependent categories"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Context-dependent category"
+        }
+      ]
     },
     {
       "code": "243814003",
@@ -245,7 +561,17 @@
       "parents": [
         "363787002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Interpretation of findings (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Interpretation of findings"
+        }
+      ]
     },
     {
       "code": "246061005",
@@ -253,7 +579,17 @@
       "parents": [
         "106237007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Attribute (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Attribute"
+        }
+      ]
     },
     {
       "code": "246153002",
@@ -261,13 +597,37 @@
       "parents": [
         "410657003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Type of cuff (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Type of cuff"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Cuff type"
+        }
+      ]
     },
     {
       "code": "246188002",
       "display": "Finding",
       "parents": [],
-      "inactive": true
+      "inactive": true,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Finding (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Finding"
+        }
+      ]
     },
     {
       "code": "246205007",
@@ -275,7 +635,21 @@
       "parents": [
         "246445000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Quantity (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Quantity"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Amount"
+        }
+      ]
     },
     {
       "code": "246445000",
@@ -283,7 +657,17 @@
       "parents": [
         "408739003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Measure (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Measure"
+        }
+      ]
     },
     {
       "code": "246464006",
@@ -291,7 +675,21 @@
       "parents": [
         "363787002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Function (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Function"
+        },
+        {
+          "kind": "Definition",
+          "term": "Any function or property that is not mainly morphologic or structural, including both measurable and observable features and physiologic actions"
+        }
+      ]
     },
     {
       "code": "248326004",
@@ -299,7 +697,21 @@
       "parents": [
         "363789004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Body measure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Body measure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Body measurements"
+        }
+      ]
     },
     {
       "code": "252059006",
@@ -308,7 +720,21 @@
         "364087003",
         "310611001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Vascular measure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Vascular measure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Vascular measurements"
+        }
+      ]
     },
     {
       "code": "257434000",
@@ -316,7 +742,21 @@
       "parents": [
         "30234008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Gas analyzer (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Gas analyser"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Gas analyzer"
+        }
+      ]
     },
     {
       "code": "258680008",
@@ -324,7 +764,17 @@
       "parents": [
         "767524001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Unit of mass (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Unit of mass"
+        }
+      ]
     },
     {
       "code": "258681007",
@@ -332,13 +782,41 @@
       "parents": [
         "258680008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "International System of Units unit of mass (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "SI unit of mass"
+        },
+        {
+          "kind": "Synonym",
+          "term": "International System of Units unit of mass"
+        }
+      ]
     },
     {
       "code": "260548002",
       "display": "Oral",
       "parents": [],
-      "inactive": true
+      "inactive": true,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Oral (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Oral"
+        },
+        {
+          "kind": "Synonym",
+          "term": "PO - Oral"
+        }
+      ]
     },
     {
       "code": "260787004",
@@ -346,7 +824,33 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Physical object (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Physical object"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Artefact"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Artifact"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Objects"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Physical objects"
+        }
+      ]
     },
     {
       "code": "260863009",
@@ -354,7 +858,17 @@
       "parents": [
         "408739003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Temporal relationship (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Temporal relationship"
+        }
+      ]
     },
     {
       "code": "260864003",
@@ -362,7 +876,17 @@
       "parents": [
         "260863009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequency (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequency"
+        }
+      ]
     },
     {
       "code": "261665006",
@@ -370,13 +894,24 @@
       "parents": [
         "410514004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Unknown (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Unknown"
+        }
+      ]
     },
     {
       "code": "261771004",
       "display": "Date of expiry (observable entity)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "266710000",
@@ -384,7 +919,17 @@
       "parents": [
         "1290126002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Drugs not taken/completed (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Drugs not taken/completed"
+        }
+      ]
     },
     {
       "code": "271649006",
@@ -393,7 +938,21 @@
         "252059006",
         "75367002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Systolic blood pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Systolic blood pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SAP - Systolic arterial pressure"
+        }
+      ]
     },
     {
       "code": "271650006",
@@ -402,7 +961,21 @@
         "252059006",
         "75367002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Diastolic blood pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Diastolic blood pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "DBP - diastolic blood pressure"
+        }
+      ]
     },
     {
       "code": "272099008",
@@ -410,7 +983,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Descriptor (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Descriptor"
+        }
+      ]
     },
     {
       "code": "272103003",
@@ -418,7 +1001,17 @@
       "parents": [
         "272099008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Time patterns (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Time patterns"
+        }
+      ]
     },
     {
       "code": "272123002",
@@ -426,13 +1019,24 @@
       "parents": [
         "272103003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequencies (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequencies"
+        }
+      ]
     },
     {
       "code": "272123003",
       "display": "Action frequency (qualifier value)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "272181003",
@@ -440,7 +1044,21 @@
       "parents": [
         "49062001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Clinical equipment and/or device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Clinical equipment and/or device"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Clinical equipment and devices"
+        }
+      ]
     },
     {
       "code": "277923006",
@@ -448,7 +1066,17 @@
       "parents": [
         "364681001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Pulse oximetry waveform (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Pulse oximetry waveform"
+        }
+      ]
     },
     {
       "code": "281586009",
@@ -456,7 +1084,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Special atomic mapping values (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Special atomic mapping values"
+        }
+      ]
     },
     {
       "code": "282291009",
@@ -464,13 +1102,24 @@
       "parents": [
         "243814003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Diagnosis interpretation (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Diagnosis interpretation"
+        }
+      ]
     },
     {
       "code": "284005007",
       "display": "Route of administration value (qualifier value)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "284009009",
@@ -478,7 +1127,25 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Route of administration value (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Route of administration value"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Route of administration values"
+        },
+        {
+          "kind": "Definition",
+          "term": "The set of values for route of administration. For medicinal products these values are associated with the action of administration."
+        }
+      ]
     },
     {
       "code": "288524001",
@@ -487,7 +1154,17 @@
         "272103003",
         "303102005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Courses (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Courses"
+        }
+      ]
     },
     {
       "code": "288526004",
@@ -496,7 +1173,17 @@
         "272103003",
         "303102005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Episodicities (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Episodicities"
+        }
+      ]
     },
     {
       "code": "288529006",
@@ -504,7 +1191,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Context values (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Context values"
+        }
+      ]
     },
     {
       "code": "30234008",
@@ -512,7 +1209,29 @@
       "parents": [
         "80617005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Medical laboratory analyzer, device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Medical laboratory analyser"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Medical laboratory analyzer"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Medical laboratory analyser, device"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Medical laboratory analyzer, device"
+        }
+      ]
     },
     {
       "code": "303102005",
@@ -520,7 +1239,17 @@
       "parents": [
         "281586009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Special disorder atoms (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Special disorder atoms"
+        }
+      ]
     },
     {
       "code": "303607000",
@@ -528,7 +1257,25 @@
       "parents": [
         "272181003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Biomedical equipment (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Biomedical equipment"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Clinical equipment"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Medical equipment"
+        }
+      ]
     },
     {
       "code": "304252001",
@@ -536,7 +1283,21 @@
       "parents": [
         "365870005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "For resuscitation (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "For resuscitation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Resuscitate"
+        }
+      ]
     },
     {
       "code": "304253006",
@@ -544,7 +1305,33 @@
       "parents": [
         "365870005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Not for resuscitation (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Not for resuscitation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "DNAR - do not attempt resuscitation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "DNR - do not resuscitate"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Do not resuscitate"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Do not resuscitate status"
+        }
+      ]
     },
     {
       "code": "307430002",
@@ -552,7 +1339,17 @@
       "parents": [
         "272123002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Regular frequency (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Regular frequency"
+        }
+      ]
     },
     {
       "code": "307431003",
@@ -560,7 +1357,17 @@
       "parents": [
         "307430002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequency per unit time (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequency per unit time"
+        }
+      ]
     },
     {
       "code": "307438009",
@@ -568,7 +1375,17 @@
       "parents": [
         "307431003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequency per day (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequency per day"
+        }
+      ]
     },
     {
       "code": "307439001",
@@ -576,7 +1393,33 @@
       "parents": [
         "307438009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Four times daily (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Four times daily"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Four times a day"
+        },
+        {
+          "kind": "Synonym",
+          "term": "qds - Four times daily"
+        },
+        {
+          "kind": "Synonym",
+          "term": "qds - quater die sumendus"
+        },
+        {
+          "kind": "Synonym",
+          "term": "qid - Four times daily"
+        }
+      ]
     },
     {
       "code": "307459002",
@@ -584,7 +1427,21 @@
       "parents": [
         "307430002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequency interval (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequency interval"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Periodicity"
+        }
+      ]
     },
     {
       "code": "307467005",
@@ -592,7 +1449,17 @@
       "parents": [
         "307459002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Intervals of hours (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Intervals of hours"
+        }
+      ]
     },
     {
       "code": "307485003",
@@ -600,7 +1467,17 @@
       "parents": [
         "272123002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Irregular frequency (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Irregular frequency"
+        }
+      ]
     },
     {
       "code": "310611001",
@@ -608,7 +1485,25 @@
       "parents": [
         "364066008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Cardiovascular measure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Cardiovascular measure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Cardiovascular measurement"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Cardiovascular measurement - observation"
+        }
+      ]
     },
     {
       "code": "362981000",
@@ -616,7 +1511,17 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Qualifier value (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Qualifier value"
+        }
+      ]
     },
     {
       "code": "363679005",
@@ -624,7 +1529,21 @@
       "parents": [
         "386053000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Imaging (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Imaging"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Clinical imaging"
+        }
+      ]
     },
     {
       "code": "363787002",
@@ -632,7 +1551,17 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Observable entity (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Observable entity"
+        }
+      ]
     },
     {
       "code": "363788007",
@@ -640,7 +1569,17 @@
       "parents": [
         "363787002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Clinical history/examination observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Clinical history/examination observable"
+        }
+      ]
     },
     {
       "code": "363789004",
@@ -648,7 +1587,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "General characteristic of patient (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "General characteristic of patient"
+        }
+      ]
     },
     {
       "code": "364048003",
@@ -656,7 +1605,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Respiratory observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Respiratory observable"
+        }
+      ]
     },
     {
       "code": "364066008",
@@ -664,7 +1623,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Cardiovascular observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Cardiovascular observable"
+        }
+      ]
     },
     {
       "code": "364072008",
@@ -673,7 +1642,17 @@
         "414236006",
         "364066008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Cardiac feature (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Cardiac feature"
+        }
+      ]
     },
     {
       "code": "364075005",
@@ -682,7 +1661,21 @@
         "364072008",
         "310611001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Heart rate (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Heart rate"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Cardiac rate"
+        }
+      ]
     },
     {
       "code": "364087003",
@@ -690,7 +1683,17 @@
       "parents": [
         "364066008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Blood vessel feature (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Blood vessel feature"
+        }
+      ]
     },
     {
       "code": "364090009",
@@ -699,7 +1702,21 @@
         "386536003",
         "386534000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Systemic arterial pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Systemic arterial pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SAP - Systemic arterial pressure"
+        }
+      ]
     },
     {
       "code": "364392006",
@@ -707,7 +1724,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Metabolic observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Metabolic observable"
+        }
+      ]
     },
     {
       "code": "364393001",
@@ -715,7 +1742,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Nutritional observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Nutritional observable"
+        }
+      ]
     },
     {
       "code": "364676005",
@@ -723,7 +1760,21 @@
       "parents": [
         "416342005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Anesthetic observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Anaesthetic observable"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Anesthetic observable"
+        }
+      ]
     },
     {
       "code": "364681001",
@@ -731,7 +1782,17 @@
       "parents": [
         "364676005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Waveform observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Waveform observable"
+        }
+      ]
     },
     {
       "code": "365870005",
@@ -739,7 +1800,17 @@
       "parents": [
         "118223001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Finding of resuscitation status (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Finding of resuscitation status"
+        }
+      ]
     },
     {
       "code": "36692007",
@@ -747,7 +1818,17 @@
       "parents": [
         "410514004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Known (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Known"
+        }
+      ]
     },
     {
       "code": "373873005",
@@ -755,13 +1836,24 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Pharmaceutical / biologic product (product)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Pharmaceutical / biologic product"
+        }
+      ]
     },
     {
       "code": "373873007",
       "display": "Pharmaceutical / biologic product (product)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "385055001",
@@ -769,7 +1861,21 @@
       "parents": [
         "421378002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Tablet (basic dose form)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Tablet"
+        },
+        {
+          "kind": "Definition",
+          "term": "A solid single-dose preparation obtained by compressing uniform volumes of particulate solids or by extrusion or moulding. Tablets may be single layer tablets resulting from a single compression of particles and or multilayer tablets consisting of concentric or parallel layers obtained by successive compressions of particles of different composition."
+        }
+      ]
     },
     {
       "code": "386053000",
@@ -777,7 +1883,29 @@
       "parents": [
         "128927009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Evaluation procedure (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Evaluation procedure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Assessment"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Investigations"
+        },
+        {
+          "kind": "Definition",
+          "term": "Determination of a value, conclusion, or inference by evaluating evidence"
+        }
+      ]
     },
     {
       "code": "386534000",
@@ -786,7 +1914,21 @@
         "252059006",
         "75367002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Arterial blood pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Arterial blood pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "ABP - Arterial blood pressure"
+        }
+      ]
     },
     {
       "code": "386536003",
@@ -795,7 +1937,21 @@
         "252059006",
         "75367002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Systemic blood pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Systemic blood pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SBP - Systemic blood pressure"
+        }
+      ]
     },
     {
       "code": "386725007",
@@ -803,7 +1959,25 @@
       "parents": [
         "363789004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Body temperature (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Body temperature"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Body temperature - observation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "BT - Body temperature"
+        }
+      ]
     },
     {
       "code": "387713003",
@@ -811,7 +1985,37 @@
       "parents": [
         "71388002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Surgical procedure (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Surgical procedure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Operation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Operative procedure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Surgery"
+        },
+        {
+          "kind": "Definition",
+          "term": "Intentional, structural alteration of the human body by mechanical, thermal, light-based, electromagnetic, or chemical means, and/or by the incision or destruction of tissues using instruments to cut, burn, vaporise, freeze, suture, probe, or manipulate by closed reductions."
+        },
+        {
+          "kind": "Definition",
+          "term": "Intentional, structural alteration of the human body by mechanical, thermal, light-based, electromagnetic, or chemical means, and/or by the incision or destruction of tissues using instruments to cut, burn, vaporize, freeze, suture, probe, or manipulate by closed reductions."
+        }
+      ]
     },
     {
       "code": "396140003",
@@ -819,13 +2023,32 @@
       "parents": [
         "307467005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Every eight to twelve hours (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Every eight to twelve hours"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Every 8 to 12 hours"
+        },
+        {
+          "kind": "Synonym",
+          "term": "q8-12hr"
+        }
+      ]
     },
     {
       "code": "397726004",
       "display": "Shelf life (observable entity)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "404684003",
@@ -833,7 +2056,17 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Clinical finding (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Clinical finding"
+        }
+      ]
     },
     {
       "code": "407559004",
@@ -842,7 +2075,17 @@
         "413350009",
         "57177007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Family history unknown (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Family history unknown"
+        }
+      ]
     },
     {
       "code": "408739003",
@@ -850,7 +2093,21 @@
       "parents": [
         "246061005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Unapproved attribute (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Unapproved attribute"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Unapproved attributes"
+        }
+      ]
     },
     {
       "code": "410510008",
@@ -858,7 +2115,17 @@
       "parents": [
         "288529006"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Temporal context value (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Temporal context value"
+        }
+      ]
     },
     {
       "code": "410511007",
@@ -866,7 +2133,21 @@
       "parents": [
         "410510008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Current or past (actual) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Current or past"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Current or past (actual)"
+        }
+      ]
     },
     {
       "code": "410512000",
@@ -874,7 +2155,21 @@
       "parents": [
         "410511007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Current or specified time (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Current or specified"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Current or specified time"
+        }
+      ]
     },
     {
       "code": "410513005",
@@ -882,7 +2177,21 @@
       "parents": [
         "410511007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "In the past (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Past"
+        },
+        {
+          "kind": "Synonym",
+          "term": "In the past"
+        }
+      ]
     },
     {
       "code": "410514004",
@@ -890,7 +2199,17 @@
       "parents": [
         "288529006"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Finding context value (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Finding context value"
+        }
+      ]
     },
     {
       "code": "410515003",
@@ -898,7 +2217,17 @@
       "parents": [
         "36692007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Known present (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Known present"
+        }
+      ]
     },
     {
       "code": "410516002",
@@ -906,7 +2235,17 @@
       "parents": [
         "36692007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Known absent (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Known absent"
+        }
+      ]
     },
     {
       "code": "410656007",
@@ -914,7 +2253,21 @@
       "parents": [
         "118598001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Type (property) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Type"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Type (property)"
+        }
+      ]
     },
     {
       "code": "410657003",
@@ -922,7 +2275,21 @@
       "parents": [
         "408739003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Type (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Type - attribute"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Type"
+        }
+      ]
     },
     {
       "code": "410680006",
@@ -930,7 +2297,17 @@
       "parents": [
         "246205007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Number (attribute)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Number"
+        }
+      ]
     },
     {
       "code": "410942007",
@@ -938,7 +2315,21 @@
       "parents": [
         "105590001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Drug or medicament (substance)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Drug or medicament"
+        },
+        {
+          "kind": "Definition",
+          "term": "A grouper concept for substances that are used in medicinal products for medical treatment, and also psychoactive substances that have few or no legitimate medical uses or that are not legally available to the person using them."
+        }
+      ]
     },
     {
       "code": "413350009",
@@ -946,7 +2337,21 @@
       "parents": [
         "243796009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Finding with explicit context (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Finding with explicit context"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Context-dependent finding"
+        }
+      ]
     },
     {
       "code": "414236006",
@@ -954,7 +2359,17 @@
       "parents": [
         "414237002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Feature of anatomical entity (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Feature of anatomical entity"
+        }
+      ]
     },
     {
       "code": "414237002",
@@ -962,7 +2377,21 @@
       "parents": [
         "363787002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Feature of entity (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Feature of entity"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Quality of entity"
+        }
+      ]
     },
     {
       "code": "416237000",
@@ -970,7 +2399,21 @@
       "parents": [
         "129125009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Procedure not done (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Procedure not done"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Procedure not carried out"
+        }
+      ]
     },
     {
       "code": "416342005",
@@ -978,7 +2421,17 @@
       "parents": [
         "363788007"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Procedure related observable (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Procedure related observable"
+        }
+      ]
     },
     {
       "code": "418799008",
@@ -986,19 +2439,31 @@
       "parents": [
         "404684003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Finding reported by subject or history provider (finding)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Finding reported by subject or history provider"
+        }
+      ]
     },
     {
       "code": "419515004",
       "display": "Therapeutic good (product)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "420891004",
       "display": "Batch number (attribute)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "421378002",
@@ -1006,7 +2471,25 @@
       "parents": [
         "736478001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Basic dose form with solid state of matter (basic dose form)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Solid dose form"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Basic dose form with solid state of matter"
+        },
+        {
+          "kind": "Definition",
+          "term": "A dose form that displays properties of a solid."
+        }
+      ]
     },
     {
       "code": "422135004",
@@ -1014,19 +2497,31 @@
       "parents": [
         "307485003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "As directed for (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "As directed for"
+        }
+      ]
     },
     {
       "code": "422472007",
       "display": "Expiry date (attribute)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "428191000124101",
       "display": "No current prescription for medication (situation)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "431314004",
@@ -1034,7 +2529,21 @@
       "parents": [
         "103228002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Peripheral oxygen saturation (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Peripheral oxygen saturation"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SpO2 - saturation of peripheral oxygen"
+        }
+      ]
     },
     {
       "code": "439401001",
@@ -1042,7 +2551,17 @@
       "parents": [
         "243814003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Diagnosis (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Diagnosis"
+        }
+      ]
     },
     {
       "code": "444981005",
@@ -1050,7 +2569,17 @@
       "parents": [
         "364075005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Resting heart rate (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Resting heart rate"
+        }
+      ]
     },
     {
       "code": "445755006",
@@ -1058,13 +2587,28 @@
       "parents": [
         "284009009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Intravascular route (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Intravascular route"
+        },
+        {
+          "kind": "Definition",
+          "term": "A route that begins with the vascular system."
+        }
+      ]
     },
     {
       "code": "446134003",
       "display": "Evaluation of lot number (procedure)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "448703006",
@@ -1072,7 +2616,29 @@
       "parents": [
         "59181002"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Pulse oximeter (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Pulse oximeter"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oxygen saturation analyser"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oxygen saturation analyzer"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SpO2 oxygen saturation monitor"
+        }
+      ]
     },
     {
       "code": "47625008",
@@ -1080,7 +2646,33 @@
       "parents": [
         "445755006"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Intravenous route (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Intravenous route"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Intravenous use"
+        },
+        {
+          "kind": "Synonym",
+          "term": "IV route"
+        },
+        {
+          "kind": "Synonym",
+          "term": "IV use"
+        },
+        {
+          "kind": "Definition",
+          "term": "An intravascular route that begins within a vein."
+        }
+      ]
     },
     {
       "code": "49062001",
@@ -1088,7 +2680,17 @@
       "parents": [
         "260787004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Device"
+        }
+      ]
     },
     {
       "code": "52893008",
@@ -1096,7 +2698,29 @@
       "parents": [
         "257434000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Blood gas/pH analyzer, device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Blood gas/pH analyser"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Blood gas/pH analyzer"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Blood gas/pH analyser, device"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Blood gas/pH analyzer, device"
+        }
+      ]
     },
     {
       "code": "5558000",
@@ -1104,13 +2728,32 @@
       "parents": [
         "106229004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Working diagnosis (contextual qualifier) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Working diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "WD"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Working diagnosis (contextual qualifier)"
+        }
+      ]
     },
     {
       "code": "56241000179103",
       "display": "PRN administration (procedure)",
       "parents": [],
-      "inactive": false
+      "inactive": false,
+      "descriptions": []
     },
     {
       "code": "57177007",
@@ -1118,7 +2761,25 @@
       "parents": [
         "243796009"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Family history with explicit context (situation)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Family history with explicit context"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Family history of"
+        },
+        {
+          "kind": "Synonym",
+          "term": "FH - family history"
+        }
+      ]
     },
     {
       "code": "59181002",
@@ -1126,7 +2787,33 @@
       "parents": [
         "52893008"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Oxygen analyzer, device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Oxygen analyser"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Oxygen analyzer"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oximeter"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oxygen analyser, device"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Oxygen analyzer, device"
+        }
+      ]
     },
     {
       "code": "60621009",
@@ -1135,7 +2822,29 @@
         "87276001",
         "248326004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Body mass index (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Body mass index"
+        },
+        {
+          "kind": "Synonym",
+          "term": "BMI - Body mass index"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Quetelet index"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Weight: body mass"
+        }
+      ]
     },
     {
       "code": "64572001",
@@ -1143,7 +2852,37 @@
       "parents": [
         "404684003"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Disease (disorder)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Disease"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Clinical disease AND/OR syndrome"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Diseases"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Disorder"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Disorders"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Syndrome"
+        }
+      ]
     },
     {
       "code": "70232002",
@@ -1152,7 +2891,25 @@
         "272123002",
         "7389001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Frequent (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Frequent"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Frequently"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Often"
+        }
+      ]
     },
     {
       "code": "71388002",
@@ -1160,7 +2917,17 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Procedure (procedure)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Procedure"
+        }
+      ]
     },
     {
       "code": "736015003",
@@ -1169,7 +2936,21 @@
         "364048003",
         "364676005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Observable related to oxygenation status (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Oxygenation observable"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Observable related to oxygenation status"
+        }
+      ]
     },
     {
       "code": "736478001",
@@ -1177,7 +2958,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Basic dose form (basic dose form)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Basic dose form"
+        }
+      ]
     },
     {
       "code": "736479009",
@@ -1185,7 +2976,21 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Dose form intended site (intended site)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Dose form intended site"
+        },
+        {
+          "kind": "Definition",
+          "term": "The set of values for dose form intended site that relate to characteristics associated with a pharmaceutical dose form and do not refer to a precise anatomic location."
+        }
+      ]
     },
     {
       "code": "736542009",
@@ -1193,7 +2998,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Pharmaceutical dose form (dose form)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Pharmaceutical dose form"
+        }
+      ]
     },
     {
       "code": "7389001",
@@ -1201,7 +3016,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Time frame (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Time frame"
+        }
+      ]
     },
     {
       "code": "75367002",
@@ -1209,7 +3034,21 @@
       "parents": [
         "310611001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Blood pressure (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Blood pressure"
+        },
+        {
+          "kind": "Synonym",
+          "term": "BP - Blood pressure"
+        }
+      ]
     },
     {
       "code": "763158003",
@@ -1217,7 +3056,17 @@
       "parents": [
         "373873005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Medicinal product (product)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Medicinal product"
+        }
+      ]
     },
     {
       "code": "767524001",
@@ -1225,7 +3074,17 @@
       "parents": [
         "362981000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Unit of measure (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Unit of measure"
+        }
+      ]
     },
     {
       "code": "767525000",
@@ -1233,7 +3092,17 @@
       "parents": [
         "767524001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Unit (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Unit"
+        }
+      ]
     },
     {
       "code": "781405001",
@@ -1241,7 +3110,21 @@
       "parents": [
         "373873005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Medicinal product package (product)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Medicinal product package"
+        },
+        {
+          "kind": "Definition",
+          "term": "The abstract representation of a quantified medicinal product as produced by the supplier."
+        }
+      ]
     },
     {
       "code": "80617005",
@@ -1249,7 +3132,29 @@
       "parents": [
         "303607000"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Analyzer, device (physical object)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Analyser"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Analyzer"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Analysers"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Analyzer, device"
+        }
+      ]
     },
     {
       "code": "8319008",
@@ -1257,7 +3162,29 @@
       "parents": [
         "106229004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Principal diagnosis (contextual qualifier) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Principal diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Main diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "PR - principal diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Principal diagnosis (contextual qualifier)"
+        }
+      ]
     },
     {
       "code": "85097005",
@@ -1265,7 +3192,25 @@
       "parents": [
         "106229004"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Secondary diagnosis (contextual qualifier) (qualifier value)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Secondary diagnosis"
+        },
+        {
+          "kind": "Synonym",
+          "term": "SE"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Secondary diagnosis (contextual qualifier)"
+        }
+      ]
     },
     {
       "code": "86084001",
@@ -1273,7 +3218,21 @@
       "parents": [
         "246464006"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Hematologic function (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Haematologic function"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Hematologic function"
+        }
+      ]
     },
     {
       "code": "87276001",
@@ -1281,7 +3240,21 @@
       "parents": [
         "364393001"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "Nutritional status (observable entity)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "Nutritional status"
+        },
+        {
+          "kind": "Synonym",
+          "term": "Dietary status"
+        }
+      ]
     },
     {
       "code": "900000000000441003",
@@ -1289,7 +3262,17 @@
       "parents": [
         "138875005"
       ],
-      "inactive": false
+      "inactive": false,
+      "descriptions": [
+        {
+          "kind": "Fully specified name",
+          "term": "SNOMED CT Model Component (metadata)"
+        },
+        {
+          "kind": "Preferred term",
+          "term": "SNOMED CT Model Component"
+        }
+      ]
     }
   ]
 }

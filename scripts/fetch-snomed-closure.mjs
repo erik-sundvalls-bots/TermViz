@@ -3,6 +3,7 @@ import path from "node:path";
 import { parseAdl, parseOptXml } from "../public/vendor/ehrtslib-0.11.0-parser.min.js";
 import { buildIpsModel } from "../src/ips-model.js";
 import { parseSnapMap } from "../src/snap2snomed.js";
+import { descriptionsFromDesignations } from "../src/snomed-terms.js";
 
 const rootDir = path.resolve(import.meta.dirname, "..");
 const ONTOSERVER = "https://tx-nordics.fhir.org/fhir/r4";
@@ -79,6 +80,7 @@ if (fs.existsSync(previousPath)) {
       display: concept.display || "",
       parents: (concept.parents || []).map(String),
       inactive: Boolean(concept.inactive),
+      descriptions: Array.isArray(concept.descriptions) ? concept.descriptions : undefined,
     });
   }
   for (const code of previous.seeds || []) seeds.add(String(code));
@@ -102,6 +104,37 @@ while (pending.length) {
 }
 
 const list = [...concepts.values()].filter(Boolean).sort((a, b) => a.code.localeCompare(b.code));
+async function expandDescriptions(codes) {
+  if (!codes.length) return [];
+  const url = new URL(`${ONTOSERVER}/ValueSet/$expand`);
+  url.searchParams.set("url", `${SYSTEM}?fhir_vs=ecl/${codes.join(" OR ")}`);
+  url.searchParams.set("includeDesignations", "true");
+  url.searchParams.set("count", String(codes.length));
+  url.searchParams.set("_format", "json");
+  const response = await fetch(url, { headers: { Accept: "application/fhir+json" } });
+  if (response.status === 422 && codes.length > 1) {
+    const mid = Math.ceil(codes.length / 2);
+    return [...await expandDescriptions(codes.slice(0, mid)), ...await expandDescriptions(codes.slice(mid))];
+  }
+  if (!response.ok) {
+    if (codes.length === 1) return [];
+    throw new Error(`Ontoserver ${response.status} while reading descriptions`);
+  }
+  const body = await response.json();
+  return body.expansion?.contains || [];
+}
+const missingDescriptions = list.filter((item) => !Array.isArray(item.descriptions)).map((item) => item.code);
+const byCode = new Map(list.map((item) => [item.code, item]));
+for (let index = 0; index < missingDescriptions.length; index += 25) {
+  const contains = await expandDescriptions(missingDescriptions.slice(index, index + 25));
+  for (const item of contains) {
+    const record = byCode.get(String(item.code));
+    if (record) record.descriptions = descriptionsFromDesignations(item.designation || []);
+  }
+}
+for (const item of list) {
+  if (!Array.isArray(item.descriptions)) item.descriptions = [];
+}
 const missing = list.filter((item) => !item.display);
 if (missing.length) {
   console.error("missing displays", missing.map((item) => item.code));
@@ -118,6 +151,7 @@ const payload = {
     display: item.display,
     parents: item.parents,
     inactive: item.inactive,
+    descriptions: item.descriptions || [],
   })),
 };
 const out = path.join(rootDir, "src/snomed-closure.json");

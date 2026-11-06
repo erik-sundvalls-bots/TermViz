@@ -6,6 +6,7 @@
  */
 
 import bundledClosure from "./snomed-closure.json";
+import { descriptionsFromDesignations } from "./snomed-terms.js";
 
 export const SNOMED_SYSTEM = "http://snomed.info/sct";
 export const SNOMED_ROOT = "138875005";
@@ -70,6 +71,7 @@ for (const concept of bundledClosure.concepts) {
     display: concept.display || "",
     parents: (concept.parents || []).map(String),
     inactive: Boolean(concept.inactive),
+    descriptions: Array.isArray(concept.descriptions) ? descriptionsFromDesignations(concept.descriptions) : undefined,
     error: null,
   });
 }
@@ -138,7 +140,8 @@ async function fetchLookup(key, url, signal) {
     return { ...record, fromCache: false };
   }
   const parsed = parseLookup(await response.json());
-  const record = { code: key, ...parsed, error: null };
+  const previous = memory.get(key);
+  const record = { code: key, ...parsed, descriptions: previous?.descriptions, error: null };
   memory.set(key, record);
   persistSoon();
   return { ...record, fromCache: false };
@@ -181,6 +184,31 @@ export async function directChildren(code, { signal } = {}) {
     if (contains.length < pageSize) break;
   }
   return found;
+}
+
+export async function lookupDescriptions(code, { signal } = {}) {
+  const key = String(code);
+  const known = memory.get(key);
+  if (known && Array.isArray(known.descriptions)) return known.descriptions;
+  const url = new URL(`${ONTOSERVER}/ValueSet/$expand`);
+  url.searchParams.set("url", `${SNOMED_SYSTEM}?fhir_vs=ecl/${key}`);
+  url.searchParams.set("includeDesignations", "true");
+  url.searchParams.set("count", "1");
+  url.searchParams.set("_format", "json");
+  const response = await fetch(url, {
+    headers: { Accept: "application/fhir+json" },
+    signal,
+  });
+  if (!response.ok) throw new Error(`Ontoserver returned ${response.status} while reading descriptions of ${key}`);
+  const body = await response.json();
+  const match = (body.expansion?.contains || []).find((item) => String(item.code) === key) || body.expansion?.contains?.[0];
+  const descriptions = descriptionsFromDesignations(match?.designation || []);
+  const record = memory.get(key) || { code: key, display: match?.display || "", parents: [], inactive: false, error: null };
+  record.descriptions = descriptions;
+  if (!record.display && match?.display) record.display = match.display;
+  memory.set(key, record);
+  persistSoon();
+  return descriptions;
 }
 
 export function cachedConcept(code) {

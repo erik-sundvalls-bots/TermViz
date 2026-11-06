@@ -65,6 +65,12 @@ if (model.comparison.conflicts !== 0) problems.push("binding conflicts");
 if (model.comparison.both < 26) problems.push("expected the 26 shared SNOMED bindings");
 if (failed.length) problems.push("archetype parse failures");
 if (!model.counts.boundNodes) problems.push("no bound nodes on the tree");
+const undescribed = bundled.concepts.filter((item) => !Array.isArray(item.descriptions));
+if (undescribed.length) problems.push(`${undescribed.length} bundled concepts have no descriptions`);
+const medicinal = bundled.concepts.find((item) => item.code === "763158003");
+if (!medicinal?.descriptions?.some((item) => item.term === "Medicinal product (product)")) {
+  problems.push("medicinal product is missing its fully specified name");
+}
 
 const systolic = [];
 (function find(node) {

@@ -1111,6 +1111,19 @@ svg { display: block; }
 
 .concept-pop p, .concept-pop dd { margin: 0; font-size: 13px; }
 .concept-pop dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; margin: 6px 0; }
+.concept-pop dl:empty { display: none; }
+.pop-descriptions { list-style: none; margin: 8px 0 0; padding: 0; }
+.pop-descriptions li { margin: 0 0 7px; font-size: 13px; line-height: 1.35; }
+.pop-descriptions .kind {
+  display: block;
+  margin-bottom: 1px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pop-desc-status { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
 .concept-pop dt { color: var(--muted); font-size: 12px; }
 #popSources p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
 #popSources strong { color: var(--ink); }
