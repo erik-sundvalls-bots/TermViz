@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk, inkOf, renderSnomedDag, renderSnomedForce, renderSnomedTangled, renderTemplateTree, zoomGraph } from "./termviz-2.js";
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
 import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
+import { leastCommonParents } from "./lcp.js";
 import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
@@ -759,16 +760,15 @@ function ancestorsOf(code, parents) {
 
 function annotate(graph) {
   const parents = new Map();
-  const children = new Map();
   for (const link of graph.links || []) {
     const child = String(link.source?.id ?? link.source);
     const parent = String(link.target?.id ?? link.target);
     parents.set(child, [...(parents.get(child) || []), parent]);
-    children.set(parent, [...(children.get(parent) || []), child]);
   }
   const marks = new Map();
   const included = new Set();
   const suggestionOf = new Map();
+  const lcpIds = leastCommonParents(graph.links || [], activeListings().flatMap((listing) => listing.codes));
   for (const listing of activeListings()) {
     const node = listing.node;
     const style = assignStyle(node.id);
@@ -806,12 +806,11 @@ function annotate(graph) {
     const share = new Set(paints.map((paint) => paint.nodeId)).size;
     const guesses = suggestionOf.get(id) || [];
     const shared = share >= 2;
-    const childShared = (children.get(id) || []).some((child) => (marks.get(child)?.length || 0) >= 2);
     item.suggestion = guesses.length > 0;
     item.sources = guesses;
     item.commonality = share;
     item.cp = shared;
-    item.lcp = shared && !childShared;
+    item.lcp = lcpIds.has(id);
     item.name = item.display && item.display !== id ? item.display : "";
     item.fillOpacity = 1;
     item.sliceFills = paints.map((paint) => paint.fill);
@@ -887,6 +886,11 @@ async function refreshGraph() {
         const id = String(code);
         if (!state.hiddenLabels.has(id)) state.shownLabels.add(id);
       }
+    }
+    for (const node of graph.nodes) {
+      if (!node.lcp) continue;
+      const id = String(node.id);
+      if (!state.hiddenLabels.has(id)) state.shownLabels.add(id);
     }
     state.graph = graph;
     const shared = graph.nodes.filter((node) => node.cp).length;

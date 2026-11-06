@@ -989,7 +989,7 @@ function constructTangleLayout(levels, {
     for (const node of level) {
       node.x = node.level * nodeWidth + xOffset;
       node.y = nodeHeight + yOffset + node.height / 2;
-      yOffset += nodeHeight + node.height;
+      yOffset += nodeHeight + node.height + (node.extra || 0);
     }
   }
 
@@ -1097,8 +1097,68 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
       parents: node.outgoing.map((edge) => String(edge.target.id)),
     });
   }
-  const layout = constructTangleLayout(levels);
+  const tangleColumn = 142;
+  const measurer = labelMeasurer(svg.node());
+  const tangleLabelMax = tangleColumn - 28;
+  const labelBox = new Map(nodes.map((node) => {
+    const measure = (text) => measurer.measure(text, {
+      fontSize: "13px",
+      fontWeight: node.lcp ? "700" : "400",
+    });
+    const lines = wrapToWidth(visibleName(node), tangleLabelMax, measure);
+    const width = Math.max(...lines.map((line) => measure(line)), 0);
+    const count = lines.length;
+    const last = count <= 1 ? 4 : -7 + 14 * (count - 1);
+    return [String(node.id), {
+      lines: count,
+      width,
+      above: count <= 1 ? 11 : 22,
+      below: last + 8,
+    }];
+  }));
+  for (const level of levels) {
+    for (const entry of level) {
+      const box = labelBox.get(entry.id);
+      entry.extra = Math.max(0, (box?.below || 0) + (box?.above || 0) - 22);
+    }
+  }
+  const layout = constructTangleLayout(levels, {
+    nodeWidth: tangleColumn,
+    nodeHeight: 22,
+    padding: 10,
+    bundleWidth: 12,
+    metroD: 4,
+    minFamilyHeight: 10,
+    c: 11,
+  });
   const placed = new Map(layout.nodes.map((node) => [node.id, node]));
+  const stacked = [...layout.nodes].sort((a, b) => a.y - b.y || a.x - b.x);
+  const push = new Map();
+  const overlapsX = (a, b) => {
+    const aw = labelBox.get(a.id)?.width || 0;
+    const bw = labelBox.get(b.id)?.width || 0;
+    const aLeft = a.x - 7;
+    const aRight = a.x + 12 + aw;
+    const bLeft = b.x - 7;
+    const bRight = b.x + 12 + bw;
+    return aLeft < bRight + 3 && bLeft < aRight + 3;
+  };
+  for (const node of stacked) {
+    let y = node.y;
+    for (const earlier of stacked) {
+      if (earlier === node) break;
+      const py = earlier.y + (push.get(earlier.id) || 0);
+      if (y - py > 48 || !overlapsX(earlier, node)) continue;
+      const need = (labelBox.get(earlier.id)?.below || 11) + (labelBox.get(node.id)?.above || 11) + 3;
+      if (y < py + need) y = py + need;
+    }
+    push.set(node.id, y - node.y);
+  }
+  for (const node of layout.nodes) node.y += push.get(node.id) || 0;
+  for (const link of layout.links) {
+    link.ys += push.get(link.source.id) || 0;
+    link.yt += push.get(link.target.id) || 0;
+  }
   for (const node of nodes) {
     const at = placed.get(String(node.id));
     node.x = at?.x ?? 0;
@@ -1183,16 +1243,17 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
       .style("stroke", item.stroke || "#4682b4");
   });
   node.each(function label(item) {
-    const lines = wrapLabel(visibleName(item), 24);
+    const lines = wrapToWidth(visibleName(item), tangleLabelMax, (text) => measurer.measure(text, { fontSize: "13px" }));
     const group = d3.select(this);
     for (const kind of ["shadow", "ink"]) {
       const text = group.append("text").attr("class", `force-label ${kind}`).attr("text-anchor", "start");
       lines.forEach((line, index) => {
-        const dy = lines.length === 1 ? "0.32em" : (index === 0 ? -5 : 12);
-        text.append("tspan").attr("x", radius + 6).attr("dy", dy).text(line);
+        const dy = lines.length === 1 ? "0.32em" : (index === 0 ? -7 : 14);
+        text.append("tspan").attr("x", radius + 5).attr("dy", dy).text(line);
       });
     }
   });
+  measurer.remove();
   node.append("circle").attr("class", "node-hit").attr("r", radius + 2);
 
   function walk(start, direction, nodesOut, linksOut) {
@@ -1323,10 +1384,10 @@ function labelMeasurer(svgNode) {
   const font = getComputedStyle(svgNode).fontFamily;
   svgNode.appendChild(probe);
   return {
-    measure(text, { lcp = false } = {}) {
+    measure(text, { lcp = false, fontSize, fontWeight } = {}) {
       probe.style.fontFamily = font;
-      probe.style.fontSize = lcp ? "13px" : "11px";
-      probe.style.fontWeight = lcp ? "700" : "400";
+      probe.style.fontSize = fontSize || (lcp ? "13px" : "11px");
+      probe.style.fontWeight = fontWeight || (lcp ? "700" : "400");
       probe.textContent = text;
       return probe.getComputedTextLength();
     },

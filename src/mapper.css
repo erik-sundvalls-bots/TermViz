@@ -1020,7 +1020,7 @@ svg { display: block; }
 #snomedSvg .sugi-link.is-bold { stroke-width: 3.4; }
 #snomedSvg .tangle-links g.is-raised .tangle-halo,
 #snomedSvg .sugi-links g.is-raised .tangle-halo { stroke-width: 7.5; }
-#snomedSvg.is-tangled .force-label { display: inline; }
+#snomedSvg.is-tangled .force-label { display: inline; font-size: 13px; }
 #snomedSvg .node-disk { stroke-width: 1.6; }
 #snomedSvg .is-cp .node-disk { fill: none; stroke: #1c2430; stroke-width: 2.5; }
 #snomedSvg .node-slices { pointer-events: none; }

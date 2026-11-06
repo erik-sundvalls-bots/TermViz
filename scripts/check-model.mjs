@@ -4,6 +4,7 @@ import { parseAdl, parseOptXml } from "../public/vendor/ehrtslib-0.11.0-parser.m
 import { buildIpsModel } from "../src/ips-model.js";
 import { parseSnapMap } from "../src/snap2snomed.js";
 import bundled from "../src/snomed-closure.json" with { type: "json" };
+import { leastCommonParents } from "../src/lcp.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const optXml = fs.readFileSync(
@@ -72,6 +73,30 @@ const systolic = [];
 })(model.tree);
 console.log("systolic bindings", systolic);
 if (!systolic.includes("271649006")) problems.push("systolic binding missing");
+
+const pair = leastCommonParents(
+  [
+    { source: "A", target: "P" },
+    { source: "B", target: "P" },
+    { source: "P", target: "G" },
+    { source: "G", target: "138875005" },
+  ],
+  ["A", "B"],
+);
+if ([...pair].join(",") !== "P") problems.push(`least common parent of a pair should be P, got ${[...pair].join(",")}`);
+const groups = leastCommonParents(
+  [
+    { source: "A", target: "P" },
+    { source: "B", target: "P" },
+    { source: "C", target: "Q" },
+    { source: "P", target: "G" },
+    { source: "Q", target: "G" },
+    { source: "G", target: "138875005" },
+  ],
+  ["A", "B", "C"],
+);
+const groupIds = [...groups].sort().join(",");
+if (groupIds !== "G,P") problems.push(`least common parents of two branches should be G and P, got ${groupIds}`);
 
 if (problems.length) {
   console.error("PROBLEMS", problems);
