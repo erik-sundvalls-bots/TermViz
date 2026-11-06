@@ -1820,8 +1820,13 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
         : restPos.get(String(item.id)));
     });
     const pathFrom = new Map();
+    const halo = linkWrap.select("path.tangle-halo");
     link.each(function read(item) {
       pathFrom.set(`${item.source.id}|${item.target.id}`, this.getAttribute("d") || "");
+    });
+    halo.each(function read(item) {
+      const key = `${item.source.id}|${item.target.id}`;
+      if (!pathFrom.get(key)) pathFrom.set(key, this.getAttribute("d") || "");
     });
     const place = new Map();
     for (const item of nodes) {
@@ -1846,7 +1851,9 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
           const at = place.get(String(item.id));
           return `translate(${at.x(t)},${at.y(t)})`;
         });
-        link.attr("d", (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points));
+        const at = (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points);
+        halo.attr("d", at);
+        link.attr("d", at);
         onFrame?.();
       });
   }
