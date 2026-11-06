@@ -36,6 +36,7 @@ const state = {
   popId: null,
   mapReviews: new Map(),
   mapRelations: new Map(),
+  dismissIdle: new Set(),
   treeSide: false,
   snomedLayout: "sugiyama",
 };
@@ -203,6 +204,11 @@ function codeOn(node, code) {
   return !state.muted.get(node.id)?.has(String(code));
 }
 
+function dismissedItem(node, code) {
+  const item = (node.suggestions || []).find((row) => String(row.code) === String(code));
+  return Boolean(item && reviewOf(item) === "dismissed");
+}
+
 function bindingEntries(node) {
   const seen = new Set();
   const rows = [];
@@ -324,16 +330,22 @@ function activeListings() {
 }
 
 function categoryState(node) {
-  const codes = (node.suggestions || []).map((item) => String(item.code));
-  if (!codes.length) return "false";
-  const on = codes.filter((code) => codeOn(node, code)).length;
+  // Dismissed rows are out of the map, so they must not keep the group
+  // switch mixed. Otherwise it can never read as fully on, and a click
+  // cannot turn the remaining rows off.
+  const live = (node.suggestions || []).filter((item) => reviewOf(item) !== "dismissed");
+  if (!live.length || !state.activeIds.has(node.id)) return "false";
+  const muted = state.muted.get(node.id);
+  const on = live.filter((item) => !muted?.has(String(item.code))).length;
   if (on === 0) return "false";
-  if (on === codes.length) return "true";
+  if (on === live.length) return "true";
   return "mixed";
 }
 
 function masterState() {
-  const states = (state.model?.suggestions?.attached || []).map(categoryState);
+  const states = (state.model?.suggestions?.attached || [])
+    .filter((node) => (node.suggestions || []).some((item) => reviewOf(item) !== "dismissed"))
+    .map(categoryState);
   if (!states.length || states.every((item) => item === "false")) return "false";
   if (states.every((item) => item === "true")) return "true";
   return "mixed";
@@ -352,33 +364,46 @@ function relSvg(kind) {
   return `${open}<path d="M1.8 10c1.2-2.5 2.1-2.5 3.1 0s1.9 2.5 3.1 0 1.9-2.5 3.1 0 1.9 2.5 3.1 0" ${stroke}/></svg>`;
 }
 
-function relationGlyph(type) {
+function relationLabel(type) {
+  return String(type || "").replace("TARGET_", "").toLowerCase() || "relationship";
+}
+
+function relationTitle(type) {
   const known = RELATIONSHIPS[type] || { kind: "inexact", title: type || "Relationship", hint: "" };
-  const title = known.hint ? `${known.title} — ${known.hint}` : known.title;
-  return `<span class="rel rel-${known.kind}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${relSvg(known.kind)}</span>`;
+  return known.hint ? `${known.title} — ${known.hint}` : known.title;
+}
+
+function relationPicker(item, term) {
+  const relation = relationOf(item);
+  const known = RELATIONSHIPS[relation] || { kind: "inexact" };
+  const source = escapeHtml(item.sourceCode || "");
+  const code = escapeHtml(item.code);
+  const label = relationLabel(relation);
+  const options = Object.keys(RELATIONSHIPS).map((type) => {
+    const info = RELATIONSHIPS[type];
+    const selected = type === relation;
+    return `<li role="option" class="rel-option${selected ? " is-on" : ""}" data-rel="${type}" aria-selected="${selected ? "true" : "false"}" title="${escapeHtml(relationTitle(type))}">${relSvg(info.kind)}<span>${relationLabel(type)}</span></li>`;
+  }).join("");
+  return `<div class="rel-pick" data-source="${source}" data-code="${code}">
+    <button type="button" class="rel-face" aria-haspopup="listbox" aria-expanded="false" title="${escapeHtml(relationTitle(relation))}" aria-label="Relationship for ${escapeHtml(term)}: ${escapeHtml(label)}">${relSvg(known.kind)}<span class="rel-name">${label}</span></button>
+    <ul class="rel-menu" role="listbox" hidden>${options}</ul>
+  </div>`;
 }
 
 function guessRow(node, item) {
   const review = reviewOf(item);
-  const relation = relationOf(item);
-  const muted = state.muted.get(node.id)?.has(String(item.code));
-  const switched = state.activeIds.has(node.id) && !muted;
+  const on = codeOn(node, item.code);
   const term = termFor(item.code, item.display);
-  const options = Object.keys(RELATIONSHIPS).map((type) => {
-    const label = type.replace("TARGET_", "").toLowerCase();
-    return `<option value="${type}"${type === relation ? " selected" : ""}>${label}</option>`;
-  }).join("");
   const source = escapeHtml(item.sourceCode || "");
   const code = escapeHtml(item.code);
-  return `<article class="guess${switched && review !== "dismissed" ? "" : " is-off"}${review ? ` is-${review}` : ""}" data-node-id="${escapeHtml(node.id)}" data-code="${code}" data-source="${source}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}">
+  return `<article class="guess${on ? "" : " is-off"}${review ? ` is-${review}` : ""}" data-node-id="${escapeHtml(node.id)}" data-code="${code}" data-source="${source}" data-color="${escapeHtml(inkOf(colorFor(node.id)))}">
     <span class="guess-anchor" aria-hidden="true"></span>
-    ${switchHtml(`data-row="${code}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, switched ? "true" : "false")}
-    ${relationGlyph(relation)}
+    ${switchHtml(`data-row="${code}" data-node="${escapeHtml(node.id)}" aria-label="Include ${escapeHtml(term)}"`, on ? "true" : "false")}
     ${termLink(item.code, term)}
     ${codeLink(item.code)}
+    ${relationPicker(item, term)}
     <div class="review">
-      <select class="rel-select" data-source="${source}" data-code="${code}" aria-label="Relationship type for ${escapeHtml(term)}">${options}</select>
-      <button type="button" data-review="accepted" data-source="${source}" data-code="${code}" aria-pressed="${review === "accepted" ? "true" : "false"}">Okay</button>
+      <button type="button" data-review="accepted" data-source="${source}" data-code="${code}" aria-pressed="${review === "accepted" ? "true" : "false"}">OK</button>
       <button type="button" data-review="dismissed" data-source="${source}" data-code="${code}" aria-pressed="${review === "dismissed" ? "true" : "false"}">Dismiss</button>
     </div>
   </article>`;
@@ -516,6 +541,7 @@ function refreshAll() {
 }
 
 function setCategory(node, on) {
+  state.dismissIdle.delete(node.id);
   if (on) {
     colorFor(node.id);
     state.activeIds.add(node.id);
@@ -538,31 +564,78 @@ function toggleMaster() {
   refreshAll();
 }
 
-function toggleCode(node, code) {
+function nodesWithSuggestion(source, code) {
+  return (state.model?.suggestions?.attached || []).filter((node) =>
+    (node.suggestions || []).some((item) => (item.sourceCode || "") === source && String(item.code) === String(code)));
+}
+
+function turnOnly(node, code) {
+  const key = String(code);
+  // Dismissed siblings are already out. Muting them too makes a later
+  // undo leave the other copy of the same path switched off.
+  const others = (node.suggestions || [])
+    .filter((item) => String(item.code) !== key && reviewOf(item) !== "dismissed")
+    .map((item) => String(item.code));
+  colorFor(node.id);
+  state.activeIds.add(node.id);
+  if (others.length) state.muted.set(node.id, new Set(others));
+  else state.muted.delete(node.id);
+}
+
+function ensureOn(node, code) {
+  const key = String(code);
+  colorFor(node.id);
+  state.activeIds.add(node.id);
+  const muted = state.muted.get(node.id);
+  if (!muted?.has(key)) return;
+  muted.delete(key);
+  if (muted.size === 0) state.muted.delete(node.id);
+}
+
+function muteCode(node, code) {
   const key = String(code);
   const codes = (node.suggestions || []).map((item) => String(item.code));
   const muted = new Set(state.muted.get(node.id) || []);
-  if (!codeOn(node, key)) {
-    colorFor(node.id);
-    state.activeIds.add(node.id);
-    if (muted.size === 0 && !state.muted.has(node.id) && codes.some((item) => item !== key)) {
-      state.muted.set(node.id, new Set(codes.filter((item) => item !== key)));
-    } else {
-      muted.delete(key);
-      if (muted.size === 0) state.muted.delete(node.id);
-      else state.muted.set(node.id, muted);
-    }
-  } else {
-    muted.add(key);
-    if (codes.every((item) => muted.has(item))) {
-      state.activeIds.delete(node.id);
-      state.muted.delete(node.id);
-    } else {
-      state.activeIds.add(node.id);
-      state.muted.set(node.id, muted);
-    }
+  muted.add(key);
+  const anyOn = codes.some((item) => !muted.has(item) && !dismissedItem(node, item));
+  if (!anyOn) {
+    state.activeIds.delete(node.id);
+    state.muted.delete(node.id);
+    return;
   }
+  state.activeIds.add(node.id);
+  state.muted.set(node.id, muted);
+}
+
+// A dismissed row is out. Bringing it back switches that row on again and
+// leaves every sibling the way the group currently has it. When the whole
+// group is off, only the restored row comes on.
+function restoreRow(node, code) {
+  if (!state.activeIds.has(node.id)) turnOnly(node, code);
+  else ensureOn(node, code);
+}
+
+function retireIfIdle(node) {
+  if (!node || !state.activeIds.has(node.id)) return;
+  const muted = state.muted.get(node.id);
+  const anyOn = (node.suggestions || []).some((item) => reviewOf(item) !== "dismissed" && !muted?.has(String(item.code)));
+  if (!anyOn) {
+    state.activeIds.delete(node.id);
+    state.dismissIdle.add(node.id);
+  }
+}
+
+function toggleCode(node, code) {
+  const key = String(code);
+  const item = (node.suggestions || []).find((row) => String(row.code) === key);
   state.focusId = node.id;
+  if (item && reviewOf(item) === "dismissed") {
+    setMapReview(item.sourceCode || "", key, "dismissed", node.id, { reveal: true });
+    return;
+  }
+  if (codeOn(node, key)) muteCode(node, key);
+  else if (!state.activeIds.has(node.id)) turnOnly(node, key);
+  else ensureOn(node, key);
   refreshAll();
 }
 
@@ -1185,10 +1258,28 @@ function wireChrome() {
     renderTree();
   });
   detail.addEventListener("click", (event) => {
+    const option = event.target.closest(".rel-option");
+    if (option && detail.contains(option)) {
+      event.preventDefault();
+      const pick = option.closest(".rel-pick");
+      setMapRelation(pick.dataset.source, pick.dataset.code, option.dataset.rel);
+      return;
+    }
+    const face = event.target.closest(".rel-face");
+    if (face && detail.contains(face)) {
+      event.preventDefault();
+      const menu = face.parentElement.querySelector(".rel-menu");
+      const willOpen = menu.hidden;
+      closeRelMenus();
+      if (willOpen) openRelMenu(face, menu);
+      return;
+    }
+    closeRelMenus();
     const review = event.target.closest("[data-review]");
     if (review && detail.contains(review)) {
       event.preventDefault();
-      setMapReview(review.dataset.source, review.dataset.code, review.dataset.review);
+      const nodeId = review.closest("article.guess")?.dataset.nodeId;
+      setMapReview(review.dataset.source, review.dataset.code, review.dataset.review, nodeId);
       return;
     }
     if (event.target.closest("[data-download-map]")) {
@@ -1207,10 +1298,8 @@ function wireChrome() {
     else if (button.dataset.bindCat && node) toggleAllBindings(node);
     else if (button.dataset.binding && node) setBinding(node, button.dataset.binding, button.getAttribute("aria-checked") !== "true");
   });
-  detail.addEventListener("change", (event) => {
-    const select = event.target.closest("select.rel-select");
-    if (!select || !detail.contains(select)) return;
-    setMapRelation(select.dataset.source, select.dataset.code, select.value);
+  document.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest?.(".rel-pick")) closeRelMenus();
   });
   detail.addEventListener("mouseover", (event) => {
     const block = event.target.closest?.("[data-node-id]");
@@ -1253,7 +1342,10 @@ function wireChrome() {
       paintDash();
     }
   });
-  detail.addEventListener("scroll", drawSuggestionLines, { passive: true });
+  detail.addEventListener("scroll", () => {
+    closeRelMenus();
+    drawSuggestionLines();
+  }, { passive: true });
   document.querySelector("#cueUp").addEventListener("click", () => {
     detail.scrollBy({ top: -Math.max(48, detail.clientHeight * 0.75), behavior: "smooth" });
   });
@@ -1275,7 +1367,10 @@ function wireChrome() {
     if (event.target === snomedSvg || event.target.id === "snomedViewport") closePop();
   });
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closePop();
+    if (event.key === "Escape") {
+      closeRelMenus();
+      closePop();
+    }
   });
   const bench = document.querySelector("#bench");
   const topPane = document.querySelector("#snomedPane");
@@ -1363,6 +1458,7 @@ function showModel(model) {
   state.popId = null;
   state.mapReviews = new Map();
   state.mapRelations = new Map();
+  state.dismissIdle = new Set();
   if (search) search.value = "";
   const label = templateLabel(model.templateId);
   const now = document.querySelector("#templateNow");
@@ -1463,13 +1559,54 @@ document.querySelector("#templateFile")?.addEventListener("change", () => {
   if (fileName) fileName.textContent = file ? file.name : "Choose a file";
 });
 
-function setMapReview(source, code, review) {
+function setMapReview(source, code, review, nodeId, { reveal = false } = {}) {
   const key = `${source}|${code}`;
-  if (state.mapReviews.get(key) === review) state.mapReviews.delete(key);
-  else state.mapReviews.set(key, review);
+  const current = state.mapReviews.get(key) || "";
+  const next = current === review ? "" : review;
+  if (next) state.mapReviews.set(key, next);
+  else state.mapReviews.delete(key);
+  const clicked = nodeId ? findNode(nodeId) : null;
+  const shares = nodesWithSuggestion(source, code);
+  // OK, and clearing Dismiss, switch that row on in every group that is
+  // still on and in every copy that the dismissal itself switched off.
+  // A group switched off by its own header stays off. Clearing OK does not
+  // touch activation. Siblings are not muted or revived as a side effect.
+  if (next === "accepted" || (current === "dismissed" && next !== "dismissed")) {
+    for (const node of shares) {
+      const bringBack = state.activeIds.has(node.id)
+        || state.dismissIdle.has(node.id)
+        || (node.id === clicked?.id && (next === "accepted" || reveal));
+      if (bringBack) restoreRow(node, code);
+      state.dismissIdle.delete(node.id);
+    }
+  } else if (next === "dismissed") {
+    for (const node of shares) retireIfIdle(node);
+  }
   renderDetail();
   renderTree();
   refreshGraph();
+}
+
+function closeRelMenus() {
+  detail.querySelectorAll(".rel-menu").forEach((menu) => {
+    menu.hidden = true;
+  });
+  detail.querySelectorAll('.rel-face[aria-expanded="true"]').forEach((face) => {
+    face.setAttribute("aria-expanded", "false");
+  });
+}
+
+function openRelMenu(face, menu) {
+  menu.hidden = false;
+  face.setAttribute("aria-expanded", "true");
+  const rect = face.getBoundingClientRect();
+  const width = Math.max(rect.width, menu.offsetWidth);
+  menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`;
+  const below = rect.bottom + 2;
+  const height = menu.offsetHeight;
+  menu.style.top = below + height > window.innerHeight - 8 && rect.top > height + 8
+    ? `${rect.top - height - 2}px`
+    : `${below}px`;
 }
 
 function setMapRelation(source, code, relationship) {
@@ -1550,6 +1687,7 @@ async function applyMapRows(rows) {
   state.model.suggestions = result;
   state.mapReviews = new Map();
   state.mapRelations = new Map();
+  state.dismissIdle = new Set();
   state.activeIds = new Set();
   state.colors = new Map();
   state.colorIndex = 0;

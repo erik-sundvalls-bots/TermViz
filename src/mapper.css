@@ -800,48 +800,74 @@ h2 {
 
 .guess {
   position: relative;
-  display: grid;
-  grid-template-columns: 26px 18px minmax(0, 1fr) auto;
-  gap: 0 5px;
+  display: flex;
   align-items: center;
+  gap: 4px;
+  min-width: 0;
   border-left: 2px solid var(--node-ink, var(--node-color, var(--line)));
-  padding: 1px 0 1px 7px;
+  padding: 1px 0 1px 6px;
   font-size: 12.5px;
-  line-height: 1.25;
+  line-height: 1.2;
 }
-
-.rel {
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  color: var(--ink);
-  cursor: help;
-}
-
-.rel svg { width: 16px; height: 16px; display: block; }
 
 .guess.is-off, .guess.is-dismissed { opacity: 0.45; }
 
-.review {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
-  margin-top: 2px;
-}
+.rel-pick { position: relative; flex: none; }
 
-.review select,
+.rel-face,
 .review button {
-  font: inherit;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
-  padding: 1px 7px;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.rel-face { padding: 0 6px 0 3px; }
+
+.rel-face svg,
+.rel-option svg { width: 14px; height: 14px; display: block; flex: none; }
+
+.rel-menu {
+  position: fixed;
+  z-index: 40;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+  min-width: 128px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(28, 36, 48, 0.14);
+}
+
+.rel-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rel-option.is-on,
+.rel-option:hover { background: #f3eee4; }
+
+.review {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  align-items: center;
 }
 
 .review button[aria-pressed="true"] {
@@ -853,11 +879,14 @@ h2 {
 .map-download { margin-left: auto; }
 .guess .rank, .guess .pct { color: var(--muted); font-size: 11px; }
 .guess .term, .guess .binding-label {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.guess .code-link { flex: none; font-size: 11px; }
 
 .guess-anchor {
   position: absolute;
