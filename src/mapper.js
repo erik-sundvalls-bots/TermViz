@@ -34,6 +34,7 @@ const state = {
   shownLabels: new Set(),
   hiddenLabels: new Set(),
   popId: null,
+  grabNodeId: null,
   mapReviews: new Map(),
   mapRelations: new Map(),
   dismissIdle: new Set(),
@@ -384,8 +385,9 @@ function relationPicker(item, term) {
     const selected = type === relation;
     return `<li role="option" class="rel-option${selected ? " is-on" : ""}" data-rel="${type}" aria-selected="${selected ? "true" : "false"}" title="${escapeHtml(relationTitle(type))}">${relSvg(info.kind)}<span>${relationLabel(type)}</span></li>`;
   }).join("");
+  const caret = `<svg class="rel-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 4.4 6 8l3.8-3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   return `<div class="rel-pick" data-source="${source}" data-code="${code}">
-    <button type="button" class="rel-face" aria-haspopup="listbox" aria-expanded="false" title="${escapeHtml(relationTitle(relation))}" aria-label="Relationship for ${escapeHtml(term)}: ${escapeHtml(label)}">${relSvg(known.kind)}<span class="rel-name">${label}</span></button>
+    <button type="button" class="rel-face" aria-haspopup="listbox" aria-expanded="false" title="${escapeHtml(relationTitle(relation))}" aria-label="Relationship for ${escapeHtml(term)}, ${escapeHtml(label)}. Open the list to change it.">${relSvg(known.kind)}<span class="rel-name">${label}</span>${caret}</button>
     <ul class="rel-menu" role="listbox" hidden>${options}</ul>
   </div>`;
 }
@@ -412,10 +414,12 @@ function guessRow(node, item) {
 function nodeBlock(node) {
   const checked = categoryState(node);
   const rows = (node.suggestions || []).map((item) => guessRow(node, item)).join("");
+  const grabbing = state.grabNodeId === node.id;
   return `<section class="side-block is-hatched" data-node-id="${escapeHtml(node.id)}" style="${escapeHtml(blockStyle(node))}">
     <header class="cat-head">
       ${switchHtml(`data-cat="node" data-node="${escapeHtml(node.id)}" aria-label="Show ${escapeHtml(node.name)}"`, checked)}
       <span class="cat-name">${escapeHtml(node.name)}</span>
+      <button type="button" class="text-button grab-button${grabbing ? " is-on" : ""}" data-grab="${escapeHtml(node.id)}" aria-pressed="${grabbing ? "true" : "false"}" title="Add the next concept you click in the graph to the top of ${escapeHtml(node.name)}">${grabbing ? "Click a concept" : "Add from graph"}</button>
     </header>
     ${rows}
   </section>`;
@@ -839,7 +843,16 @@ function forceOptions() {
       drawSuggestionLines();
       placePop();
     },
-    onSelect: (item) => openPop(item),
+    onSelect: (item) => {
+      if (state.grabNodeId) {
+        const node = findNode(state.grabNodeId);
+        state.grabNodeId = null;
+        document.querySelector("#snomedPane")?.classList.remove("is-grabbing");
+        if (node) addFromGraph(node, item);
+        return;
+      }
+      openPop(item);
+    },
     onLinger: (item) => openPop(item),
     pins: state.pins,
     released: state.released,
@@ -980,6 +993,41 @@ function setUserPin(item, on) {
   }
   document.querySelector("#popPin")?.setAttribute("aria-checked", on ? "true" : "false");
   snomedSvg.__termvizSimulation?.alpha(0.5).restart();
+}
+
+function setGrab(nodeId) {
+  const next = nodeId && state.grabNodeId === nodeId ? null : (nodeId || null);
+  if (next === state.grabNodeId) return;
+  state.grabNodeId = next;
+  document.querySelector("#snomedPane")?.classList.toggle("is-grabbing", Boolean(next));
+  renderDetail();
+  drawSuggestionLines();
+}
+
+function addFromGraph(node, concept) {
+  const code = String(concept.id);
+  const sourceCode = node.suggestionSetId || node.suggestions?.[0]?.sourceCode || "";
+  const sourceDisplay = node.suggestions?.[0]?.sourceDisplay || node.name || "";
+  const display = termFor(code, concept.name || concept.display || "");
+  const list = [...(node.suggestions || [])];
+  const existing = list.find((item) => String(item.code) === code);
+  const item = existing || {
+    code,
+    display,
+    relationship: "TARGET_EQUIVALENT",
+    reason: relationshipText("TARGET_EQUIVALENT"),
+    sourceCode,
+    sourceDisplay,
+  };
+  node.suggestions = [item, ...list.filter((row) => row !== item)];
+  if (!node.suggestionSetId && sourceCode) node.suggestionSetId = sourceCode;
+  const attached = state.model?.suggestions?.attached;
+  if (attached && !attached.includes(node)) attached.push(node);
+  if (state.mapReviews.get(`${sourceCode}|${code}`) === "dismissed") state.mapReviews.delete(`${sourceCode}|${code}`);
+  if (!state.activeIds.has(node.id)) turnOnly(node, code);
+  else ensureOn(node, code);
+  state.focusId = node.id;
+  refreshAll();
 }
 
 function setShowLabel(item, on) {
@@ -1275,6 +1323,12 @@ function wireChrome() {
       return;
     }
     closeRelMenus();
+    const grab = event.target.closest("[data-grab]");
+    if (grab && detail.contains(grab)) {
+      event.preventDefault();
+      setGrab(grab.dataset.grab);
+      return;
+    }
     const review = event.target.closest("[data-review]");
     if (review && detail.contains(review)) {
       event.preventDefault();
@@ -1364,12 +1418,16 @@ function wireChrome() {
     if (item) setShowLabel(item, !item.showLabel);
   });
   document.querySelector("#snomedViewport").addEventListener("click", (event) => {
-    if (event.target === snomedSvg || event.target.id === "snomedViewport") closePop();
+    if (event.target === snomedSvg || event.target.id === "snomedViewport") {
+      closePop();
+      if (state.grabNodeId) setGrab(null);
+    }
   });
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeRelMenus();
       closePop();
+      if (state.grabNodeId) setGrab(null);
     }
   });
   const bench = document.querySelector("#bench");
@@ -1456,6 +1514,8 @@ function showModel(model) {
   state.query = "";
   state.focusId = null;
   state.popId = null;
+  state.grabNodeId = null;
+  document.querySelector("#snomedPane")?.classList.remove("is-grabbing");
   state.mapReviews = new Map();
   state.mapRelations = new Map();
   state.dismissIdle = new Set();
@@ -1688,6 +1748,8 @@ async function applyMapRows(rows) {
   state.mapReviews = new Map();
   state.mapRelations = new Map();
   state.dismissIdle = new Set();
+  state.grabNodeId = null;
+  document.querySelector("#snomedPane")?.classList.remove("is-grabbing");
   state.activeIds = new Set();
   state.colors = new Map();
   state.colorIndex = 0;

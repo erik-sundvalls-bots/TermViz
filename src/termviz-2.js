@@ -810,12 +810,12 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
 
   node
     .on("mouseover", (event, item) => paintHover(item, null))
-    .on("mouseout", () => paintHover(null, null))
-    .on("pointerenter", (event, item) => {
-      if (event.pointerType === "touch") return;
-      armLinger(item, { x: event.clientX, y: event.clientY });
+    .on("mouseout", (event) => {
+      if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) return;
+      paintHover(null, null);
     })
     .on("pointerdown", (event, item) => {
+      if (event.pointerType !== "touch") return;
       armLinger(item, { x: event.clientX, y: event.clientY });
     })
     .on("pointermove", (event) => {
@@ -1266,12 +1266,14 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
 
   node
     .on("mouseover", (event, item) => paintHover(item, null))
-    .on("mouseout", () => paintHover(null, null))
-    .on("pointerenter", (event, item) => {
-      if (event.pointerType === "touch") return;
+    .on("mouseout", (event) => {
+      if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) return;
+      paintHover(null, null);
+    })
+    .on("pointerdown", (event, item) => {
+      if (event.pointerType !== "touch") return;
       armLinger(item, { x: event.clientX, y: event.clientY });
     })
-    .on("pointerdown", (event, item) => armLinger(item, { x: event.clientX, y: event.clientY }))
     .on("pointermove", (event) => {
       if (!lingerPoint || !lingerTimer) return;
       if (Math.hypot(event.clientX - lingerPoint.x, event.clientY - lingerPoint.y) > 8) clearLinger();
@@ -1522,12 +1524,14 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     const measure = (text) => measurer.measure(text, { lcp: Boolean(item.lcp) });
     const lines = wrapToWidth(visibleName(item), SUGIYAMA_LABEL_MAX, measure);
     item.labelLines = lines;
+    item.lineCount = lines.length;
+    const textWidth = Math.max(...lines.map((line) => measure(line)));
+    item.textWidth = Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4));
     const shown = !item.labelOff && (item.showLabel || item.suggestion || item.cp);
+    item.layoutWidth = shown ? item.textWidth : SUGIYAMA_DISK;
     if (!shown) continue;
-    const textWidth = shown ? Math.max(...lines.map((line) => measure(line))) : 0;
-    item.layoutWidth = shown ? Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4)) : SUGIYAMA_DISK;
     widths.set(String(item.id), item.layoutWidth);
-    if (shown) maxLines = Math.max(maxLines, lines.length);
+    maxLines = Math.max(maxLines, lines.length);
   }
   measurer.remove();
   const radius = 8;
@@ -1683,6 +1687,170 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       });
   }
 
+  const restPos = new Map(nodes.map((item) => [String(item.id), { x: item.x, y: item.y }]));
+  const restWidth = new Map(nodes.map((item) => [String(item.id), item.layoutWidth ?? SUGIYAMA_DISK]));
+  const restPoints = new Map(drawn.map((item) => [
+    `${item.source.id}|${item.target.id}`,
+    (item.points || []).map((point) => [...point]),
+  ]));
+
+  function showsHoverLabel(item, targets) {
+    if (targets.has(item)) return true;
+    if (item.labelOff) return false;
+    return Boolean(item.showLabel || item.suggestion || item.cp);
+  }
+
+  function hoverTargets(activeNode, activeLink) {
+    const targets = new Set();
+    if (activeNode) {
+      targets.add(activeNode);
+      for (const edge of activeNode.incoming || []) if (edge.source) targets.add(edge.source);
+      for (const edge of activeNode.outgoing || []) if (edge.target) targets.add(edge.target);
+    } else if (activeLink) {
+      if (activeLink.source) targets.add(activeLink.source);
+      if (activeLink.target) targets.add(activeLink.target);
+    }
+    return targets;
+  }
+
+  function spreadHover(targets) {
+    const dx = new Map(nodes.map((item) => [String(item.id), 0]));
+    const dy = new Map(nodes.map((item) => [String(item.id), 0]));
+    const ranks = new Map();
+    for (const item of nodes) {
+      const y = Math.round(restPos.get(String(item.id)).y);
+      const rank = ranks.get(y) || [];
+      rank.push(item);
+      ranks.set(y, rank);
+    }
+    let collide = false;
+    for (const rank of ranks.values()) {
+      const ordered = rank.slice().sort((a, b) => restPos.get(String(a.id)).x - restPos.get(String(b.id)).x);
+      for (let index = 0; index < ordered.length - 1; index += 1) {
+        const left = ordered[index];
+        const right = ordered[index + 1];
+        const half = (entry) => (showsHoverLabel(entry, targets) ? (entry.textWidth ?? SUGIYAMA_DISK) : radius * 2) / 2;
+        const gap = restPos.get(String(right.id)).x - restPos.get(String(left.id)).x;
+        if (gap < half(left) + half(right) + 4) collide = true;
+      }
+    }
+    let drop = 0;
+    let pivot = Infinity;
+    for (const item of nodes) {
+      if (!showsHoverLabel(item, targets)) continue;
+      const at = restPos.get(String(item.id));
+      const top = at.y - (radius + 4) - ((item.lineCount || 1) - 1) * SUGIYAMA_LINE;
+      for (const other of nodes) {
+        const oy = restPos.get(String(other.id)).y;
+        if (oy >= at.y - 2) continue;
+        const need = oy + radius + 4 - top;
+        if (need > drop) {
+          drop = need;
+          pivot = Math.min(pivot, at.y);
+          collide = true;
+        }
+      }
+    }
+    if (!collide) return { pos: restPos, points: restPoints };
+    for (const item of nodes) {
+      if (!showsHoverLabel(item, targets)) continue;
+      const id = String(item.id);
+      const extra = (item.textWidth ?? SUGIYAMA_DISK) - (restWidth.get(id) ?? SUGIYAMA_DISK);
+      if (extra < 0.5) continue;
+      const origin = restPos.get(id);
+      const half = extra / 2;
+      for (const other of ranks.get(Math.round(origin.y)) || []) {
+        if (other === item) continue;
+        const otherId = String(other.id);
+        const side = restPos.get(otherId).x < origin.x ? -half : half;
+        dx.set(otherId, (dx.get(otherId) || 0) + side);
+      }
+    }
+    if (drop > 0.5) {
+      for (const item of nodes) {
+        const id = String(item.id);
+        if (restPos.get(id).y >= pivot - 0.5) dy.set(id, drop);
+      }
+    }
+    const pos = new Map();
+    for (const item of nodes) {
+      const id = String(item.id);
+      const at = restPos.get(id);
+      pos.set(id, { x: at.x + (dx.get(id) || 0), y: at.y + (dy.get(id) || 0) });
+    }
+    const points = new Map();
+    for (const [key, oldPoints] of restPoints) {
+      const [childId, parentId] = key.split("|");
+      if (!oldPoints?.length) {
+        points.set(key, oldPoints);
+        continue;
+      }
+      const y0 = oldPoints[0][1];
+      const y1 = oldPoints[oldPoints.length - 1][1];
+      const span = y1 - y0 || 1;
+      points.set(key, oldPoints.map(([x, y]) => {
+        const t = (y - y0) / span;
+        return [
+          x + (dx.get(parentId) || 0) * (1 - t) + (dx.get(childId) || 0) * t,
+          y + (dy.get(parentId) || 0) * (1 - t) + (dy.get(childId) || 0) * t,
+        ];
+      }));
+    }
+    return { pos, points };
+  }
+
+  function nearly(a, b) {
+    return Math.abs(a - b) < 0.6;
+  }
+
+  function fitHoverLabels(activeNode, activeLink) {
+    const plan = spreadHover(hoverTargets(activeNode, activeLink));
+    let settled = true;
+    node.each(function read(item) {
+      const match = /translate\(([-\d.]+),([-\d.]+)\)/.exec(this.getAttribute("transform") || "");
+      const at = plan.pos.get(String(item.id));
+      if (!match || !at || !nearly(Number(match[1]), at.x) || !nearly(Number(match[2]), at.y)) settled = false;
+    });
+    if (settled) return;
+    const from = new Map();
+    node.each(function read(item) {
+      const match = /translate\(([-\d.]+),([-\d.]+)\)/.exec(this.getAttribute("transform") || "");
+      from.set(String(item.id), match
+        ? { x: Number(match[1]), y: Number(match[2]) }
+        : restPos.get(String(item.id)));
+    });
+    const pathFrom = new Map();
+    link.each(function read(item) {
+      pathFrom.set(`${item.source.id}|${item.target.id}`, this.getAttribute("d") || "");
+    });
+    const place = new Map();
+    for (const item of nodes) {
+      const id = String(item.id);
+      const start = from.get(id);
+      const end = plan.pos.get(id);
+      place.set(id, {
+        x: d3.interpolateNumber(start.x, end.x),
+        y: d3.interpolateNumber(start.y, end.y),
+      });
+    }
+    const draw = new Map();
+    for (const item of drawn) {
+      const key = `${item.source.id}|${item.target.id}`;
+      const end = sugiyamaPath(plan.points.get(key) || item.points);
+      draw.set(key, d3.interpolateString(pathFrom.get(key) || end, end));
+    }
+    layer.interrupt("sugiyama-constancy");
+    layer.transition("sugiyama-hover").duration(200).ease(d3.easeCubicOut)
+      .tween("slide", () => (t) => {
+        node.attr("transform", (item) => {
+          const at = place.get(String(item.id));
+          return `translate(${at.x(t)},${at.y(t)})`;
+        });
+        link.attr("d", (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points));
+        onFrame?.();
+      });
+  }
+
   function paintHover(activeNode, activeLink) {
     node.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false);
     link.classed("is-active", false).classed("is-incoming", false).classed("is-outgoing", false).classed("is-bold", false);
@@ -1712,6 +1880,7 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       linkWrap.each(function restore() { hostNode.appendChild(this); });
       linkWrap.filter((item) => raised.has(item)).each(function raise() { hostNode.appendChild(this); });
     }
+    fitHoverLabels(activeNode, activeLink);
   }
 
   let lingerTimer = 0;
@@ -1736,12 +1905,14 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
 
   node
     .on("mouseover", (event, item) => paintHover(item, null))
-    .on("mouseout", () => paintHover(null, null))
-    .on("pointerenter", (event, item) => {
-      if (event.pointerType === "touch") return;
+    .on("mouseout", (event) => {
+      if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) return;
+      paintHover(null, null);
+    })
+    .on("pointerdown", (event, item) => {
+      if (event.pointerType !== "touch") return;
       armLinger(item, { x: event.clientX, y: event.clientY });
     })
-    .on("pointerdown", (event, item) => armLinger(item, { x: event.clientX, y: event.clientY }))
     .on("pointermove", (event) => {
       if (!lingerPoint || !lingerTimer) return;
       if (Math.hypot(event.clientX - lingerPoint.x, event.clientY - lingerPoint.y) > 8) clearLinger();

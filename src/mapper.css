@@ -645,6 +645,27 @@ h2 {
   padding: 3px 0 1px;
 }
 
+.cat-head .cat-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grab-button {
+  margin-left: auto;
+  flex: none;
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
+  line-height: 1;
+}
+
+#snomedPane.is-grabbing #snomedViewport,
+#snomedPane.is-grabbing #snomedViewport * {
+  cursor: copy;
+}
+
 .cat-head.master { margin-top: 0; }
 
 .side-kicker {
@@ -836,6 +857,8 @@ h2 {
 
 .rel-face svg,
 .rel-option svg { width: 14px; height: 14px; display: block; flex: none; }
+
+.rel-caret { width: 9px; height: 9px; margin-left: 1px; opacity: 0.75; }
 
 .rel-menu {
   position: fixed;
