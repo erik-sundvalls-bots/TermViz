@@ -1639,19 +1639,6 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
   for (const [id, at] of livePos) fromPos.set(id, at);
   rememberSugiyama(nodes, links, maxLines);
 
-  const defs = svg.append("defs");
-  defs.append("marker")
-    .attr("id", "snomed-isa")
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 14)
-    .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M0,-5L10,0L0,5Z")
-    .attr("class", "force-arrow");
-
   const layer = zoomLayer(svg);
   const drawn = links.filter((link) => link.points);
   const linkWrap = layer.append("g")
@@ -1664,7 +1651,6 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     .attr("d", (item) => sugiyamaPath(item.points));
   const link = linkWrap.append("path")
     .attr("class", "force-link sugi-link")
-    .attr("marker-end", "url(#snomed-isa)")
     .attr("d", (item) => sugiyamaPath(item.points));
 
   const node = layer.append("g")

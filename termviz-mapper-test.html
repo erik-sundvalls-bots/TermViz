@@ -68,14 +68,17 @@
           </div>
           <div class="filter-cluster">
             <span class="filter-name">Filter</span>
-            <div class="find-button">
-              <button type="button" id="findButton">Find</button>
-              <input id="search" type="search" placeholder="Name or SNOMED id" aria-label="Find" />
-            </div>
             <div class="filters" role="group" aria-label="Filter">
-              <button type="button" data-filter="suggestions" class="is-on">Mapping suggestions</button>
-              <button type="button" data-filter="bindings">Template bindings</button>
-              <button type="button" data-filter="all">Whole template</button>
+              <div class="filter-pill is-on">
+                <button type="button" data-filter="suggestions" class="is-on">Mapping suggestions</button>
+                <input id="search" class="filter-search" type="search" placeholder="Find in this list" aria-label="Find in mapping suggestions" />
+              </div>
+              <div class="filter-pill">
+                <button type="button" data-filter="bindings">Template bindings</button>
+              </div>
+              <div class="filter-pill">
+                <button type="button" data-filter="all">Whole template + suggestions</button>
+              </div>
             </div>
           </div>
         </div>
@@ -137,6 +140,20 @@
       <p id="popCode"></p>
       <dl id="popFacts"></dl>
       <div id="popSources"></div>
+      <div class="pop-actions">
+        <button type="button" id="popChildren">Add children</button>
+        <button type="button" id="popSiblings">Add siblings</button>
+      </div>
+      <p id="popGrowStatus" class="pop-grow-status"></p>
+      <div id="popPick" hidden>
+        <p id="popPickNote"></p>
+        <div class="pop-pick-list" id="popPickList"></div>
+        <div class="pop-pick-bar">
+          <button type="button" id="popPickAll">All</button>
+          <button type="button" id="popPickNone">None</button>
+          <button type="button" id="popPickAdd">Add selected</button>
+        </div>
+      </div>
       <label class="pin-row">Pin in place
         <button type="button" id="popPin" class="switch" role="switch" aria-checked="false" aria-label="Pin in place"></button>
       </label>

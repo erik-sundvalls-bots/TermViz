@@ -3,7 +3,7 @@ import { CATEGORY_HATCHES, NODE_COLORS, burstGraph, categoryPatternId, hatchInk,
 import { loadIpsModel, loadTemplateFromText, loadTemplateFromUrl } from "./ips-model.js";
 import { RELATIONSHIPS, attachSnapMap, parseSnapMap, relationshipText, serializeSnapMap } from "./snap2snomed.js";
 import { leastCommonParents } from "./lcp.js";
-import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, snomedBrowserUrl } from "./snomed.js";
+import { cacheSize, cachedConcept, closureToRoot, conceptIsPlaceable, directChildren, snomedBrowserUrl } from "./snomed.js";
 
 const snomedSvg = document.querySelector("#snomedSvg");
 const treeSvg = document.querySelector("#treeSvg");
@@ -34,6 +34,9 @@ const state = {
   released: new Set(),
   shownLabels: new Set(),
   hiddenLabels: new Set(),
+  importedCodes: new Set(),
+  popNote: "",
+  growToken: 0,
   popId: null,
   grabNodeId: null,
   mapReviews: new Map(),
@@ -798,6 +801,9 @@ function annotate(graph) {
       for (const id of ancestorsOf(code, parents)) included.add(id);
     }
   }
+  for (const code of state.importedCodes) {
+    for (const id of ancestorsOf(code, parents)) included.add(id);
+  }
   const kept = [];
   for (const item of graph.nodes) {
     const id = String(item.id);
@@ -867,7 +873,10 @@ function forceOptions() {
 
 async function refreshGraph() {
   const token = ++state.snomedToken;
-  const unique = [...new Set(activeListings().flatMap((item) => item.codes))];
+    const unique = [...new Set([
+      ...activeListings().flatMap((item) => item.codes),
+      ...state.importedCodes,
+    ])];
   if (!unique.length) {
     state.graph = null;
     renderSnomed();
@@ -888,8 +897,8 @@ async function refreshGraph() {
       }
     }
     for (const node of graph.nodes) {
-      if (!node.lcp) continue;
       const id = String(node.id);
+      if (!node.lcp && !state.importedCodes.has(id)) continue;
       if (!state.hiddenLabels.has(id)) state.shownLabels.add(id);
     }
     state.graph = graph;
@@ -936,6 +945,14 @@ function openPop(item) {
   if (children.length) facts.push(["Children here", children.slice(0, 8).join(", ")]);
   if (item.commonality > 1) facts.push(["Shared by", `${item.commonality} template nodes`]);
   document.querySelector("#popFacts").innerHTML = facts.map(([name, value]) => `<dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd>`).join("");
+  const note = state.popNote;
+  state.popNote = "";
+  const status = document.querySelector("#popGrowStatus");
+  if (status) status.textContent = note;
+  const pick = document.querySelector("#popPick");
+  if (pick) pick.hidden = true;
+  pop.classList.remove("is-wide");
+  for (const button of pop.querySelectorAll("#popChildren, #popSiblings, #popPickAdd")) button.disabled = false;
   document.querySelector("#popSources").innerHTML = (item.sources || []).map((source) => {
     return `<p><strong>${escapeHtml(source.templateName)}</strong>${source.reason ? ` — ${escapeHtml(source.reason)}` : ""}</p>`;
   }).join("");
@@ -968,9 +985,108 @@ function placePop() {
 }
 
 function closePop() {
+  state.growToken += 1;
   const pop = document.querySelector("#conceptPop");
   if (pop) pop.hidden = true;
   state.popId = null;
+}
+
+function placeSearch() {
+  const button = document.querySelector(`[data-filter="${state.filter}"]`);
+  const pill = button?.closest(".filter-pill");
+  if (pill && search && search.parentElement !== pill) pill.append(search);
+  const name = button?.textContent?.trim() || "this list";
+  search?.setAttribute("aria-label", `Find in ${name}`);
+}
+
+function markFilter(name) {
+  state.filter = name;
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    const on = button.dataset.filter === name;
+    button.classList.toggle("is-on", on);
+    button.closest(".filter-pill")?.classList.toggle("is-on", on);
+  });
+  placeSearch();
+}
+
+async function relativesOf(kind, id) {
+  if (kind === "children") return directChildren(id);
+  const el = snomedSvg.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  const item = el ? d3.select(el).datum() : null;
+  const parents = [...new Set((item?.outgoing || []).map((edge) => String(edge.target?.id || "")).filter(Boolean))];
+  const lists = await Promise.all(parents.map((parent) => directChildren(parent)));
+  const seen = new Set();
+  const rows = [];
+  for (const list of lists) {
+    for (const row of list) {
+      if (row.code === id || seen.has(row.code)) continue;
+      seen.add(row.code);
+      rows.push(row);
+    }
+  }
+  return rows;
+}
+
+function showPick(kind, rows) {
+  const pop = document.querySelector("#conceptPop");
+  const list = document.querySelector("#popPickList");
+  const noun = kind === "children" ? "children" : "siblings";
+  pop?.classList.add("is-wide");
+  if (list) {
+    list.innerHTML = rows.map((row) => {
+      return `<label><input type="checkbox" value="${escapeHtml(row.code)}" /><span>${escapeHtml(row.display)} <span class="pick-code">${escapeHtml(row.code)}</span></span></label>`;
+    }).join("");
+  }
+  const note = document.querySelector("#popPickNote");
+  if (note) note.textContent = `${rows.length} ${noun}. Choose which to add.`;
+  const pick = document.querySelector("#popPick");
+  if (pick) pick.hidden = false;
+  const status = document.querySelector("#popGrowStatus");
+  if (status) status.textContent = "";
+  placePop();
+}
+
+async function importConcepts(codes) {
+  for (const code of codes) state.importedCodes.add(String(code));
+  const count = codes.length;
+  state.popNote = `Added ${count} concept${count === 1 ? "" : "s"}.`;
+  await refreshGraph();
+}
+
+async function offerRelatives(kind) {
+  const id = state.popId;
+  if (!id) return;
+  const token = ++state.growToken;
+  const status = document.querySelector("#popGrowStatus");
+  const buttons = [...document.querySelectorAll("#popChildren, #popSiblings")];
+  for (const button of buttons) button.disabled = true;
+  const pick = document.querySelector("#popPick");
+  if (pick) pick.hidden = true;
+  document.querySelector("#conceptPop")?.classList.remove("is-wide");
+  if (status) status.textContent = kind === "children" ? "Asking for child concepts…" : "Asking for sibling concepts…";
+  try {
+    const present = new Set((state.graph?.nodes || []).map((node) => String(node.id)));
+    const rows = (await relativesOf(kind, id))
+      .filter((row) => !present.has(row.code))
+      .sort((a, b) => a.display.localeCompare(b.display) || a.code.localeCompare(b.code));
+    if (token !== state.growToken || state.popId !== id) return;
+    if (!rows.length) {
+      if (status) status.textContent = kind === "children" ? "No further children to add." : "No further siblings to add.";
+      return;
+    }
+    if (rows.length <= 5) {
+      await importConcepts(rows.map((row) => row.code));
+      return;
+    }
+    showPick(kind, rows);
+  } catch (error) {
+    if (token !== state.growToken || state.popId !== id) return;
+    if (status) status.textContent = error instanceof Error ? error.message : "The terminology server did not answer.";
+  } finally {
+    if (token === state.growToken) {
+      for (const button of buttons) button.disabled = false;
+    }
+  }
 }
 
 function setUserPin(item, on) {
@@ -1240,8 +1356,7 @@ function relayout() {
 function wireChrome() {
   filterButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      state.filter = button.dataset.filter;
-      filterButtons.forEach((other) => other.classList.toggle("is-on", other === button));
+      markFilter(button.dataset.filter);
       if (state.model && state.filter === "all") openAll(state.model.tree);
       if (state.model && state.filter === "suggestions" && masterState() !== "true") {
         for (const node of state.model.suggestions.attached) setCategory(node, true);
@@ -1261,7 +1376,6 @@ function wireChrome() {
       fitTree();
     });
   });
-  document.querySelector("#findButton")?.addEventListener("click", () => search.focus());
   document.querySelector("#shelfToggle")?.addEventListener("click", () => {
     const body = document.querySelector(".snomed-body");
     const hidden = body?.classList.toggle("is-shelf-hidden");
@@ -1421,6 +1535,31 @@ function wireChrome() {
     const item = el ? d3.select(el).datum() : null;
     if (item) setShowLabel(item, !item.showLabel);
   });
+  document.querySelector("#popChildren").addEventListener("click", () => offerRelatives("children"));
+  document.querySelector("#popSiblings").addEventListener("click", () => offerRelatives("siblings"));
+  document.querySelector("#popPickAll").addEventListener("click", () => {
+    document.querySelectorAll("#popPickList input").forEach((input) => { input.checked = true; });
+  });
+  document.querySelector("#popPickNone").addEventListener("click", () => {
+    document.querySelectorAll("#popPickList input").forEach((input) => { input.checked = false; });
+  });
+  document.querySelector("#popPickAdd").addEventListener("click", async () => {
+    const chosen = [...document.querySelectorAll("#popPickList input:checked")].map((input) => input.value);
+    const status = document.querySelector("#popGrowStatus");
+    if (!chosen.length) {
+      if (status) status.textContent = "Choose at least one concept.";
+      return;
+    }
+    const button = document.querySelector("#popPickAdd");
+    if (button) button.disabled = true;
+    if (status) status.textContent = "Adding the selected concepts…";
+    try {
+      await importConcepts(chosen);
+    } catch (error) {
+      if (status) status.textContent = error instanceof Error ? error.message : "The terminology server did not answer.";
+      if (button) button.disabled = false;
+    }
+  });
   document.querySelector("#snomedViewport").addEventListener("click", (event) => {
     if (event.target === snomedSvg || event.target.id === "snomedViewport") {
       closePop();
@@ -1518,6 +1657,7 @@ function showModel(model) {
   state.query = "";
   state.focusId = null;
   state.popId = null;
+  state.importedCodes = new Set();
   state.grabNodeId = null;
   document.querySelector("#snomedPane")?.classList.remove("is-grabbing");
   state.mapReviews = new Map();
@@ -1531,10 +1671,7 @@ function showModel(model) {
     now.title = model.templateId;
   }
   const hasSuggestions = (model.suggestions?.attached || []).length > 0;
-  state.filter = hasSuggestions ? "suggestions" : "bindings";
-  document.querySelectorAll("[data-filter]").forEach((button) => {
-    button.classList.toggle("is-on", button.dataset.filter === state.filter);
-  });
+  markFilter(hasSuggestions ? "suggestions" : "bindings");
   if (hasSuggestions) markOpen(model.tree);
   else openAll(model.tree);
   for (const node of model.suggestions?.attached || []) setCategory(node, true);
@@ -1758,10 +1895,7 @@ async function applyMapRows(rows) {
   state.colors = new Map();
   state.colorIndex = 0;
   state.muted = new Map();
-  state.filter = "suggestions";
-  document.querySelectorAll("[data-filter]").forEach((button) => {
-    button.classList.toggle("is-on", button.dataset.filter === "suggestions");
-  });
+  markFilter("suggestions");
   markOpen(state.model.tree);
   for (const node of result.attached) setCategory(node, true);
   state.focusId = result.attached[0]?.id || null;

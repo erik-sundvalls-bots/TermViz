@@ -144,6 +144,45 @@ async function fetchLookup(key, url, signal) {
   return { ...record, fromCache: false };
 }
 
+/**
+ * Direct is-a children, with display names, from the terminology server.
+ * Pages until the expansion is complete, and stops after a few thousand.
+ */
+export async function directChildren(code, { signal } = {}) {
+  const found = [];
+  const seen = new Set();
+  let offset = 0;
+  const pageSize = 500;
+  for (let page = 0; page < 8; page += 1) {
+    const url = new URL(`${ONTOSERVER}/ValueSet/$expand`);
+    url.searchParams.set("url", `${SNOMED_SYSTEM}?fhir_vs=ecl/<!${code}`);
+    url.searchParams.set("count", String(pageSize));
+    if (offset) url.searchParams.set("offset", String(offset));
+    url.searchParams.set("_format", "json");
+    const response = await fetch(url, {
+      headers: { Accept: "application/fhir+json" },
+      signal,
+    });
+    if (!response.ok) {
+      throw new Error(`Ontoserver returned ${response.status} while listing children of ${code}`);
+    }
+    const body = await response.json();
+    const contains = body.expansion?.contains || [];
+    for (const item of contains) {
+      const id = String(item.code || "");
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      found.push({ code: id, display: item.display || id });
+    }
+    const total = Number(body.expansion?.total);
+    offset += contains.length;
+    if (!contains.length) break;
+    if (Number.isFinite(total) && offset >= total) break;
+    if (contains.length < pageSize) break;
+  }
+  return found;
+}
+
 export function cachedConcept(code) {
   return memory.get(String(code)) || null;
 }

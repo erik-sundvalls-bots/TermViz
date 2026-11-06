@@ -266,7 +266,7 @@ main {
   line-height: 1.45;
 }
 
-.dialog-links a { color: inherit; }
+.dialog-links a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 .dialog-field {
   display: flex;
@@ -510,43 +510,43 @@ h2 {
   flex: none;
 }
 
-.filters, .find-button {
+.filters {
   display: flex;
   gap: 6px;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
-.find-button {
-  gap: 0;
+.filter-pill {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
-  padding: 0 8px 0 0;
 }
 
-.find-button button {
+.filter-search { display: none; }
+
+.filter-pill.is-on .filter-search {
+  display: block;
+  width: 9.2rem;
+  min-width: 0;
+  margin: 2px 4px 2px 0;
+  padding: 2px 8px 2px 8px;
   border: 0;
+  border-left: 1px solid rgba(255, 253, 248, 0.35);
+  border-radius: 0;
   background: transparent;
-  border-radius: 999px;
-  padding: 3px 8px;
-  cursor: pointer;
+  color: var(--paper);
+  caret-color: var(--paper);
+  color-scheme: dark;
+  outline: none;
+  font: inherit;
   font-size: 13px;
 }
 
-.find-button input {
-  border: 0;
-  background: transparent;
-  width: 132px;
-  min-width: 0;
-  padding: 3px 0;
-  outline: none;
-}
-
-.find-button:focus-within,
-.find-button button:hover {
-  background: rgba(28, 36, 48, 0.06);
-}
+.filter-pill.is-on .filter-search::placeholder { color: rgba(255, 253, 248, 0.72); }
 
 .filters button, .ghost, .text-button {
   border: 1px solid var(--line);
@@ -558,6 +558,20 @@ h2 {
 }
 
 .filters button.is-on, .text-button.is-on, .template-load button.is-on {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.filter-pill button,
+.filter-pill.is-on button,
+.filter-pill button.is-on {
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.filter-pill.is-on {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
@@ -929,16 +943,18 @@ h2 {
 a.term {
   color: var(--ink);
   font-weight: 700;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 a.code-link {
   color: var(--teal-deep);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   white-space: nowrap;
 }
 
-a.term:hover, a.code-link:hover { color: var(--teal-deep); text-decoration: underline; }
+a.term:hover, a.code-link:hover { color: var(--teal-deep); }
 
 .score { display: none; }
 
@@ -1120,6 +1136,59 @@ svg { display: block; }
   font-weight: 700;
 }
 
+.pop-actions, .pop-pick-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pop-actions button, .pop-pick-bar button {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pop-actions button:disabled, .pop-pick-bar button:disabled { opacity: 0.55; cursor: progress; }
+
+#popPickAdd {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.pop-grow-status { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+#popPickNote { margin: 0; color: var(--muted); font-size: 12px; }
+
+.concept-pop.is-wide {
+  width: min(420px, calc(100vw - 16px));
+  max-height: min(72vh, 640px);
+}
+
+.pop-pick-list {
+  max-height: 240px;
+  overflow: auto;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.pop-pick-list label {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pop-pick-list label:nth-child(odd) { background: rgba(28, 36, 48, 0.04); }
+.pick-code { margin-left: 6px; color: var(--muted); font-weight: 400; font-size: 11px; }
+
 @media (max-width: 760px) {
   .snomed-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(92px, 42%); }
   .snomed-body.is-shelf-hidden {
@@ -1129,6 +1198,7 @@ svg { display: block; }
   .detail { border-left: 0; border-top: 1px solid var(--line); }
   .topbar { flex-wrap: wrap; }
   .filter-cluster { flex-wrap: wrap; border-radius: 12px; }
+  .filter-pill.is-on .filter-search { width: min(9.2rem, 46vw); }
   .side-split { grid-template-columns: 1fr; }
   .side-bind { position: static; }
   h1 { font-size: 18px; }
