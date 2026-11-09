@@ -63,11 +63,22 @@ function project(node, predicate, hide) {
   for (const child of node.children || []) {
     const projected = project(child, predicate, hide);
     if (!projected) continue;
-    if (hide?.(projected)) children.push(...(projected.children || []));
-    else children.push(projected);
+    if (hide?.(projected)) {
+      for (const nested of projected.children || []) {
+        if (!nested.valueListItem) children.push(nested);
+      }
+    } else children.push(projected);
   }
-  if (predicate(node) || children.length) return { ...node, children, open: true };
-  return null;
+  const keepSelf = predicate(node);
+  if (!keepSelf && !children.length) return null;
+  if (keepSelf) {
+    const have = new Set(children.map((child) => child.id));
+    for (const value of node.children || []) {
+      if (!value.valueListItem || have.has(value.id)) continue;
+      children.push({ ...value, children: [], open: true });
+    }
+  }
+  return { ...node, children, open: true };
 }
 
 function openAll(node) {
@@ -80,8 +91,9 @@ function markOpen(node, depth = 0) {
   for (const child of node.children) {
     if (markOpen(child, depth + 1)) below = true;
   }
-  node.open = depth < 2 || below;
-  return Boolean(node.suggestions?.length) || below;
+  const showsValues = (node.children || []).some((child) => child.valueListItem);
+  node.open = depth < 2 || below || showsValues;
+  return Boolean(node.suggestions?.length) || below || showsValues;
 }
 
 function nodeHay(node) {
@@ -89,7 +101,9 @@ function nodeHay(node) {
     node.name,
     node.nodeId,
     node.section,
+    ...(node.children || []).filter((child) => child.valueListItem).map((child) => `${child.name} ${child.nodeId}`),
     ...(node.bindings || []).map((binding) => binding.code),
+    ...(node.valueBindings || []).map((binding) => `${binding.label || ""} ${binding.atCode || ""} ${binding.code}`),
     ...(node.suggestions || []).map((item) => `${item.code} ${termFor(item.code)}`),
   ].join(" ").toLowerCase();
 }
@@ -727,6 +741,26 @@ function rowCodes(row) {
   return (row.dataset.codes || row.dataset.code || "").split(/\s+/).filter(Boolean);
 }
 
+function headingRows(head) {
+  const section = head.closest(".side-block");
+  if (section) return [...section.querySelectorAll(".guess:not(.is-off), .bind-row:not(.is-off)")];
+  if (head.querySelector('[data-cat="bindings"]')) {
+    return [...detail.querySelectorAll(".bind-row:not(.is-off)")];
+  }
+  if (head.querySelector('[data-cat="all"]')) {
+    return [...detail.querySelectorAll(".side-main .guess:not(.is-off)")];
+  }
+  return [];
+}
+
+function headingHot(head) {
+  const section = head.closest(".side-block");
+  if (section?.dataset.nodeId) return { type: "node", nodeId: section.dataset.nodeId };
+  if (head.querySelector('[data-cat="bindings"]')) return { type: "kind", kind: "bind" };
+  if (head.querySelector('[data-cat="all"]')) return { type: "kind", kind: "guess" };
+  return null;
+}
+
 let treeHoverId = null;
 
 function hoverFromTree(id, on) {
@@ -1202,6 +1236,7 @@ function lineIsHot(item) {
   if (!state.hot) return false;
   if (state.hot.type === "code") return item.code === state.hot.code;
   if (state.hot.type === "node") return item.nodeId === state.hot.nodeId;
+  if (state.hot.type === "kind") return item.kind === state.hot.kind;
   return item.key === state.hot.key;
 }
 
@@ -1311,6 +1346,7 @@ function drawSuggestionLines() {
         key: `${nodeId}:${code}`,
         nodeId,
         code,
+        kind: row.classList.contains("bind-row") ? "bind" : "guess",
         color,
         x1: from.x,
         y1: from.y,
@@ -1450,6 +1486,7 @@ function wireChrome() {
   search.addEventListener("input", () => {
     state.query = search.value;
     renderTree();
+    fitTree();
   });
   detail.addEventListener("click", (event) => {
     const option = event.target.closest(".rel-option");
@@ -1505,12 +1542,19 @@ function wireChrome() {
     const block = event.target.closest?.("[data-node-id]");
     if (block?.dataset.nodeId) pairHighlight(block.dataset.nodeId, true);
     const guess = event.target.closest?.(".guess, .bind-row");
-    if (!guess || !detail.contains(guess)) return;
-    const codes = (guess.dataset.codes || guess.dataset.code || "").split(/\s+/).filter(Boolean);
-    for (const code of codes) pinConcept(code, true);
-    state.hot = guess.classList.contains("bind-row")
-      ? { type: "node", nodeId: guess.dataset.nodeId }
-      : { type: "key", key: `${guess.dataset.nodeId || ""}:${guess.dataset.code}` };
+    if (guess && detail.contains(guess)) {
+      const codes = rowCodes(guess);
+      for (const code of codes) pinConcept(code, true);
+      state.hot = guess.classList.contains("bind-row")
+        ? { type: "node", nodeId: guess.dataset.nodeId }
+        : { type: "key", key: `${guess.dataset.nodeId || ""}:${guess.dataset.code}` };
+      paintDash();
+      return;
+    }
+    const head = event.target.closest?.(".cat-head");
+    if (!head || !detail.contains(head)) return;
+    for (const code of headingRows(head).flatMap(rowCodes)) pinConcept(code, true);
+    state.hot = headingHot(head);
     paintDash();
   });
   detail.addEventListener("mouseout", (event) => {
@@ -1518,13 +1562,28 @@ function wireChrome() {
     const nextBlock = event.relatedTarget?.closest?.("[data-node-id]");
     if (block && nextBlock !== block) pairHighlight(block.dataset.nodeId, false);
     const guess = event.target.closest?.(".guess, .bind-row");
-    if (!guess) return;
-    const next = event.relatedTarget?.closest?.(".guess, .bind-row");
-    if (next === guess) return;
-    const codes = (guess.dataset.codes || guess.dataset.code || "").split(/\s+/).filter(Boolean);
-    for (const code of codes) pinConcept(code, false);
-    state.hot = null;
-    paintDash();
+    if (guess) {
+      const next = event.relatedTarget?.closest?.(".guess, .bind-row");
+      if (next === guess) return;
+      for (const code of rowCodes(guess)) pinConcept(code, false);
+      if (!event.relatedTarget?.closest?.(".cat-head")) {
+        state.hot = null;
+        paintDash();
+      }
+      return;
+    }
+    const head = event.target.closest?.(".cat-head");
+    if (!head || !detail.contains(head)) return;
+    if (event.relatedTarget?.closest?.(".cat-head") === head) return;
+    const nextRow = event.relatedTarget?.closest?.(".guess, .bind-row");
+    const keep = nextRow ? new Set(rowCodes(nextRow)) : new Set();
+    for (const code of headingRows(head).flatMap(rowCodes)) {
+      if (!keep.has(code)) pinConcept(code, false);
+    }
+    if (!nextRow) {
+      state.hot = null;
+      paintDash();
+    }
   });
   snomedSvg.addEventListener("mouseover", (event) => {
     const node = event.target.closest?.(".force-node");

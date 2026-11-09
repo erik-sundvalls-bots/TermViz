@@ -80,6 +80,31 @@ const systolic = [];
 console.log("systolic bindings", systolic);
 if (!systolic.includes("271649006")) problems.push("systolic binding missing");
 
+const valueLists = [];
+(function findValues(node) {
+  const items = (node.children || []).filter((child) => child.valueListItem);
+  if (items.length) {
+    valueLists.push({
+      name: node.name,
+      nodeId: node.nodeId,
+      items: items.map((child) => `${child.nodeId}:${child.name}:${child.valueMapped ? "mapped" : "open"}`),
+    });
+  }
+  node.children.forEach(findValues);
+})(model.tree);
+console.log("value lists", valueLists);
+const exclusion = valueLists.find((row) => row.name === "Global exclusion of medication use");
+if (!exclusion?.items.some((item) => item.startsWith("at0005:"))) {
+  problems.push("medication exclusion value list is missing from the tree");
+}
+const present = valueLists.find((row) => row.items.some((item) => item.startsWith("at0044:Present:")));
+if (!present || present.items.length < 3) {
+  problems.push("a mapped leaf should show its whole value list");
+}
+if (valueLists.some((row) => row.name === "Image details")) {
+  problems.push("value lists should stay on leaves");
+}
+
 const pair = leastCommonParents(
   [
     { source: "A", target: "P" },

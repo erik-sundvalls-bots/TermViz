@@ -475,6 +475,8 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
       const classes = ["tpl-node", `rm-${data.rmType || "other"}`];
       if (data.id === selectedId) classes.push("is-selected");
       if (active.has(data.id)) classes.push("is-on");
+      if (data.valueListItem) classes.push("is-value");
+      if (data.valueMapped) classes.push("is-mapped");
       if (data.suggestions?.length) classes.push("has-suggestions");
       const bound = [...(data.bindings || []), ...(data.valueBindings || []), ...(data.scopeBindings || [])];
       if (bound.some((binding) => binding.status === "missing-from-opt")) {

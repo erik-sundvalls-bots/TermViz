@@ -410,6 +410,56 @@ function attachBindingLists(node, comparison, termDefs) {
   for (const child of node.children) attachBindingLists(child, comparison, termDefs);
 }
 
+function valueLabel(termDefs, node, atCode) {
+  return termText(termDefs, node.archetypeId, atCode)
+    || termText(termDefs, node.scope, atCode)
+    || atCode;
+}
+
+/**
+ * A leaf whose SNOMED bindings or map rows come from its value list (the
+ * at-codes under the element, not the element itself) shows that whole list
+ * in the template tree. Members with no mapping stay visible beside the ones
+ * that do.
+ */
+function expandMappedValueLists(node, termDefs) {
+  for (const child of node.children || []) expandMappedValueLists(child, termDefs);
+  if ((node.children || []).length) return;
+  const codes = (node.valueCodes || []).filter((code) => code && code !== node.nodeId);
+  if (!codes.length) return;
+  const listed = new Set(codes);
+  const bound = new Set(
+    (node.valueBindings || []).map((binding) => binding.atCode).filter((code) => listed.has(code)),
+  );
+  const suggested = new Set();
+  for (const item of node.suggestions || []) {
+    const matches = String(item.sourceCode || "").match(/value\[(at\d+)\]/gi) || [];
+    for (const match of matches) {
+      const code = match.slice(match.indexOf("[") + 1, -1);
+      if (listed.has(code)) suggested.add(code);
+    }
+  }
+  if (!bound.size && !suggested.size) return;
+  node.children = codes.map((atCode) => ({
+    id: `${node.id}/value:${atCode}`,
+    name: valueLabel(termDefs, node, atCode),
+    rmType: "VALUE",
+    nodeId: atCode,
+    archetypeId: node.archetypeId,
+    path: `${node.path}/value[${atCode}]`,
+    children: [],
+    bindings: [],
+    valueBindings: [],
+    scopeBindings: [],
+    valueCodes: [],
+    suggestions: null,
+    valueListItem: true,
+    valueMapped: bound.has(atCode) || suggested.has(atCode),
+    open: true,
+  }));
+  node.open = true;
+}
+
 export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRows = [] }) {
   const { operationalTemplate, warnings } = parseOptXml(optXml);
   const termDefs = operationalTemplate.archetype_term_definitions || {};
@@ -420,6 +470,7 @@ export function buildIpsModel({ optXml, adlEntries, parseOptXml, parseAdl, mapRo
   const comparison = compareBindings(optBindings, archetypes.bindings);
   attachBindingLists(tree, comparison, termDefs);
   const suggestions = attachSnapMap(tree, mapRows);
+  expandMappedValueLists(tree, termDefs);
   const counts = { nodes: 0, boundNodes: 0, enrichedNodes: 0 };
   (function tally(node) {
     counts.nodes += 1;
@@ -496,6 +547,7 @@ export function buildTemplateModel({
   const comparison = compareBindings(optBindings, archetypes.bindings);
   attachBindingLists(tree, comparison, termDefs);
   const suggestions = attachSnapMap(tree, mapRows);
+  expandMappedValueLists(tree, termDefs);
   const counts = { nodes: 0, boundNodes: 0, enrichedNodes: 0 };
   (function tally(node) {
     counts.nodes += 1;

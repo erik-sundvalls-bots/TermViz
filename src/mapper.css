@@ -254,7 +254,7 @@ main {
   line-height: 1.4;
 }
 
-.dialog-note a { color: var(--teal-deep); }
+.dialog-note a { color: var(--teal-deep); text-decoration: underline; text-underline-offset: 2px; }
 
 #mapDialog { width: min(520px, calc(100vw - 28px)); }
 
@@ -1009,6 +1009,8 @@ svg { display: block; }
 
 .tpl-node { cursor: pointer; }
 .tpl-node > circle { fill: white; stroke: #60706c; stroke-width: 1.4; }
+.tpl-node.is-value > circle { fill: #f3f6f5; stroke: #8aa09c; }
+.tpl-node.is-value.is-mapped > circle { stroke: #0f6e6b; stroke-width: 1.8; }
 .tpl-node.has-binding > circle, .tpl-node.has-enriched > circle { stroke: #0f6e6b; stroke-width: 1.8; }
 .tpl-node.has-suggestions > circle { stroke: #1c2430; stroke-width: 2.2; }
 .tpl-node circle.node-hit { fill: transparent; stroke: none; }
