@@ -168,7 +168,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 
 .kg-node-label {
-  font-size: 10px;
+  font-size: 11px;
   fill: #1c2430;
   pointer-events: none;
   font-weight: 600;

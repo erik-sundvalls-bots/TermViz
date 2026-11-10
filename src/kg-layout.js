@@ -1,11 +1,6 @@
-import {
-  layoutSugiyama,
-  layoutSugiyamaFixedLayers,
-  sugiyamaLinkPath,
-  SUGIYAMA_GAP_X,
-  SUGIYAMA_NODE_HEIGHT,
-  SUGIYAMA_RADIUS,
-} from "./sugiyama-dag.js";
+import { countCrossings, sweepDecross } from "./kg-decross.js";
+import { assignRowCoordinates, targetRowWidth, wrapLayersToRows } from "./kg-wrap.js";
+import { sugiyamaLinkPath, SUGIYAMA_GAP_X, SUGIYAMA_RADIUS } from "./sugiyama-dag.js";
 
 /** Lower index = higher on screen (ontology at top). */
 export const TYPE_BAND = {
@@ -33,9 +28,8 @@ export const BAND_META = [
 ];
 
 const UP_EDGE_TYPES = new Set(["is_a", "binding", "instance_of", "coded_as", "unit"]);
-const PACK_TOP = 16;
-const MIN_BAND_GAP = 10;
-const BAND_LABEL_PAD = 14;
+const ROW_GAP = 14;
+const LABEL_FONT_PX = 11;
 
 export function ontologyDepths(nodes, edges) {
   const concepts = new Set(
@@ -189,146 +183,15 @@ function buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById) {
   return { rankById, bandToLayers, numLayers: layerBase };
 }
 
-function sugiyamaGapY(maxNodeHeight) {
-  return Math.max(20, maxNodeHeight + 10);
-}
-
-/** Per-band-only layout (old behaviour) — used only for crossing baseline. */
-function layoutPerBandOnly(active, pairs, bandGroups, sortedBands, sizes, bandFor, nodeById, labelFor) {
-  const orderById = new Map();
-  for (const band of sortedBands) {
-    const ids = bandGroups.get(band);
-    const inBandPairs = pairs.filter(([p, c]) => {
-      const pn = nodeById.get(p);
-      const cn = nodeById.get(c);
-      return pn && cn && bandFor(pn) === band && bandFor(cn) === band;
-    });
-    const idSet = new Set(ids);
-    const localPairs = inBandPairs.filter(([p, c]) => idSet.has(p) && idSet.has(c));
-    const linked = new Set(localPairs.flat());
-    const dagPairs = localPairs.map(([p, c]) => [String(p), String(c)]);
-    for (const id of ids) if (!linked.has(id)) dagPairs.push([id, id]);
-    if (!dagPairs.length) continue;
-    const widths = new Map(ids.map((id) => [id, sizes.get(id)?.width ?? 52]));
-    const gapY = sugiyamaGapY(24);
-    const { dag } = layoutSugiyama(
-      dagPairs,
-      (n) => [widths.get(String(n.data)) ?? 52, SUGIYAMA_NODE_HEIGHT],
-      [SUGIYAMA_GAP_X, gapY],
-    );
-    for (const dagNode of dag.nodes()) {
-      if (typeof dagNode.data === "string") orderById.set(dagNode.data, dagNode.x);
-    }
+function layersFromRanks(rankById, activeIds) {
+  const byRank = new Map();
+  for (const id of activeIds) {
+    const r = rankById.get(id) ?? 0;
+    if (!byRank.has(r)) byRank.set(r, []);
+    byRank.get(r).push(id);
   }
-  return orderById;
-}
-
-/** Count edge crossings between adjacent rank layers (x order). */
-export function countLayeredCrossings(rankById, xById, pairs) {
-  const byLayer = new Map();
-  for (const [id, rank] of rankById) {
-    if (!byLayer.has(rank)) byLayer.set(rank, []);
-    byLayer.get(rank).push(id);
-  }
-  for (const ids of byLayer.values()) {
-    ids.sort((a, b) => (xById.get(a) ?? 0) - (xById.get(b) ?? 0));
-  }
-  const ranks = [...byLayer.keys()].sort((a, b) => a - b);
-  let total = 0;
-  for (let ri = 0; ri < ranks.length - 1; ri += 1) {
-    const r0 = ranks[ri];
-    const r1 = ranks[ri + 1];
-    const left = new Map(byLayer.get(r0).map((id, i) => [id, i]));
-    const right = new Map(byLayer.get(r1).map((id, i) => [id, i]));
-    const edges = pairs.filter(([p, c]) => {
-      const pr = rankById.get(p);
-      const cr = rankById.get(c);
-      return (pr === r0 && cr === r1) || (pr === r1 && cr === r0);
-    }).map(([p, c]) => {
-      const pr = rankById.get(p);
-      return pr === r0 ? [p, c] : [c, p];
-    });
-    for (let i = 0; i < edges.length; i += 1) {
-      const [s1, t1] = edges[i];
-      const a = left.get(s1);
-      const b = right.get(t1);
-      if (a === undefined || b === undefined) continue;
-      for (let j = i + 1; j < edges.length; j += 1) {
-        const [s2, t2] = edges[j];
-        const c = left.get(s2);
-        const d = right.get(t2);
-        if (c === undefined || d === undefined) continue;
-        if ((a - c) * (b - d) < 0) total += 1;
-      }
-    }
-  }
-  return total;
-}
-
-/** Compress dag Y into tight semantic bands sized by sub-layers and node size. */
-function packBandsVertically(laid, sortedBands, bandForNode) {
-  const byBand = new Map();
-  const bandStats = new Map();
-  for (const n of laid) {
-    const b = bandForNode(n.node);
-    if (!byBand.has(b)) byBand.set(b, []);
-    byBand.get(b).push(n);
-  }
-  let yCursor = PACK_TOP;
-  for (const band of sortedBands) {
-    const nodes = byBand.get(band);
-    if (!nodes?.length) continue;
-    let minDagY = Infinity;
-    let maxDagY = -Infinity;
-    let maxNodeH = 0;
-    for (const n of nodes) {
-      minDagY = Math.min(minDagY, n._dagY);
-      maxDagY = Math.max(maxDagY, n._dagY);
-      maxNodeH = Math.max(maxNodeH, n.height);
-    }
-    const subLayers = new Set(nodes.map((n) => n.layer)).size;
-    const span = Math.max(1, maxDagY - minDagY);
-    const subGap = Math.max(18, maxNodeH + 6);
-    const bandContentH = nodes.length === 1
-      ? maxNodeH + 6
-      : Math.max(maxNodeH + 8, subLayers * subGap);
-    const bandTop = yCursor + (nodes.length > 1 ? BAND_LABEL_PAD : 4);
-    bandStats.set(band, { minDagY, maxDagY, bandTop, bandContentH, span });
-
-    for (const n of nodes) {
-      const t = nodes.length === 1 ? 0.5 : (n._dagY - minDagY) / span;
-      n.y = bandTop + t * Math.max(0, bandContentH - n.height) + n.height / 2;
-      n.band = band;
-    }
-    yCursor = bandTop + bandContentH + MIN_BAND_GAP;
-  }
-
-  const anchors = laid
-    .slice()
-    .sort((a, b) => a._dagY - b._dagY)
-    .map((n) => ({ dagY: n._dagY, y: n.y }));
-
-  function remapDagY(y) {
-    if (!anchors.length) return y;
-    if (y <= anchors[0].dagY) return anchors[0].y;
-    if (y >= anchors[anchors.length - 1].dagY) return anchors[anchors.length - 1].y;
-    for (let i = 0; i < anchors.length - 1; i += 1) {
-      const a = anchors[i];
-      const b = anchors[i + 1];
-      if (y >= a.dagY && y <= b.dagY) {
-        const t = b.dagY === a.dagY ? 0.5 : (y - a.dagY) / (b.dagY - a.dagY);
-        return a.y + t * (b.y - a.y);
-      }
-    }
-    return y;
-  }
-
-  return { bandStats, remapDagY };
-}
-
-function transformLinkPoints(points, remapDagY) {
-  if (!points?.length) return points;
-  return points.map(([x, y]) => [x, remapDagY(y)]);
+  const ranks = [...byRank.keys()].sort((a, b) => a - b);
+  return ranks.map((r) => byRank.get(r).sort((a, b) => a.localeCompare(b)));
 }
 
 function interBandLinkPoints(a, b) {
@@ -385,97 +248,49 @@ export function runBandedLayout({
 
   const sizes = measureSizes(active, labelFor);
   const sortedBands = [...bandGroups.keys()].sort((a, b) => a - b);
-  const { rankById, bandToLayers, numLayers } = buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById);
+  const { rankById, numLayers } = buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById);
 
-  const widths = new Map();
-  for (const node of active) {
-    const isConcept = node.type === "concept" || node.type === "expression";
-    const w = sizes.get(node.id)?.width ?? 52;
-    widths.set(node.id, isConcept ? Math.max(20, w) : w);
-  }
+  const sizeById = sizes;
+  const baseLayers = layersFromRanks(rankById, activeIds);
+  const crossingsNaive = countCrossings(baseLayers, pairs);
 
-  const dagPairs = pairs.map(([p, c]) => [String(p), String(c)]);
-  const linked = new Set(dagPairs.flat());
-  for (const id of activeIds) if (!linked.has(id)) dagPairs.push([id, id]);
+  const pass1 = sweepDecross(baseLayers, pairs, { passes: 56 });
+  const rowWidth = targetRowWidth(sizeById, numLayers, { aspect: 1.0, min: 400, max: 620 });
+  const wrapped = wrapLayersToRows(pass1.layers, sizeById, rowWidth, SUGIYAMA_GAP_X + 4);
+  const pass2 = sweepDecross(wrapped, pairs, { passes: 40 });
 
-  const maxH = Math.max(...[...sizes.values()].map((s) => s.height), 22);
-  const gapY = sugiyamaGapY(maxH);
-
-  const perBandX = layoutPerBandOnly(active, pairs, bandGroups, sortedBands, sizes, bandFor, nodeById, labelFor);
-  const crossingsBefore = countLayeredCrossings(rankById, perBandX, pairs);
-
-  const { dag, fallback } = layoutSugiyamaFixedLayers(
-    dagPairs,
-    rankById,
-    (dagNode) => [widths.get(String(dagNode.data)) ?? 52, SUGIYAMA_NODE_HEIGHT],
-    [SUGIYAMA_GAP_X, gapY],
+  const rankMeta = new Map(
+    [...activeIds].map((id) => [
+      id,
+      { layer: rankById.get(id), band: bandFor(nodeById.get(id)) },
+    ]),
   );
-
-  const at = new Map();
-  let minX = Infinity;
-  for (const dagNode of dag.nodes()) {
-    if (typeof dagNode.data !== "string") continue;
-    const id = dagNode.data;
-    minX = Math.min(minX, dagNode.x);
-    at.set(id, { x: dagNode.x, y: dagNode.y });
-  }
-  const shiftX = 24 - (Number.isFinite(minX) ? minX : 0);
-
-  const geometry = new Map();
-  for (const dagLink of dag.links()) {
-    const parent = String(dagLink.source.data);
-    const child = String(dagLink.target.data);
-    if (parent === child) continue;
-    geometry.set(`${child}|${parent}`, dagLink.points?.map(([x, y]) => [x + shiftX, y]) ?? null);
-  }
+  const { placed } = assignRowCoordinates(pass2.layers, sizeById, rankMeta, {
+    gapX: SUGIYAMA_GAP_X + 4,
+    rowGap: ROW_GAP,
+    startY: 20,
+  });
 
   const laid = [];
   const laidById = new Map();
   for (const node of active) {
-    const pos = at.get(node.id);
-    if (!pos) continue;
-    const size = sizes.get(node.id);
+    const p = placed.get(node.id);
+    if (!p) continue;
     const band = bandFor(node);
-    const bandMeta = bandToLayers.get(band);
-    const bandIds = bandGroups.get(band) || [];
-    let minBandY = Infinity;
-    let maxBandY = -Infinity;
-    for (const id of bandIds) {
-      const p = at.get(id);
-      if (!p) continue;
-      minBandY = Math.min(minBandY, p.y);
-      maxBandY = Math.max(maxBandY, p.y);
-    }
-    laid.push({
-      id: node.id,
-      x: pos.x + shiftX,
-      y: 0,
-      _dagY: pos.y,
-      _span: Math.max(1, maxBandY - minBandY),
+    const item = {
+      ...p,
       band,
-      width: size.width,
-      height: size.height,
       node,
       structuralDepth: structuralDepth.get(node.id) ?? 0,
       ontologyDepth: ontologyDepth.get(node.id),
       layer: rankById.get(node.id),
-    });
+    };
+    laid.push(item);
+    laidById.set(node.id, item);
   }
-
-  const { remapDagY } = packBandsVertically(laid, sortedBands, bandFor);
-  for (const item of laid) laidById.set(item.id, item);
-
-  const globalX = new Map(laid.map((n) => [n.id, n.x]));
-  const crossingsAfter = countLayeredCrossings(rankById, globalX, pairs);
 
   const links = [];
   for (const [parent, child] of pairs) {
-    const pts = geometry.get(`${child}|${parent}`);
-    if (pts) {
-      const transformed = transformLinkPoints(pts, remapDagY);
-      links.push({ source: child, target: parent, points: transformed });
-      continue;
-    }
     const a = laidById.get(parent);
     const b = laidById.get(child);
     if (a && b) links.push({ source: child, target: parent, points: interBandLinkPoints(a, b) });
@@ -500,9 +315,14 @@ export function runBandedLayout({
     bandRanges,
     ontologyDepth,
     structuralDepth,
-    layoutEngine: "banded-sugiyama-global",
+    layoutEngine: "banded-sugiyama-wrapped",
     sugiyamaLinkPath,
-    crossings: { perBandOnly: crossingsBefore, global: crossingsAfter, decrossFallback: fallback },
+    layoutMeta: { rowWidth, virtualLayers: pass2.layers.length, baseLayers: baseLayers.length },
+    crossings: {
+      naive: crossingsNaive,
+      afterPass1: pass1.crossings,
+      afterWrapPass2: pass2.crossings,
+    },
     collapsed: { archetypeNodes: collapseArchetypeNodes, ontologyDepthMax: collapseOntologyBelow },
   };
 }

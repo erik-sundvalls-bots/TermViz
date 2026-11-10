@@ -484,23 +484,37 @@ function hideTooltip() {
   tooltip.classList.remove("is-on");
 }
 
+const MIN_LABEL_SCALE = 10 / 11;
+
 function fitGraph(mode = "readable") {
   const nodes = state.layout?.nodes || [];
   if (!nodes.length) return;
-  const padX = 48;
-  const padY = 56;
+  const padX = 40;
+  const padY = 36;
   const x0 = Math.min(...nodes.map((n) => n.x - n.width / 2)) - padX;
   const x1 = Math.max(...nodes.map((n) => n.x + n.width / 2)) + padX;
-  const y0 = Math.min(...nodes.map((n) => n.y - n.height)) - padY;
-  const y1 = Math.max(...nodes.map((n) => n.y + n.height)) + padY;
+  const y0 = Math.min(...nodes.map((n) => n.y - n.height / 2)) - padY;
+  const y1 = Math.max(...nodes.map((n) => n.y + n.height / 2)) + padY;
   const width = svg.node().clientWidth;
   const height = svg.node().clientHeight;
-  const scaleX = (width * 0.96) / (x1 - x0);
-  const scaleY = (height * 0.92) / (y1 - y0);
-  let scale = mode === "overview" ? Math.min(scaleX, scaleY) : Math.min(scaleX, Math.max(0.62, scaleY));
-  scale = Math.min(2.8, Math.max(0.45, scale));
+  const graphW = x1 - x0;
+  const graphH = y1 - y0;
+  const scaleX = (width * 0.94) / graphW;
+  const scaleY = (height * 0.94) / graphH;
+  let scale;
+  if (mode === "overview") {
+    scale = Math.min(scaleX, scaleY);
+  } else {
+    scale = Math.max(scaleX, MIN_LABEL_SCALE);
+    const maxFit = Math.min(scaleX, scaleY * 1.15);
+    if (scale > maxFit) scale = maxFit;
+  }
+  scale = Math.min(2.6, Math.max(MIN_LABEL_SCALE, scale));
   const tx = width / 2 - scale * ((x0 + x1) / 2);
-  const ty = height * 0.5 - scale * ((y0 + y1) / 2);
+  const ty = mode === "overview"
+    ? height / 2 - scale * ((y0 + y1) / 2)
+    : padY - scale * y0;
+  svg.classed("kg-fit-read", mode === "readable");
   svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
 
@@ -691,7 +705,9 @@ async function bootExample(entry) {
   loadReporter?.start("layout", "Layered layout", "Computing bands and positions…");
   render();
   const cx = state.layout?.crossings;
-  const cxNote = cx ? ` · crossings ${cx.perBandOnly}→${cx.global}` : "";
+  const cxNote = cx
+    ? ` · crossings ${cx.naive}→${cx.afterPass1}→${cx.afterWrapPass2}`
+    : "";
   loadReporter?.done("layout", `${state.layout?.nodes?.length ?? 0} nodes${cxNote}`);
   renderDetail(null);
   requestAnimationFrame(() => fitGraph("readable"));
