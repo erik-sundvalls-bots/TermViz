@@ -233,6 +233,19 @@ main {
 
 .template-load button:hover { border-color: var(--teal); }
 
+.template-load button.rotate-tree {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.template-load button.rotate-tree svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex: none;
+}
+
 .template-dialog {
   width: min(440px, calc(100vw - 28px));
   border: 1px solid var(--line);

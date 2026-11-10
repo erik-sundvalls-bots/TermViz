@@ -43,7 +43,7 @@ const state = {
   mapReviews: new Map(),
   mapRelations: new Map(),
   dismissIdle: new Set(),
-  treeSide: false,
+  treeDirection: "bottom",
   snomedLayout: "sugiyama",
 };
 
@@ -523,7 +523,7 @@ function renderTree() {
       }
       return { color: style.color, fill: style.color, stroke };
     },
-    side: state.treeSide,
+    direction: state.treeDirection,
     onSelect: onTreeSelect,
     onHover: (data, on) => hoverFromTree(data.id, on),
     onToggle: state.filter === "all" && !state.query
@@ -2079,11 +2079,17 @@ document.querySelector("#mapFile")?.addEventListener("change", () => {
   const fileName = document.querySelector("#mapFileName");
   if (fileName) fileName.textContent = file ? file.name : "Choose a file";
 });
+const TREE_DIRECTIONS = ["bottom", "left", "top", "right"];
+
+function rotateTreeLabel(direction) {
+  const where = { bottom: "bottom", left: "left", top: "top", right: "right" }[direction] || "bottom";
+  return `Rotate tree. Root is at the ${where}.`;
+}
+
 document.querySelector("#treeSide")?.addEventListener("click", () => {
-  state.treeSide = !state.treeSide;
-  const button = document.querySelector("#treeSide");
-  button?.classList.toggle("is-on", state.treeSide);
-  button?.setAttribute("aria-pressed", state.treeSide ? "true" : "false");
+  const at = TREE_DIRECTIONS.indexOf(state.treeDirection);
+  state.treeDirection = TREE_DIRECTIONS[(at + 1) % TREE_DIRECTIONS.length];
+  document.querySelector("#treeSide")?.setAttribute("aria-label", rotateTreeLabel(state.treeDirection));
   renderTree();
   fitTree();
 });

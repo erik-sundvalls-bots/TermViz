@@ -339,8 +339,9 @@ export function renderAncestorDag(svgSelection, graph, { suggestions = [], selec
 }
 
 /**
- * Dendrogram with the root at the bottom, the same way the 2013 cluster
- * layout drew it (`treeHeight - d.y`). Leaves line up along the top.
+ * Dendrogram. It opens with the root at the bottom, the same way the 2013
+ * cluster layout drew it (`treeHeight - d.y`). Rotate tree turns that
+ * arrangement 90 degrees at a time. Labels stay horizontal.
  */
 const TREE_LABEL_FONT = "600 11px \"Source Sans 3\", \"Segoe UI\", sans-serif";
 let labelMeasure;
@@ -359,7 +360,95 @@ function treeLabelWidth(text) {
   return Math.max(16, labelMeasure.measureText(text).width);
 }
 
-export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover, side = false } = {}) {
+function layoutSideways(root, rootAt) {
+  d3.cluster().nodeSize([22, 1]).separation(() => 1)(root);
+  const maxDepth = root.height;
+  const widest = Array.from({ length: maxDepth + 1 }, () => 36);
+  root.each((node) => {
+    widest[node.depth] = Math.max(widest[node.depth], node.labelWidth);
+  });
+  const xAt = [];
+  let cursor = 18;
+  if (rootAt === "right") {
+    for (let depth = maxDepth; depth >= 0; depth -= 1) {
+      xAt[depth] = cursor + widest[depth];
+      cursor = xAt[depth] + 30;
+    }
+  } else {
+    for (let depth = 0; depth <= maxDepth; depth += 1) {
+      xAt[depth] = cursor;
+      cursor += widest[depth] + 30;
+    }
+  }
+  let minBreadth = Infinity;
+  root.each((node) => { minBreadth = Math.min(minBreadth, node.x); });
+  const leavesFirst = rootAt === "right";
+  return {
+    xOf: (node) => xAt[node.depth],
+    yOf: (node) => 16 + (node.x - minBreadth),
+    labelAnchor: leavesFirst ? "end" : "start",
+    labelX: leavesFirst ? -12 : 12,
+    labelDy: "0.32em",
+    toggleX: leavesFirst ? 14 : -14,
+    diagonal: d3.linkHorizontal().x((point) => point.x).y((point) => point.y),
+  };
+}
+
+function layoutUpright(root, rootAt) {
+  const labelGap = 6;
+  const depthGap = 34;
+  d3.cluster().nodeSize([1, depthGap]).separation((a, b) => (a.labelWidth + b.labelWidth) / 2 + labelGap)(root);
+  const depths = d3.groups(root.descendants(), (node) => node.depth)
+    .sort((a, b) => b[0] - a[0]);
+  function shiftSubtree(node, delta) {
+    node.each((item) => {
+      item.x += delta;
+    });
+  }
+  function extent(node) {
+    let min = node.x - node.labelWidth / 2;
+    let max = node.x + node.labelWidth / 2;
+    node.each((item) => {
+      min = Math.min(min, item.x - item.labelWidth / 2);
+      max = Math.max(max, item.x + item.labelWidth / 2);
+    });
+    return [min, max];
+  }
+  for (const [, row] of depths) {
+    row.sort((a, b) => a.x - b.x);
+    for (const node of row) {
+      if (!node.children?.length) continue;
+      const xs = node.children.map((child) => child.x);
+      node.x = (Math.min(...xs) + Math.max(...xs)) / 2;
+    }
+    let edge = -Infinity;
+    for (const node of row) {
+      const [min] = extent(node);
+      if (min < edge + labelGap) shiftSubtree(node, edge + labelGap - min);
+      edge = extent(node)[1];
+    }
+  }
+  let x0 = Infinity;
+  let y1 = 0;
+  root.each((node) => {
+    x0 = Math.min(x0, node.x - node.labelWidth / 2);
+    if (node.y > y1) y1 = node.y;
+  });
+  const padTop = 16;
+  const padX = 8;
+  const rootAtBottom = rootAt === "bottom";
+  return {
+    xOf: (node) => node.x + (padX - x0),
+    yOf: (node) => (rootAtBottom ? padTop + (y1 - node.y) : padTop + node.y),
+    labelAnchor: "middle",
+    labelX: 0,
+    labelDy: rootAtBottom ? -13 : 16,
+    toggleX: -14,
+    diagonal: d3.linkVertical().x((point) => point.x).y((point) => point.y),
+  };
+}
+
+export function renderTemplateTree(svgSelection, rootData, { selectedId, activeIds, colorFor, onSelect, onToggle, onHover, direction = "bottom", side = false } = {}) {
   const svg = d3.select(svgSelection);
   clear(svg);
   graphZoom(svgSelection);
@@ -369,86 +458,19 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
     return;
   }
   const root = d3.hierarchy(rootData, (node) => (node.open === false ? null : node.children));
-  const labelGap = 6;
-  const depthGap = 34;
   root.each((node) => {
     node.label = treeLabel(node.data.name || "");
     node.labelWidth = treeLabelWidth(node.label);
   });
-  let xOf;
-  let yOf;
-  let labelAnchor = "middle";
-  let labelX = 0;
-  let labelDy = -13;
-  let toggleX = -14;
-  let diagonal = d3.linkVertical().x((point) => point.x).y((point) => point.y);
-  if (side) {
-    // Leaves sit on the left and the root on the right. Each depth reserves
-    // the widest horizontal label, so the text stays upright and readable.
-    d3.cluster().nodeSize([22, 1]).separation(() => 1)(root);
-    const maxDepth = root.height;
-    const widest = Array.from({ length: maxDepth + 1 }, () => 36);
-    root.each((node) => {
-      widest[node.depth] = Math.max(widest[node.depth], node.labelWidth);
-    });
-    const xAt = [];
-    let cursor = 18;
-    for (let depth = maxDepth; depth >= 0; depth -= 1) {
-      xAt[depth] = cursor + widest[depth];
-      cursor = xAt[depth] + 30;
-    }
-    let minBreadth = Infinity;
-    root.each((node) => { minBreadth = Math.min(minBreadth, node.x); });
-    xOf = (node) => xAt[node.depth];
-    yOf = (node) => 16 + (node.x - minBreadth);
-    labelAnchor = "end";
-    labelX = -12;
-    labelDy = "0.32em";
-    toggleX = 14;
-    diagonal = d3.linkHorizontal().x((point) => point.x).y((point) => point.y);
-  } else {
-    d3.cluster().nodeSize([1, depthGap]).separation((a, b) => (a.labelWidth + b.labelWidth) / 2 + labelGap)(root);
-    const depths = d3.groups(root.descendants(), (node) => node.depth)
-      .sort((a, b) => b[0] - a[0]);
-    function shiftSubtree(node, delta) {
-      node.each((item) => {
-        item.x += delta;
-      });
-    }
-    function extent(node) {
-      let min = node.x - node.labelWidth / 2;
-      let max = node.x + node.labelWidth / 2;
-      node.each((item) => {
-        min = Math.min(min, item.x - item.labelWidth / 2);
-        max = Math.max(max, item.x + item.labelWidth / 2);
-      });
-      return [min, max];
-    }
-    for (const [, row] of depths) {
-      row.sort((a, b) => a.x - b.x);
-      for (const node of row) {
-        if (!node.children?.length) continue;
-        const xs = node.children.map((child) => child.x);
-        node.x = (Math.min(...xs) + Math.max(...xs)) / 2;
-      }
-      let edge = -Infinity;
-      for (const node of row) {
-        const [min] = extent(node);
-        if (min < edge + labelGap) shiftSubtree(node, edge + labelGap - min);
-        edge = extent(node)[1];
-      }
-    }
-    let x0 = Infinity;
-    let y1 = 0;
-    root.each((node) => {
-      x0 = Math.min(x0, node.x - node.labelWidth / 2);
-      if (node.y > y1) y1 = node.y;
-    });
-    const padTop = 16;
-    const padX = 8;
-    xOf = (node) => node.x + (padX - x0);
-    yOf = (node) => padTop + (y1 - node.y);
-  }
+  // Clockwise from the opening view: root at the bottom, then the left, the
+  // top, then the right. Labels stay horizontal in every direction.
+  const facing = ["bottom", "left", "top", "right"].includes(direction)
+    ? direction
+    : (side ? "right" : "bottom");
+  const placed = facing === "left" || facing === "right"
+    ? layoutSideways(root, facing)
+    : layoutUpright(root, facing);
+  const { xOf, yOf, labelAnchor, labelX, labelDy, toggleX, diagonal } = placed;
   const host = svg.node()?.parentElement;
   const viewW = Math.max(280, host?.clientWidth || 640);
   const viewH = Math.max(140, host?.clientHeight || 320);
