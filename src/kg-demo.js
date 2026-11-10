@@ -182,6 +182,7 @@ function layoutGraph() {
   state.pairs = edges.map((e) => {
     const from = state.nodeById.get(e.from);
     const to = state.nodeById.get(e.to);
+    if (!from || !to) return [e.from, e.to];
     const depth = state.layout.ontologyDepth;
     const bandFor = (n) => bandIndexForNode(n, depth);
     const bf = bandFor(from);
@@ -758,20 +759,29 @@ function initSvg() {
   gLinks = gRoot.append("g");
   gNodes = gRoot.append("g").attr("class", "kg-nodes");
 
+  function nodeFromEvent(event) {
+    const el = event.target.closest?.(".kg-node");
+  return el ? d3.select(el).datum() : null;
+  }
+
   gNodes
-    .on("mouseover", function h(event) {
+    .on("mouseover", (event) => {
+      const d = nodeFromEvent(event);
+      if (!d) return;
       lastTooltipEvent = event;
-      const d = d3.select(this).datum();
       setHover(d.id);
     })
     .on("mousemove", (event) => {
       lastTooltipEvent = event;
       if (state.hoverId) showTooltipLast(state.nodeById.get(state.hoverId));
     })
-    .on("mouseout", () => setHover(null))
-    .on("click", function c(event) {
+    .on("mouseout", (event) => {
+      if (event.target.closest?.(".kg-node")) setHover(null);
+    })
+    .on("click", (event) => {
+      const d = nodeFromEvent(event);
+      if (!d) return;
       event.stopPropagation();
-      const d = d3.select(this).datum();
       const node = d.node;
       if (state.pickMode && isInstanceNode(node)) {
         toggleCherryPick(d.id);
