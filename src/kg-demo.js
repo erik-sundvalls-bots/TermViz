@@ -7,6 +7,7 @@ import {
   collectUpstream,
   runBandedLayout,
 } from "./kg-layout.js";
+import { sugiyamaLinkPath } from "./sugiyama-dag.js";
 import {
   applyUrlFocus,
   buildChildrenMap,
@@ -211,7 +212,8 @@ function labelVisible(d) {
 
 function linkPath(points) {
   if (!points || points.length < 2) return "";
-  return d3.line()(points);
+  if (points.length >= 3) return sugiyamaLinkPath(points);
+  return d3.line().curve(d3.curveBumpY)(points.slice().reverse());
 }
 
 function renderPickList() {
@@ -495,10 +497,10 @@ function fitGraph(mode = "readable") {
   const height = svg.node().clientHeight;
   const scaleX = (width * 0.96) / (x1 - x0);
   const scaleY = (height * 0.92) / (y1 - y0);
-  let scale = mode === "overview" ? Math.min(scaleX, scaleY) : Math.min(scaleX, Math.max(0.42, scaleY));
-  scale = Math.min(2.4, Math.max(0.35, scale));
+  let scale = mode === "overview" ? Math.min(scaleX, scaleY) : Math.min(scaleX, Math.max(0.62, scaleY));
+  scale = Math.min(2.8, Math.max(0.45, scale));
   const tx = width / 2 - scale * ((x0 + x1) / 2);
-  const ty = mode === "overview" ? height * 0.05 - scale * y0 : Math.max(24, height * 0.08) - scale * y0;
+  const ty = height * 0.5 - scale * ((y0 + y1) / 2);
   svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
 
@@ -688,7 +690,9 @@ async function bootExample(entry) {
   refreshSavedSelect();
   loadReporter?.start("layout", "Layered layout", "Computing bands and positions…");
   render();
-  loadReporter?.done("layout", `${state.layout?.nodes?.length ?? 0} nodes positioned`);
+  const cx = state.layout?.crossings;
+  const cxNote = cx ? ` · crossings ${cx.perBandOnly}→${cx.global}` : "";
+  loadReporter?.done("layout", `${state.layout?.nodes?.length ?? 0} nodes${cxNote}`);
   renderDetail(null);
   requestAnimationFrame(() => fitGraph("readable"));
   loadReporter?.finish();

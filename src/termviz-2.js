@@ -7,7 +7,7 @@
  */
 
 import * as d3 from "d3";
-import { coordQuad, decrossOpt, decrossTwoLayer, graphConnect, layeringLongestPath, sugiyama } from "d3-dag";
+import { layoutSugiyama, sugiyamaLinkPath as sugiyamaPathFromModule } from "./sugiyama-dag.js";
 
 export const D3_VERSION = "7.9.2";
 
@@ -1421,28 +1421,8 @@ function labelMeasurer(svgNode) {
   };
 }
 
-function layoutSugiyama(pairs, nodeSize, gap) {
-  const connect = graphConnect().single(true);
-  const operators = (decross) => sugiyama()
-    .layering(layeringLongestPath())
-    .decross(decross)
-    .coord(coordQuad())
-    .nodeSize(nodeSize)
-    .gap(gap);
-  const dag = connect(pairs);
-  try {
-    operators(decrossOpt())(dag);
-    return { dag, fallback: false };
-  } catch {
-    const retry = connect(pairs);
-    operators(decrossTwoLayer())(retry);
-    return { dag: retry, fallback: true };
-  }
-}
-
 function sugiyamaPath(points) {
-  if (!points || points.length < 2) return "";
-  return d3.line().curve(d3.curveBumpY)(points.slice().reverse());
+  return sugiyamaPathFromModule(points);
 }
 
 let sugiyamaMemory = null;

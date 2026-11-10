@@ -18,14 +18,7 @@ page.on("response", (res) => {
 
 await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120000 });
 await page.waitForFunction(
-  () => {
-    const err = document.getElementById("kgError");
-    if (err && !err.hidden) return true;
-    const status = document.getElementById("kgStatus");
-    const text = status?.textContent || "";
-  if (text && !/Loading manifest/i.test(text)) return true;
-    return document.querySelectorAll(".kg-node").length > 5;
-  },
+  () => document.querySelectorAll(".kg-node").length > 5,
   { timeout: 120000 },
 );
 
