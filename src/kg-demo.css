@@ -265,6 +265,50 @@ button, input, select { font: inherit; color: inherit; }
   display: inline-block;
   cursor: pointer;
 }
+
+.kg-load-panel {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fffdf8;
+  font-size: 11px;
+}
+
+.kg-load-panel h2 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--teal-deep);
+}
+
+.kg-load-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kg-load-steps li {
+  padding: 3px 0;
+  border-bottom: 1px dotted var(--line);
+}
+
+.kg-load-steps li.is-done { color: #155724; }
+.kg-load-steps li.is-busy { color: var(--muted); }
+.kg-load-steps li.is-slow { color: #856404; }
+.kg-load-steps li.is-error { color: var(--danger); font-weight: 600; }
+
+.kg-load-err {
+  margin: 4px 0 0;
+  padding: 4px 6px;
+  background: #fdeaea;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-size: 10px;
+}
+
+.kg-load-panel.is-complete {
+  opacity: 0.6;
+}
 .kg-node.is-hl circle,
 .kg-node.is-hl rect {
   stroke-width: 2;

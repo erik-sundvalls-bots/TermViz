@@ -18,7 +18,10 @@ import {
   loadSavedLists,
   persistSavedLists,
 } from "./kg-focus.js";
+import { createLoadReporter, fetchWithProgress } from "./kg-load-progress.js";
 import { directChildren, expandSnomedParents, lookupTerminology } from "./kg-terminology.js";
+
+let loadReporter = null;
 
 const VERIFICATION_CLASS = {
   "verified-by-connector": "v-connector",
@@ -445,13 +448,17 @@ async function renderDetail(node) {
     const status = document.getElementById("kgLookupStatus");
     const body = document.getElementById("kgLookupBody");
     try {
+      loadReporter?.start("terminology", "Terminology lookup", `${node.system} ${node.code}`);
       const record = await lookupTerminology(node.system, node.code, { displayLanguage: node.display_sv ? "sv" : undefined });
+      loadReporter?.done("terminology", record.error ? "lookup returned error" : record.display || "OK");
       status.textContent = record.error || (record.fromCache ? "From cache." : "Live Ontoserver lookup.");
       if (!record.error) {
         body.innerHTML = `<dt>Display</dt><dd>${record.display || "—"}</dd><dt>Parents</dt><dd>${(record.parents || []).join(", ") || "—"}</dd>`;
       }
     } catch (err) {
-      status.textContent = err.message;
+      const msg = err instanceof Error ? err.message : String(err);
+      loadReporter?.fail("terminology", msg, `${node.system} ${node.code}`);
+      status.textContent = msg;
       status.className = "kg-error";
     }
     document.getElementById("kgExpandParents")?.addEventListener("click", async () => {
@@ -496,14 +503,37 @@ function fitGraph(mode = "readable") {
 }
 
 async function loadManifest() {
-  const response = await fetch(publicUrl("data/kg-examples/manifest.json"));
-  if (!response.ok) throw new Error(`Could not load manifest (${response.status})`);
+  const url = publicUrl("data/kg-examples/manifest.json");
+  const response = await fetchWithProgress(url, {
+    reporter: loadReporter,
+    stepId: "manifest",
+    title: "Manifest",
+    timeoutMs: 20000,
+  });
   return response.json();
 }
 
 async function loadExample(entry) {
-  const response = await fetch(publicUrl(`data/kg-examples/${entry.path}`));
-  if (!response.ok) throw new Error(`Could not load example (${response.status})`);
+  const url = publicUrl(`data/kg-examples/${entry.path}`);
+  const response = await fetchWithProgress(url, {
+    reporter: loadReporter,
+    stepId: "example",
+    title: "Example graph JSON",
+    timeoutMs: 60000,
+  });
+  return response.json();
+}
+
+async function loadSchema(schemaPath) {
+  if (!schemaPath) return null;
+  const clean = String(schemaPath).replace(/^\.\//, "").replace(/^\//, "");
+  const url = publicUrl(`data/kg-examples/${clean}`);
+  const response = await fetchWithProgress(url, {
+    reporter: loadReporter,
+    stepId: "schema",
+    title: "JSON schema",
+    timeoutMs: 20000,
+  });
   return response.json();
 }
 
@@ -634,6 +664,9 @@ function wireControls(manifest) {
 }
 
 async function bootExample(entry) {
+  if (entry.schema === "template-kg-example/v1") {
+    await loadSchema("schema/template-kg-example.schema.json");
+  }
   state.raw = await loadExample(entry);
   state.exampleId = entry.id;
   state.nodeById = new Map(state.raw.nodes.map((n) => [n.id, n]));
@@ -653,9 +686,12 @@ async function bootExample(entry) {
 
   refreshPresetSelect();
   refreshSavedSelect();
+  loadReporter?.start("layout", "Layered layout", "Computing bands and positions…");
   render();
+  loadReporter?.done("layout", `${state.layout?.nodes?.length ?? 0} nodes positioned`);
   renderDetail(null);
   requestAnimationFrame(() => fitGraph("readable"));
+  loadReporter?.finish();
 }
 
 function initSvg() {
@@ -702,7 +738,19 @@ function initSvg() {
   document.getElementById("kgZoomOut").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 0.8));
 }
 
+function reportFatal(err) {
+  const el = document.getElementById("kgError");
+  el.hidden = false;
+  const msg = err instanceof Error ? err.message : String(err);
+  el.textContent = msg;
+  loadReporter?.fail("fatal", msg, err?.url || document.location.href);
+}
+
 async function main() {
+  loadReporter = createLoadReporter(document.getElementById("kgAside"));
+  window.addEventListener("error", (ev) => reportFatal(ev.error || ev.message));
+  window.addEventListener("unhandledrejection", (ev) => reportFatal(ev.reason));
+
   initSvg();
   const manifest = await loadManifest();
   wireControls(manifest);
@@ -713,8 +761,4 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  const el = document.getElementById("kgError");
-  el.hidden = false;
-  el.textContent = err instanceof Error ? err.message : String(err);
-});
+main().catch(reportFatal);

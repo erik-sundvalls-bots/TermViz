@@ -24,7 +24,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npm run pages
+      - run: TERMVIZ_BASE=/TermViz/ npm run pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
