@@ -1,6 +1,12 @@
 import { countCrossings, sweepDecross } from "./kg-decross.js";
-import { assignRowCoordinates, targetRowWidth, wrapLayersToRows } from "./kg-wrap.js";
-import { sugiyamaLinkPath, SUGIYAMA_GAP_X, SUGIYAMA_RADIUS } from "./sugiyama-dag.js";
+import {
+  heavyDecross,
+  layoutSugiyamaFixedLayers,
+  sugiyamaLinkPath,
+  SUGIYAMA_GAP_X,
+  SUGIYAMA_NODE_HEIGHT,
+  SUGIYAMA_RADIUS,
+} from "./sugiyama-dag.js";
 
 /** Lower index = higher on screen (ontology at top). */
 export const TYPE_BAND = {
@@ -28,8 +34,8 @@ export const BAND_META = [
 ];
 
 const UP_EDGE_TYPES = new Set(["is_a", "binding", "instance_of", "coded_as", "unit"]);
-const ROW_GAP = 14;
-const LABEL_FONT_PX = 11;
+const MIN_BAND_GAP = 8;
+const BAND_LABEL_PAD = 10;
 
 export function ontologyDepths(nodes, edges) {
   const concepts = new Set(
@@ -73,11 +79,7 @@ export function structuralDepths(nodes, edges) {
     childOf.get(edge.from).push(edge.to);
   }
   const roots = [...structural].filter(
-    (id) =>
-      !edges.some(
-        (e) =>
-          structEdges.has(e.type) && e.to === id && structural.has(e.from),
-      ),
+    (id) => !edges.some((e) => structEdges.has(e.type) && e.to === id && structural.has(e.from)),
   );
   const depth = new Map(roots.map((r) => [r, 0]));
   const queue = [...roots];
@@ -108,7 +110,6 @@ function layoutEdgeDirection(edge, nodeById, bandFor) {
   const from = nodeById.get(edge.from);
   const to = nodeById.get(edge.to);
   if (!from || !to) return [edge.from, edge.to];
-
   const bf = bandFor(from);
   const bt = bandFor(to);
   if (bf !== bt) return bf < bt ? [from.id, to.id] : [to.id, from.id];
@@ -116,23 +117,19 @@ function layoutEdgeDirection(edge, nodeById, bandFor) {
   return [edge.from, edge.to];
 }
 
-export function measureNodeSize(label, { fontSize = 11, padding = 12, min = 44, max = 148, isConcept = false } = {}) {
-  if (isConcept) return { width: SUGIYAMA_RADIUS * 2 + 4, height: 20 };
-  const len = Math.min(String(label).length, 32);
+export function measureNodeSize(label, { node, showLabels = true, fontSize = 11, padding = 10, min = 40, max = 160 } = {}) {
+  const isConcept = node?.type === "concept" || node?.type === "expression";
+  const radius = SUGIYAMA_RADIUS;
+  if (isConcept) {
+    if (!showLabels) return { width: radius * 2 + 6, height: radius * 2 + 4 };
+    const len = Math.min(String(label).length, 24);
+    return { width: radius * 2 + 10 + len * (fontSize * 0.52), height: radius * 2 + 4 };
+  }
+  const len = Math.min(String(label).length, 28);
   const width = Math.max(min, Math.min(max, padding + len * (fontSize * 0.52)));
   return { width, height: 22 };
 }
 
-function measureSizes(active, labelFor) {
-  const sizes = new Map();
-  for (const node of active) {
-    const isConcept = node.type === "concept" || node.type === "expression";
-    sizes.set(node.id, measureNodeSize(labelFor(node), { isConcept }));
-  }
-  return sizes;
-}
-
-/** Longest-path sub-layer indices within one semantic band (parent above child). */
 function intraBandSublayers(ids, inBandPairs) {
   const children = new Map();
   const childSet = new Set();
@@ -162,7 +159,6 @@ function intraBandSublayers(ids, inBandPairs) {
 
 function buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById) {
   const rankById = new Map();
-  const bandToLayers = new Map();
   let layerBase = 0;
   for (const band of sortedBands) {
     const ids = bandGroups.get(band);
@@ -174,13 +170,10 @@ function buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById) {
     const sub = intraBandSublayers(ids, inBandPairs);
     const maxSub = ids.length ? Math.max(...ids.map((id) => sub.get(id) ?? 0)) : 0;
     const layerCount = maxSub + 1;
-    bandToLayers.set(band, { base: layerBase, count: layerCount, sub });
-    for (const id of ids) {
-      rankById.set(id, layerBase + (sub.get(id) ?? 0));
-    }
+    for (const id of ids) rankById.set(id, layerBase + (sub.get(id) ?? 0));
     layerBase += layerCount;
   }
-  return { rankById, bandToLayers, numLayers: layerBase };
+  return { rankById, numLayers: layerBase };
 }
 
 function layersFromRanks(rankById, activeIds) {
@@ -190,22 +183,41 @@ function layersFromRanks(rankById, activeIds) {
     if (!byRank.has(r)) byRank.set(r, []);
     byRank.get(r).push(id);
   }
-  const ranks = [...byRank.keys()].sort((a, b) => a - b);
-  return ranks.map((r) => byRank.get(r).sort((a, b) => a.localeCompare(b)));
+  return [...byRank.keys()].sort((a, b) => a - b).map((r) => byRank.get(r).sort((a, b) => a.localeCompare(b)));
+}
+
+function packBandsTight(laid, sortedBands, bandForNode) {
+  const byBand = new Map();
+  for (const n of laid) {
+    const b = bandForNode(n.node);
+    if (!byBand.has(b)) byBand.set(b, []);
+    byBand.get(b).push(n);
+  }
+  let yCursor = 16;
+  for (const band of sortedBands) {
+    const nodes = byBand.get(band);
+    if (!nodes?.length) continue;
+    let minY = Math.min(...nodes.map((n) => n._dagY));
+    let maxY = Math.max(...nodes.map((n) => n._dagY));
+    const span = Math.max(1, maxY - minY);
+    const bandTop = yCursor + BAND_LABEL_PAD;
+    const contentH = Math.max(...nodes.map((n) => n.height)) + span * 0.6 + 8;
+    for (const n of nodes) {
+      const t = (n._dagY - minY) / span;
+      n.y = bandTop + t * Math.max(8, contentH - n.height) + n.height / 2;
+      n.band = band;
+    }
+    yCursor = bandTop + contentH + MIN_BAND_GAP;
+  }
 }
 
 function interBandLinkPoints(a, b) {
   const x1 = a.x;
-  const y1 = a.y + a.height / 2;
+  const y1 = a.y + (a.layoutRadius ?? a.height / 2);
   const x2 = b.x;
-  const y2 = b.y - b.height / 2;
+  const y2 = b.y - (b.layoutRadius ?? b.height / 2);
   const mid = (y1 + y2) / 2;
-  return [
-    [x1, y1],
-    [x1, mid],
-    [x2, mid],
-    [x2, y2],
-  ];
+  return [[x1, y1], [x1, mid], [x2, mid], [x2, y2]];
 }
 
 export function runBandedLayout({
@@ -215,6 +227,7 @@ export function runBandedLayout({
   labelFor,
   collapseOntologyBelow = 1,
   collapseArchetypeNodes = true,
+  showLabels = true,
 }) {
   const ontologyDepth = ontologyDepths(nodes, edges);
   const structuralDepth = structuralDepths(nodes, edges);
@@ -235,7 +248,6 @@ export function runBandedLayout({
   for (const edge of activeEdges) {
     const [parent, child] = layoutEdgeDirection(edge, nodeById, bandFor);
     if (parent === child) continue;
-  const key = `${parent}|${child}`;
     if (!pairs.some(([p, c]) => p === parent && c === child)) pairs.push([parent, child]);
   }
 
@@ -246,54 +258,117 @@ export function runBandedLayout({
     bandGroups.get(b).push(node.id);
   }
 
-  const sizes = measureSizes(active, labelFor);
+  const sizes = new Map();
+  for (const node of active) {
+    sizes.set(node.id, measureNodeSize(labelFor(node), { node, showLabels }));
+  }
+
   const sortedBands = [...bandGroups.keys()].sort((a, b) => a - b);
   const { rankById, numLayers } = buildGlobalRanks(bandGroups, sortedBands, pairs, bandFor, nodeById);
 
-  const sizeById = sizes;
   const baseLayers = layersFromRanks(rankById, activeIds);
   const crossingsNaive = countCrossings(baseLayers, pairs);
+  const swept = sweepDecross(baseLayers, pairs, { passes: 56 });
 
-  const pass1 = sweepDecross(baseLayers, pairs, { passes: 56 });
-  const rowWidth = targetRowWidth(sizeById, numLayers, { aspect: 1.0, min: 400, max: 620 });
-  const wrapped = wrapLayersToRows(pass1.layers, sizeById, rowWidth, SUGIYAMA_GAP_X + 4);
-  const pass2 = sweepDecross(wrapped, pairs, { passes: 40 });
+  const dagPairs = pairs.map(([p, c]) => [String(p), String(c)]);
+  const linked = new Set(dagPairs.flat());
+  for (const id of activeIds) if (!linked.has(id)) dagPairs.push([id, id]);
 
-  const rankMeta = new Map(
-    [...activeIds].map((id) => [
-      id,
-      { layer: rankById.get(id), band: bandFor(nodeById.get(id)) },
-    ]),
+  const gapY = Math.max(26, SUGIYAMA_NODE_HEIGHT + 14);
+  const gapX = SUGIYAMA_GAP_X + (showLabels ? 10 : 4);
+  const { dag, fallback } = layoutSugiyamaFixedLayers(
+    dagPairs,
+    rankById,
+    (dn) => {
+      const id = String(dn.data);
+      const s = sizes.get(id) ?? { width: 52, height: 22 };
+      return [s.width, SUGIYAMA_NODE_HEIGHT];
+    },
+    [gapX, gapY],
+    { compact: true },
   );
-  const { placed } = assignRowCoordinates(pass2.layers, sizeById, rankMeta, {
-    gapX: SUGIYAMA_GAP_X + 4,
-    rowGap: ROW_GAP,
-    startY: 20,
-  });
+
+  let minX = Infinity;
+  const at = new Map();
+  for (const dagNode of dag.nodes()) {
+    if (typeof dagNode.data !== "string") continue;
+    minX = Math.min(minX, dagNode.x);
+    at.set(dagNode.data, { x: dagNode.x, y: dagNode.y });
+  }
+  const shiftX = 20 - (Number.isFinite(minX) ? minX : 0);
+
+  const geometry = new Map();
+  for (const dagLink of dag.links()) {
+    const parent = String(dagLink.source.data);
+    const child = String(dagLink.target.data);
+    if (parent === child) continue;
+    geometry.set(`${child}|${parent}`, dagLink.points?.map(([x, y]) => [x + shiftX, y]) ?? null);
+  }
 
   const laid = [];
   const laidById = new Map();
   for (const node of active) {
-    const p = placed.get(node.id);
-    if (!p) continue;
-    const band = bandFor(node);
+    const pos = at.get(node.id);
+    if (!pos) continue;
+    const size = sizes.get(node.id);
+    const isConcept = node.type === "concept" || node.type === "expression";
     const item = {
-      ...p,
-      band,
+      id: node.id,
+      x: pos.x + shiftX,
+      y: 0,
+      _dagY: pos.y,
+      band: bandFor(node),
+      width: size.width,
+      height: size.height,
+      layoutRadius: isConcept ? SUGIYAMA_RADIUS : size.height / 2,
+      isConcept,
       node,
       structuralDepth: structuralDepth.get(node.id) ?? 0,
       ontologyDepth: ontologyDepth.get(node.id),
       layer: rankById.get(node.id),
+      labelLines: [labelFor(node)],
     };
     laid.push(item);
     laidById.set(node.id, item);
   }
 
+  packBandsTight(laid, sortedBands, bandFor);
+
+  const anchors = laid.slice().sort((a, b) => a._dagY - b._dagY);
+  const remapY = (y) => {
+    if (!anchors.length) return y;
+    if (y <= anchors[0]._dagY) return anchors[0].y;
+    if (y >= anchors[anchors.length - 1]._dagY) return anchors[anchors.length - 1].y;
+    for (let i = 0; i < anchors.length - 1; i += 1) {
+      const a = anchors[i];
+      const b = anchors[i + 1];
+      if (y >= a._dagY && y <= b._dagY) {
+        const t = b._dagY === a._dagY ? 0.5 : (y - a._dagY) / (b._dagY - a._dagY);
+        return a.y + t * (b.y - a.y);
+      }
+    }
+    return y;
+  };
+
   const links = [];
   for (const [parent, child] of pairs) {
+    const pts = geometry.get(`${child}|${parent}`);
+    if (pts) {
+      links.push({
+        source: child,
+        target: parent,
+        points: pts.map(([x, yy]) => [x, remapY(yy)]),
+      });
+      continue;
+    }
     const a = laidById.get(parent);
     const b = laidById.get(child);
     if (a && b) links.push({ source: child, target: parent, points: interBandLinkPoints(a, b) });
+  }
+
+  const layersAfter = layersFromRanks(rankById, activeIds);
+  for (const layer of layersAfter) {
+    layer.sort((a, b) => (laidById.get(a)?.x ?? 0) - (laidById.get(b)?.x ?? 0));
   }
 
   const bandRanges = new Map();
@@ -315,14 +390,14 @@ export function runBandedLayout({
     bandRanges,
     ontologyDepth,
     structuralDepth,
-    layoutEngine: "banded-sugiyama-wrapped",
+    layoutEngine: "banded-sugiyama-natural",
     sugiyamaLinkPath,
-    layoutMeta: { rowWidth, virtualLayers: pass2.layers.length, baseLayers: baseLayers.length },
     crossings: {
       naive: crossingsNaive,
-      afterPass1: pass1.crossings,
-      afterWrapPass2: pass2.crossings,
+      afterSweeps: swept.crossings,
+      afterDag: countCrossings(layersAfter, pairs),
     },
+    decrossFallback: fallback,
     collapsed: { archetypeNodes: collapseArchetypeNodes, ontologyDepthMax: collapseOntologyBelow },
   };
 }

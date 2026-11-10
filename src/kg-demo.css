@@ -116,7 +116,11 @@ button, input, select { font: inherit; color: inherit; }
   position: relative;
   min-width: 0;
   min-height: 0;
-  background: linear-gradient(180deg, #e8eef8 0%, #f3efe6 12%, #f3efe6 100%);
+  background: radial-gradient(120% 80% at 50% 0%, #e8eef8 0%, #f3efe6 45%, #ebe4d8 100%);
+}
+
+.kg-viewport.is-sugiyama {
+  background: radial-gradient(120% 90% at 50% 15%, #e4edf6 0%, #f3efe6 55%, #ebe4d8 100%);
 }
 
 .kg-viewport svg {
@@ -129,9 +133,9 @@ button, input, select { font: inherit; color: inherit; }
 .kg-viewport svg.is-panning { cursor: grabbing; }
 
 .kg-layer-band {
-  fill: rgba(255, 253, 248, 0.65);
-  stroke: #d5cdbf;
-  stroke-width: 1;
+  fill: rgba(255, 253, 248, 0.42);
+  stroke: rgba(213, 205, 191, 0.55);
+  stroke-width: 0.8;
 }
 
 .kg-band-label {
@@ -141,37 +145,72 @@ button, input, select { font: inherit; color: inherit; }
   pointer-events: none;
 }
 
-.kg-link {
+#kgSvg .tangle-halo {
   fill: none;
-  stroke: #a8b0b8;
-  stroke-width: 0.7;
-  opacity: 0.45;
+  stroke: #fff;
+  stroke-width: 5;
+  pointer-events: none;
 }
 
-.kg-link.is-hl {
+#kgSvg .force-link,
+#kgSvg .sugi-link {
+  fill: none;
+  stroke: #8d97a3;
+  stroke-width: 1.6;
+  opacity: 0.72;
+}
+
+.kg-link-wrap.is-hl .sugi-link {
   stroke: var(--teal-deep);
-  stroke-width: 1.8;
+  stroke-width: 2.4;
   opacity: 0.95;
 }
 
-.kg-link.is-shared-link {
+.kg-link-wrap.is-shared-link .sugi-link {
   stroke: #0b4f4d;
-  opacity: 0.55;
+  opacity: 0.82;
 }
 
-.kg-link.is-dim { opacity: 0.06; }
+.kg-link-wrap.is-dim .sugi-link,
+.kg-link-wrap.is-dim .tangle-halo {
+  opacity: 0.06;
+}
 
-.kg-node .kg-shape {
-  stroke: #1c2430;
-  stroke-width: 1;
+#kgSvg .force-node {
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
 }
 
-.kg-node-label {
+#kgSvg .node-disk {
+  stroke-width: 1.6;
+}
+
+#kgSvg .node-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+
+.force-label {
   font-size: 11px;
-  fill: #1c2430;
   pointer-events: none;
   font-weight: 600;
+}
+
+.force-label.shadow {
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.force-label.ink {
+  fill: #1c2430;
+}
+
+.kg-node-label.is-off {
+  opacity: 0;
 }
 
 .kg-legend-shared {

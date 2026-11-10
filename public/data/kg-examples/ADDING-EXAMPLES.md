@@ -27,8 +27,23 @@ Schema: [`schema/template-kg-example.schema.json`](schema/template-kg-example.sc
 1. Fetch [`examples/manifest.json`](examples/manifest.json).
 2. For each entry, fetch `examples/<path>` (currently only [`examples/international-patient-summary/ips-kg-example.json`](examples/international-patient-summary/ips-kg-example.json)).
 3. Draw a graph from `nodes[]` and `edges[]`, using `type` on both.
+4. Fetch `examples/<example-id>/terminology-cache.json` (see below) so the demo renders **offline** without calling Ontoserver on startup.
 
 [`ips-kg-spec.json`](ips-kg-spec.json) is a copy of the same example file, kept at the originally requested path.
+
+### Offline terminology cache
+
+The IPS demo (`ips-kg-demo.html`) preloads a static bundle of every terminology concept used in the graph (SNOMED CT, NPU, ICD-10, ATC, …) plus parent codes needed for is-a edges. Generate or refresh it with:
+
+```bash
+# Embed displays/parents already present on concept nodes (no network)
+node scripts/build-kg-cache.mjs international-patient-summary
+
+# Optional: refresh from Nordic Ontoserver (network)
+node scripts/build-kg-cache.mjs international-patient-summary --fetch
+```
+
+Output: `public/data/kg-examples/<example-id>/terminology-cache.json`. Add a `terminology_cache` path on the manifest entry. Live `CodeSystem/$lookup` on node click remains available and is labelled separately from the bundled cache.
 
 Regenerate after editing the tables in `sources/`:
 

@@ -1,5 +1,16 @@
 import * as d3 from "d3";
-import { coordQuad, decrossOpt, decrossTwoLayer, graphConnect, layeringLongestPath, sugiyama } from "d3-dag";
+import {
+  aggMedian,
+  coordCenter,
+  coordQuad,
+  decrossOpt,
+  decrossTwoLayer,
+  graphConnect,
+  layeringLongestPath,
+  sugiyama,
+  twolayerAgg,
+  twolayerGreedy,
+} from "d3-dag";
 
 /** d3-dag layering: assign each node a fixed rank (layer index). */
 export function layeringFromRanks(rankById) {
@@ -40,24 +51,27 @@ export function layoutSugiyama(pairs, nodeSize, gap) {
  * Full-graph Sugiyama with prescribed layer ranks (semantic bands + sub-layers).
  * Decrossing and coordinate assignment run globally across all layers.
  */
-export function layoutSugiyamaFixedLayers(pairs, rankById, nodeSize, gap) {
+/** Mapper-style two-layer sweeps with greedy swaps (64 passes). */
+export function heavyDecross() {
+  return decrossTwoLayer()
+    .passes(64)
+    .order(twolayerGreedy().base(twolayerAgg().aggregator(aggMedian)));
+}
+
+export function layoutSugiyamaFixedLayers(pairs, rankById, nodeSize, gap, { compact = true } = {}) {
   const connect = graphConnect().single(true);
+  const dag = connect(pairs);
   const layering = layeringFromRanks(rankById);
-  const operators = (decross) => sugiyama()
+  const coord = compact ? coordCenter() : coordQuad();
+  const decross = heavyDecross();
+  const layout = sugiyama()
     .layering(layering)
     .decross(decross)
-    .coord(coordQuad())
+    .coord(coord)
     .nodeSize(nodeSize)
     .gap(gap);
-  const dag = connect(pairs);
-  try {
-    operators(decrossOpt())(dag);
-    return { dag, fallback: false };
-  } catch {
-    const retry = connect(pairs);
-    operators(decrossTwoLayer())(retry);
-    return { dag: retry, fallback: true };
-  }
+  layout(dag);
+  return { dag, fallback: true };
 }
 
 export function sugiyamaLinkPath(points) {

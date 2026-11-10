@@ -10,7 +10,8 @@
     "pages": "vite build && node scripts/copy-pages-extras.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 44731 --strictPort",
     "check": "node scripts/check-model.mjs",
-    "fetch-snomed": "node scripts/fetch-snomed-closure.mjs"
+    "fetch-snomed": "node scripts/fetch-snomed-closure.mjs",
+    "build-kg-cache": "node scripts/build-kg-cache.mjs international-patient-summary"
   },
   "dependencies": {
     "d3": "7.9.2",

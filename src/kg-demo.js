@@ -19,6 +19,8 @@ import {
   loadSavedLists,
   persistSavedLists,
 } from "./kg-focus.js";
+import { loadExampleTerminologyCache } from "./kg-cache.js";
+import { graphShortLabel, nodeTooltipLines, archetypeClinicalLabel } from "./kg-labels.js";
 import { createLoadReporter, fetchWithProgress } from "./kg-load-progress.js";
 import { directChildren, expandSnomedParents, lookupTerminology } from "./kg-terminology.js";
 
@@ -102,15 +104,7 @@ let statusEl;
 let pickListEl;
 
 function shortLabel(node) {
-  const text = node.display_sv || node.display || node.name;
-  if (text) return text.length > 28 ? `${text.slice(0, 26)}…` : text;
-  if (node.code) return String(node.code);
-  if (node.path) {
-    const leaf = node.path.split("/").pop() || "";
-    return leaf.length > 28 ? `${leaf.slice(0, 26)}…` : leaf;
-  }
-  const id = node.id.split(":").slice(1).join(":");
-  return id.length > 26 ? `${id.slice(0, 24)}…` : id;
+  return graphShortLabel(node);
 }
 
 function instanceOwnedByPatient(nodeId) {
@@ -182,6 +176,7 @@ function layoutGraph() {
     labelFor: shortLabel,
     collapseOntologyBelow: collapseOntology,
     collapseArchetypeNodes: collapseNodes,
+    showLabels: state.showLabels,
   });
 
   state.pairs = edges.map((e) => {
@@ -243,22 +238,31 @@ function render() {
   const nodeIds = new Set(nodes.map((n) => n.id));
   const dim = activeDimSet();
 
-  gLinks
-    .selectAll("path")
-    .data(state.layout.links.filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target)), (d) => `${d.source}|${d.target}`)
-    .join("path")
-    .attr("class", "kg-link")
-    .attr("d", (d) => linkPath(d.points))
+  const linkData = state.layout.links.filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target));
+  const linkJoin = gLinks.selectAll("g.kg-link-wrap").data(linkData, (d) => `${d.source}|${d.target}`);
+  linkJoin.exit().remove();
+  const linkEnter = linkJoin.enter().append("g").attr("class", "kg-link-wrap");
+  linkEnter.append("path").attr("class", "tangle-halo");
+  linkEnter.append("path").attr("class", "force-link sugi-link");
+  linkEnter
+    .merge(linkJoin)
     .classed("is-hl", (d) => dim && dim.has(d.source) && dim.has(d.target))
     .classed("is-dim", (d) => dim && !(dim.has(d.source) && dim.has(d.target)))
-    .classed("is-shared-link", (d) => state.sharedNodes.has(d.source) && state.sharedNodes.has(d.target));
+    .classed("is-shared-link", (d) => state.sharedNodes.has(d.source) && state.sharedNodes.has(d.target))
+    .each(function drawLink(d) {
+      const g = d3.select(this);
+      const p = linkPath(d.points);
+      g.select(".tangle-halo").attr("d", p);
+      g.select(".sugi-link").attr("d", p);
+    });
 
-  const join = gNodes.selectAll("g.kg-node").data(nodes, (d) => d.id);
+  const join = gNodes.selectAll("g.force-node").data(nodes, (d) => d.id);
   join.exit().remove();
-  const enter = join.enter().append("g").attr("class", "kg-node");
-  enter.append("rect").attr("class", "kg-shape kg-pill").attr("rx", 4);
-  enter.append("circle").attr("class", "kg-shape kg-dot");
-  enter.append("text").attr("class", "kg-node-label");
+  const enter = join.enter().append("g").attr("class", "force-node kg-node");
+  enter.append("circle").attr("class", "node-disk");
+  enter.append("circle").attr("class", "node-hit");
+  enter.append("text").attr("class", "force-label shadow");
+  enter.append("text").attr("class", "force-label ink kg-node-label");
 
   const merged = enter.merge(join);
   merged
@@ -268,37 +272,30 @@ function render() {
     .classed("is-shared", (d) => state.sharedNodes.has(d.id))
     .classed("is-picked", (d) => state.cherryPicks.has(d.id))
     .classed("is-hover", (d) => state.hoverId === d.id)
-    .each(function paint(d) {
+    .classed("is-labeled", (d) => labelVisible(d))
+  .each(function paint(d) {
       const g = d3.select(this);
       const node = d.node;
-      const isConcept = node.type === "concept" || node.type === "expression";
-      const pill = g.select(".kg-pill");
-      const dot = g.select(".kg-dot");
-      const label = g.select(".kg-node-label");
+      const r = d.layoutRadius || 9;
+      const stroke = state.sharedNodes.has(d.id) ? "#0b4f4d" : state.cherryPicks.has(d.id) ? "#b45309" : "#0f6e6b";
+      g.select(".node-disk")
+        .attr("r", d.isConcept ? r : Math.max(7, Math.min(10, r)))
+        .attr("fill", nodeFill(node))
+        .attr("stroke", stroke)
+        .attr("stroke-width", state.sharedNodes.has(d.id) || state.cherryPicks.has(d.id) ? 2.2 : 1.6);
+      g.select(".node-hit").attr("r", Math.max(r, 12));
       const show = labelVisible(d);
-      label
-        .classed("is-off", !show)
-        .attr("opacity", show ? 1 : 0);
-      if (isConcept) {
-        pill.attr("width", 0).attr("height", 0);
-        dot
-          .attr("r", 9)
-          .attr("fill", nodeFill(node))
-          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430");
-        label.attr("x", 13).attr("y", 4).attr("text-anchor", "start").text(shortLabel(node));
-      } else {
-        dot.attr("r", 0);
-        const w = d.width;
-        const h = d.height;
-        pill
-          .attr("x", -w / 2)
-          .attr("y", -h / 2)
-          .attr("width", w)
-          .attr("height", h)
-          .attr("fill", nodeFill(node))
-          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : state.cherryPicks.has(d.id) ? "#b45309" : "#1c2430")
-          .attr("stroke-width", state.sharedNodes.has(d.id) || state.cherryPicks.has(d.id) ? 2.4 : 1);
-        label.attr("x", 0).attr("y", 4).attr("text-anchor", "middle").text(shortLabel(node));
+      const text = shortLabel(node);
+      const lx = d.isConcept ? r + 5 : 0;
+      const anchor = d.isConcept ? "start" : "middle";
+      for (const sel of [g.select(".shadow"), g.select(".kg-node-label")]) {
+        sel
+          .classed("is-off", !show)
+          .attr("opacity", show ? 1 : 0)
+          .attr("x", lx)
+          .attr("y", 4)
+          .attr("text-anchor", anchor)
+          .text(text);
       }
     });
 
@@ -331,11 +328,22 @@ function drawBandGuides(nodes) {
       const g = d3.select(this);
       const y = row.y0 - 18;
       const h = row.y1 - row.y0 + 36;
-      g.selectAll("rect").data([0]).join("rect").attr("class", "kg-layer-band").attr("x", minX).attr("y", y).attr("width", maxX - minX).attr("height", h);
-      g.selectAll("text").data([0]).join("text")
+      g.selectAll("rect")
+        .data([0])
+        .join("rect")
+        .attr("class", "kg-layer-band")
+        .attr("x", minX)
+        .attr("y", y)
+        .attr("width", maxX - minX)
+        .attr("height", h)
+        .attr("rx", 22)
+        .attr("ry", 22);
+      g.selectAll("text")
+        .data([0])
+        .join("text")
         .attr("class", "kg-band-label")
-        .attr("x", minX + 8)
-        .attr("y", y + 16)
+        .attr("x", minX + 12)
+        .attr("y", y + 15)
         .text(BAND_LABELS.get(row.band) || `Band ${row.band}`);
     });
 }
@@ -410,13 +418,14 @@ function badgeHtml(verification) {
 }
 
 function nodeLabel(node) {
+  if (node.type === "archetype") return archetypeClinicalLabel(node);
   return node.display_sv || node.display || node.name || node.id;
 }
 
 let lastTooltipEvent = null;
 function showTooltipLast(node) {
   if (!lastTooltipEvent || !node) return;
-  tooltip.textContent = [nodeLabel(node), node.id, node.verification].filter(Boolean).join("\n");
+  tooltip.textContent = nodeTooltipLines(node).join("\n");
   tooltip.classList.add("is-on");
   tooltip.style.left = `${lastTooltipEvent.clientX + 12}px`;
   tooltip.style.top = `${lastTooltipEvent.clientY + 12}px`;
@@ -431,6 +440,9 @@ async function renderDetail(node) {
     ["ID", node.id],
     ["Type", node.type],
     ["Verification", badgeHtml(node.verification)],
+    node.archetype_id && ["Archetype", node.archetype_id],
+    node.rm_type && ["RM type", node.rm_type],
+    node.concept_text && ["Concept", node.concept_text],
     node.display_sv && ["Display (sv)", node.display_sv],
     node.code && ["Code", node.code],
     node.path && ["Path", node.path],
@@ -438,7 +450,8 @@ async function renderDetail(node) {
 
   let lookupBlock = "";
   if (node.type === "concept" && node.system && node.code) {
-    lookupBlock = '<p id="kgLookupStatus">Loading terminology…</p><dl id="kgLookupBody" class="kg-detail"></dl>';
+    lookupBlock =
+      '<p id="kgLookupStatus">Loading terminology (bundled cache)…</p><dl id="kgLookupBody" class="kg-detail"></dl><button type="button" class="kg-btn" id="kgLiveLookup">Refresh live from Ontoserver</button>';
     if (node.system.includes("snomed")) {
       lookupBlock += '<p><button type="button" class="kg-btn" id="kgExpandParents">Expand is-a parents</button> <button type="button" class="kg-btn" id="kgListChildren">List children</button></p>';
     }
@@ -451,9 +464,12 @@ async function renderDetail(node) {
     const body = document.getElementById("kgLookupBody");
     try {
       loadReporter?.start("terminology", "Terminology lookup", `${node.system} ${node.code}`);
-      const record = await lookupTerminology(node.system, node.code, { displayLanguage: node.display_sv ? "sv" : undefined });
+      const record = await lookupTerminology(node.system, node.code, {
+        displayLanguage: node.display_sv ? "sv" : undefined,
+      });
       loadReporter?.done("terminology", record.error ? "lookup returned error" : record.display || "OK");
-      status.textContent = record.error || (record.fromCache ? "From cache." : "Live Ontoserver lookup.");
+      status.textContent = record.error
+        || (record.fromBundle ? "Bundled cache (offline)." : record.fromCache ? "Session cache." : "Live Ontoserver lookup.");
       if (!record.error) {
         body.innerHTML = `<dt>Display</dt><dd>${record.display || "—"}</dd><dt>Parents</dt><dd>${(record.parents || []).join(", ") || "—"}</dd>`;
       }
@@ -463,6 +479,16 @@ async function renderDetail(node) {
       status.textContent = msg;
       status.className = "kg-error";
     }
+    document.getElementById("kgLiveLookup")?.addEventListener("click", async () => {
+      const record = await lookupTerminology(node.system, node.code, {
+        displayLanguage: node.display_sv ? "sv" : undefined,
+        live: true,
+      });
+      status.textContent = record.error ? record.error : "Live Ontoserver lookup.";
+      if (!record.error) {
+        body.innerHTML = `<dt>Display</dt><dd>${record.display || "—"}</dd><dt>Parents</dt><dd>${(record.parents || []).join(", ") || "—"}</dd>`;
+      }
+    });
     document.getElementById("kgExpandParents")?.addEventListener("click", async () => {
       for (const p of node.parents || []) {
         const r = await expandSnomedParents(p);
@@ -683,6 +709,9 @@ async function bootExample(entry) {
   if (entry.schema === "template-kg-example/v1") {
     await loadSchema("schema/template-kg-example.schema.json");
   }
+  loadReporter?.start("cache", "Terminology cache", `${entry.id}/terminology-cache.json`);
+  await loadExampleTerminologyCache(entry);
+  loadReporter?.done("cache", "bundled concepts for offline render");
   state.raw = await loadExample(entry);
   state.exampleId = entry.id;
   state.nodeById = new Map(state.raw.nodes.map((n) => [n.id, n]));
@@ -706,7 +735,7 @@ async function bootExample(entry) {
   render();
   const cx = state.layout?.crossings;
   const cxNote = cx
-    ? ` · crossings ${cx.naive}→${cx.afterPass1}→${cx.afterWrapPass2}`
+    ? ` · crossings ${cx.naive}→${cx.afterSweeps}→${cx.afterDag}`
     : "";
   loadReporter?.done("layout", `${state.layout?.nodes?.length ?? 0} nodes${cxNote}`);
   renderDetail(null);
@@ -716,6 +745,8 @@ async function bootExample(entry) {
 
 function initSvg() {
   svg = d3.select("#kgSvg");
+  svg.classed("is-sugiyama", true);
+  document.getElementById("kgViewport")?.classList.add("is-sugiyama");
   tooltip = document.getElementById("kgTooltip");
   detailEl = document.getElementById("kgDetail");
   statusEl = document.getElementById("kgStatus");

@@ -1,0 +1,1011 @@
+{
+  "schema": "template-kg-terminology-cache/v1",
+  "example_id": "international-patient-summary",
+  "generated_at": "2026-11-10T19:03:21.981Z",
+  "ontoserver": null,
+  "concepts": [
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "E10-E14",
+      "ontology": "icd10",
+      "display": "Diabetes mellitus",
+      "display_sv": null,
+      "display_en": "Diabetes mellitus",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "E11",
+      "ontology": "icd10",
+      "display": "Type 2 diabetes mellitus",
+      "display_sv": null,
+      "display_en": "Type 2 diabetes mellitus",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "E11.9",
+      "ontology": "icd10",
+      "display": "Type 2 diabetes mellitus : Without complications",
+      "display_sv": null,
+      "display_en": "Type 2 diabetes mellitus : Without complications",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "I10",
+      "ontology": "icd10",
+      "display": "Essential (primary) hypertension",
+      "display_sv": null,
+      "display_en": "Essential (primary) hypertension",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "I10-I15",
+      "ontology": "icd10",
+      "display": "Hypertensive diseases",
+      "display_sv": null,
+      "display_en": "Hypertensive diseases",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "S50-S59",
+      "ontology": "icd10",
+      "display": "Injuries to the elbow and forearm",
+      "display_sv": null,
+      "display_en": "Injuries to the elbow and forearm",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "S52",
+      "ontology": "icd10",
+      "display": "Fracture of forearm",
+      "display_sv": null,
+      "display_en": "Fracture of forearm",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "code": "S52.5",
+      "ontology": "icd10",
+      "display": "Fracture of lower end of radius",
+      "display_sv": null,
+      "display_en": "Fracture of lower end of radius",
+      "parents": [
+        "S52"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://npu-terminology.org",
+      "code": "NPU02319",
+      "ontology": "npu",
+      "display": "B—Haemoglobin(Fe); subst.c. = ? mmol/L",
+      "display_sv": null,
+      "display_en": "B—Haemoglobin(Fe); subst.c. = ? mmol/L",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://npu-terminology.org",
+      "code": "NPU27300",
+      "ontology": "npu",
+      "display": "Haemoglobin beta chain(B)—N-(1-deoxyfructos-1-yl)haemoglobin beta chain; subst.fr. = ? mmol/mol",
+      "display_sv": null,
+      "display_en": "Haemoglobin beta chain(B)—N-(1-deoxyfructos-1-yl)haemoglobin beta chain; subst.fr. = ? mmol/mol",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "103228002",
+      "ontology": "sct",
+      "display": "hemoglobinets syremättnad",
+      "display_sv": "hemoglobinets syremättnad",
+      "display_en": "Hemoglobin saturation with oxygen",
+      "parents": [
+        "86084001",
+        "736015003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "106229004",
+      "ontology": "sct",
+      "display": "Qualifier for type of diagnosis",
+      "display_sv": null,
+      "display_en": "Qualifier for type of diagnosis",
+      "parents": [
+        "362981000"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "10904000",
+      "ontology": "sct",
+      "display": "Orthostatic body position",
+      "display_sv": null,
+      "display_en": "Orthostatic body position",
+      "parents": [
+        "9851009"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "109081006",
+      "ontology": "sct",
+      "display": "läkemedel som innehåller metformin",
+      "display_sv": "läkemedel som innehåller metformin",
+      "display_en": "Metformin-containing product",
+      "parents": [
+        "109082004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "1240000",
+      "ontology": "sct",
+      "display": "Prone body position",
+      "display_sv": null,
+      "display_en": "Prone body position",
+      "parents": [
+        "102538003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "14657009",
+      "ontology": "sct",
+      "display": "Established diagnosis",
+      "display_sv": null,
+      "display_en": "Established diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "148006",
+      "ontology": "sct",
+      "display": "Preliminary diagnosis",
+      "display_sv": null,
+      "display_en": "Preliminary diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "15240007",
+      "ontology": "sct",
+      "display": "aktuell",
+      "display_sv": "aktuell",
+      "display_en": "Current",
+      "parents": [
+        "410512000"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "16206004",
+      "ontology": "sct",
+      "display": "Oxygen delivery",
+      "display_sv": null,
+      "display_en": "Oxygen delivery",
+      "parents": [
+        "364392006"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "239279000",
+      "ontology": "sct",
+      "display": "fixering av fraktur",
+      "display_sv": "fixering av fraktur",
+      "display_en": "fixering av fraktur",
+      "parents": [
+        "122472002",
+        "239278008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "24028007",
+      "ontology": "sct",
+      "display": "höger",
+      "display_sv": "höger",
+      "display_en": "Right",
+      "parents": [
+        "106233006",
+        "182353008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "246153002",
+      "ontology": "sct",
+      "display": "Type of cuff",
+      "display_sv": null,
+      "display_en": "Type of cuff",
+      "parents": [
+        "410657003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "248585001",
+      "ontology": "sct",
+      "display": "Irregular breathing",
+      "display_sv": null,
+      "display_en": "Irregular breathing",
+      "parents": [
+        "85617008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "248587009",
+      "ontology": "sct",
+      "display": "Depth of respiration varies",
+      "display_sv": null,
+      "display_en": "Depth of respiration varies",
+      "parents": [
+        "366145001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "261665006",
+      "ontology": "sct",
+      "display": "Unknown",
+      "display_sv": null,
+      "display_en": "Unknown",
+      "parents": [
+        "410514004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "271625008",
+      "ontology": "sct",
+      "display": "Rate of spontaneous respiration",
+      "display_sv": null,
+      "display_en": "Rate of spontaneous respiration",
+      "parents": [
+        "86290005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "271626009",
+      "ontology": "sct",
+      "display": "Depth of respiration",
+      "display_sv": null,
+      "display_en": "Depth of respiration",
+      "parents": [
+        "278907009"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "271649006",
+      "ontology": "sct",
+      "display": "systoliskt blodtryck",
+      "display_sv": "systoliskt blodtryck",
+      "display_en": "Systolic blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "271650006",
+      "ontology": "sct",
+      "display": "diastoliskt blodtryck",
+      "display_sv": "diastoliskt blodtryck",
+      "display_en": "Diastolic blood pressure",
+      "parents": [
+        "252059006",
+        "75367002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "272580008",
+      "ontology": "sct",
+      "display": "Semi-recumbent position",
+      "display_sv": null,
+      "display_en": "Semi-recumbent position",
+      "parents": [
+        "102538003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "272741003",
+      "ontology": "sct",
+      "display": "lateralitet",
+      "display_sv": "lateralitet",
+      "display_en": "Laterality",
+      "parents": [
+        "762705008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "276888009",
+      "ontology": "sct",
+      "display": "Normal spontaneous respiration",
+      "display_sv": null,
+      "display_en": "Normal spontaneous respiration",
+      "parents": [
+        "241700002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "277923006",
+      "ontology": "sct",
+      "display": "Pulse oximetry waveform",
+      "display_sv": null,
+      "display_en": "Pulse oximetry waveform",
+      "parents": [
+        "364681001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "278907009",
+      "ontology": "sct",
+      "display": "Respiratory pattern",
+      "display_sv": null,
+      "display_en": "Respiratory pattern",
+      "parents": [
+        "364062005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "288524001",
+      "ontology": "sct",
+      "display": "Courses",
+      "display_sv": null,
+      "display_en": "Courses",
+      "parents": [
+        "272103003",
+        "303102005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "288526004",
+      "ontology": "sct",
+      "display": "Episodicities",
+      "display_sv": null,
+      "display_en": "Episodicities",
+      "parents": [
+        "272103003",
+        "303102005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "289123006",
+      "ontology": "sct",
+      "display": "Deep breathing",
+      "display_sv": null,
+      "display_en": "Deep breathing",
+      "parents": [
+        "366145001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "301284009",
+      "ontology": "sct",
+      "display": "Normal depth of breathing",
+      "display_sv": null,
+      "display_en": "Normal depth of breathing",
+      "parents": [
+        "366145001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "304252001",
+      "ontology": "sct",
+      "display": "For resuscitation",
+      "display_sv": null,
+      "display_en": "For resuscitation",
+      "parents": [
+        "365870005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "304253006",
+      "ontology": "sct",
+      "display": "Not for resuscitation",
+      "display_sv": null,
+      "display_en": "Not for resuscitation",
+      "parents": [
+        "365870005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "33586001",
+      "ontology": "sct",
+      "display": "Sitting position",
+      "display_sv": null,
+      "display_en": "Sitting position",
+      "parents": [
+        "9851009"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "363698007",
+      "ontology": "sct",
+      "display": "fyndplats",
+      "display_sv": "fyndplats",
+      "display_en": "Finding site",
+      "parents": [
+        "762705008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "364090009",
+      "ontology": "sct",
+      "display": "systemiskt artärtryck",
+      "display_sv": "systemiskt artärtryck",
+      "display_en": "Systemic arterial pressure",
+      "parents": [
+        "386536003",
+        "386534000"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "386616007",
+      "ontology": "sct",
+      "display": "Shallow breathing",
+      "display_sv": null,
+      "display_en": "Shallow breathing",
+      "parents": [
+        "366145001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "386725007",
+      "ontology": "sct",
+      "display": "Body temperature",
+      "display_sv": null,
+      "display_en": "Body temperature",
+      "parents": [
+        "363789004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "387506000",
+      "ontology": "sct",
+      "display": "atenolol",
+      "display_sv": "atenolol",
+      "display_en": "Atenolol",
+      "parents": [
+        "441338003",
+        "372661004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "40199007",
+      "ontology": "sct",
+      "display": "Supine body position",
+      "display_sv": null,
+      "display_en": "Supine body position",
+      "parents": [
+        "102538003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "410511007",
+      "ontology": "sct",
+      "display": "Current or past",
+      "display_sv": null,
+      "display_en": "Current or past",
+      "parents": [
+        "410510008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "410513005",
+      "ontology": "sct",
+      "display": "Past",
+      "display_sv": null,
+      "display_en": "Past",
+      "parents": [
+        "410511007"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "410515003",
+      "ontology": "sct",
+      "display": "Known present",
+      "display_sv": null,
+      "display_en": "Known present",
+      "parents": [
+        "36692007"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "410516002",
+      "ontology": "sct",
+      "display": "Known absent",
+      "display_sv": null,
+      "display_en": "Known absent",
+      "parents": [
+        "36692007"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "431314004",
+      "ontology": "sct",
+      "display": "perifer syremättnad",
+      "display_sv": "perifer syremättnad",
+      "display_en": "Peripheral oxygen saturation",
+      "parents": [
+        "103228002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "44054006",
+      "ontology": "sct",
+      "display": "diabetes mellitus typ 2",
+      "display_sv": "diabetes mellitus typ 2",
+      "display_en": "Type 2 diabetes mellitus",
+      "parents": [
+        "73211009"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "448703006",
+      "ontology": "sct",
+      "display": "Pulse oximeter",
+      "display_sv": null,
+      "display_en": "Pulse oximeter",
+      "parents": [
+        "59181002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "46233009",
+      "ontology": "sct",
+      "display": "vaccin mot influensavirus",
+      "display_sv": "vaccin mot influensavirus",
+      "display_en": "Influenza virus vaccine",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "51440002",
+      "ontology": "sct",
+      "display": "Right and left",
+      "display_sv": null,
+      "display_en": "Right and left",
+      "parents": [
+        "24028007",
+        "7771000"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "5558000",
+      "ontology": "sct",
+      "display": "Working diagnosis",
+      "display_sv": null,
+      "display_en": "Working diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "59621000",
+      "ontology": "sct",
+      "display": "essentiell hypertoni",
+      "display_sv": "essentiell hypertoni",
+      "display_en": "Essential hypertension",
+      "parents": [
+        "38341003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "60621009",
+      "ontology": "sct",
+      "display": "Body mass index",
+      "display_sv": null,
+      "display_en": "Body mass index",
+      "parents": [
+        "87276001",
+        "248326004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "62413002",
+      "ontology": "sct",
+      "display": "radius, benstruktur",
+      "display_sv": "radius, benstruktur",
+      "display_en": "Bone structure of radius",
+      "parents": [
+        "299701004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "703852005",
+      "ontology": "sct",
+      "display": "Narrative comment section",
+      "display_sv": null,
+      "display_en": "Narrative comment section",
+      "parents": [
+        "422813005"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "72704001",
+      "ontology": "sct",
+      "display": "fraktur",
+      "display_sv": "fraktur",
+      "display_en": "Fracture",
+      "parents": [
+        "708041002",
+        "37782003"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "75367002",
+      "ontology": "sct",
+      "display": "blodtryck",
+      "display_sv": "blodtryck",
+      "display_en": "Blood pressure",
+      "parents": [
+        "64961000052105",
+        "310611001"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "7771000",
+      "ontology": "sct",
+      "display": "Left",
+      "display_sv": null,
+      "display_en": "Left",
+      "parents": [
+        "106233006",
+        "182353008"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "80146002",
+      "ontology": "sct",
+      "display": "appendektomi",
+      "display_sv": "appendektomi",
+      "display_en": "Appendectomy",
+      "parents": [
+        "27010001",
+        "8613002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "8319008",
+      "ontology": "sct",
+      "display": "Principal diagnosis",
+      "display_sv": null,
+      "display_en": "Principal diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "85097005",
+      "ontology": "sct",
+      "display": "Secondary diagnosis",
+      "display_sv": null,
+      "display_en": "Secondary diagnosis",
+      "parents": [
+        "106229004"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "91935009",
+      "ontology": "sct",
+      "display": "jordnötsallergi",
+      "display_sv": "jordnötsallergi",
+      "display_en": "Allergy to peanut",
+      "parents": [
+        "409136006"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://snomed.info/sct",
+      "code": "91936005",
+      "ontology": "sct",
+      "display": "penicillinallergi",
+      "display_sv": "penicillinallergi",
+      "display_en": "Allergy to penicillin",
+      "parents": [
+        "416098002"
+      ],
+      "inactive": false
+    },
+    {
+      "system": "http://unitsofmeasure.org",
+      "code": "%",
+      "ontology": "ucum",
+      "display": "percent",
+      "display_sv": null,
+      "display_en": "percent",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://unitsofmeasure.org",
+      "code": "mg",
+      "ontology": "ucum",
+      "display": "milligram",
+      "display_sv": null,
+      "display_en": "milligram",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://unitsofmeasure.org",
+      "code": "mm[Hg]",
+      "ontology": "ucum",
+      "display": "millimetre of mercury",
+      "display_sv": null,
+      "display_en": "millimetre of mercury",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://unitsofmeasure.org",
+      "code": "mmol/L",
+      "ontology": "ucum",
+      "display": "millimole per litre",
+      "display_sv": null,
+      "display_en": "millimole per litre",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://unitsofmeasure.org",
+      "code": "mmol/mol",
+      "ontology": "ucum",
+      "display": "millimole per mole",
+      "display_sv": null,
+      "display_en": "millimole per mole",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "A",
+      "ontology": "atc",
+      "display": "Matsmältningsorgan och ämnesomsättning",
+      "display_sv": "Matsmältningsorgan och ämnesomsättning",
+      "display_en": "Alimentary tract and metabolism",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "A10",
+      "ontology": "atc",
+      "display": "Diabetesmedel",
+      "display_sv": "Diabetesmedel",
+      "display_en": "Drugs used in diabetes",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "A10B",
+      "ontology": "atc",
+      "display": "Blodglukossänkande medel, exkl. insuliner",
+      "display_sv": "Blodglukossänkande medel, exkl. insuliner",
+      "display_en": "Blood glucose lowering drugs, excl. insulins",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "A10BA",
+      "ontology": "atc",
+      "display": "Biguanidderivat",
+      "display_sv": "Biguanidderivat",
+      "display_en": "Biguanides",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "A10BA02",
+      "ontology": "atc",
+      "display": "Metformin",
+      "display_sv": "Metformin",
+      "display_en": "metformin",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "C",
+      "ontology": "atc",
+      "display": "Hjärta och kretslopp",
+      "display_sv": "Hjärta och kretslopp",
+      "display_en": "Cardiovascular system",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "C07",
+      "ontology": "atc",
+      "display": "Beta-receptorblockerande medel",
+      "display_sv": "Beta-receptorblockerande medel",
+      "display_en": "Beta blocking agents",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "C07A",
+      "ontology": "atc",
+      "display": "Beta-receptorblockerande medel",
+      "display_sv": "Beta-receptorblockerande medel",
+      "display_en": "Beta blocking agents",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "C07AB",
+      "ontology": "atc",
+      "display": "Beta-receptorblockerande medel, selektiva",
+      "display_sv": "Beta-receptorblockerande medel, selektiva",
+      "display_en": "Beta blocking agents, selective",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "C07AB03",
+      "ontology": "atc",
+      "display": "Atenolol",
+      "display_sv": "Atenolol",
+      "display_en": "atenolol",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "J",
+      "ontology": "atc",
+      "display": "Antiinfektiva medel för systemiskt bruk",
+      "display_sv": "Antiinfektiva medel för systemiskt bruk",
+      "display_en": "Antiinfectives for systemic use",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "J07",
+      "ontology": "atc",
+      "display": "Vacciner",
+      "display_sv": "Vacciner",
+      "display_en": "Vaccines",
+      "parents": [],
+      "inactive": false
+    },
+    {
+      "system": "http://www.whocc.no/atc",
+      "code": "J07BB",
+      "ontology": "atc",
+      "display": "Vaccin mot influensa",
+      "display_sv": "Vaccin mot influensa",
+      "display_en": "Influenza vaccines",
+      "parents": [],
+      "inactive": false
+    }
+  ]
+}

@@ -5,30 +5,29 @@ const out = "/opt/cursor/artifacts";
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
-await page.goto(base, { waitUntil: "networkidle" });
-await page.waitForSelector("#kgStatus");
-await page.waitForTimeout(900);
+await page.goto(base, { waitUntil: "domcontentloaded", timeout: 120000 });
+await page.waitForFunction(() => document.querySelectorAll(".kg-node").length > 5, { timeout: 120000 });
+await page.waitForTimeout(400);
 
-await page.click("#kgOverview");
-await page.waitForTimeout(500);
-await page.screenshot({ path: `${out}/kg-demo-full.png` });
+await page.click("#kgFit");
+await page.waitForTimeout(600);
+await page.screenshot({ path: `${out}/kg-demo-full-fit.png` });
 
 await page.selectOption("#kgPresetSelect", "pedagogical-five");
 await page.waitForTimeout(400);
 await page.check("#kgCherryFocus");
 await page.waitForTimeout(700);
 await page.click("#kgFit");
-await page.waitForTimeout(500);
-await page.screenshot({ path: `${out}/kg-demo-cherry-five.png` });
+await page.waitForTimeout(600);
+await page.screenshot({ path: `${out}/kg-demo-cherry-five-fit.png` });
 
-await page.click("#kgShowLabels");
+const archLabel = page.locator("text.kg-node-label").filter({ hasText: /blood pressure/i }).first();
+await archLabel.waitFor({ timeout: 15000 });
+const box = await archLabel.boundingBox();
+if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+else await archLabel.hover();
 await page.waitForTimeout(400);
-await page.screenshot({ path: `${out}/kg-demo-labels-hidden.png` });
-
-await page.click("#kgShowLabels");
-await page.locator(".kg-node .kg-dot").first().hover();
-await page.waitForTimeout(500);
-await page.screenshot({ path: `${out}/kg-demo-hover.png` });
+await page.screenshot({ path: `${out}/kg-demo-archetype-hover.png` });
 
 await browser.close();
-console.log("saved screenshots");
+console.log("saved screenshots to", out);

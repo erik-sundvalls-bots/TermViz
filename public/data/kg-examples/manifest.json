@@ -9,7 +9,8 @@
       "title": "International Patient Summary — knowledge-graph example (Swedish-oriented)",
       "path": "international-patient-summary/ips-kg-example.json",
       "schema": "template-kg-example/v1",
-      "generated_at": "2026-11-10T17:40:00+01:00"
+      "generated_at": "2026-11-10T17:40:00+01:00",
+      "terminology_cache": "international-patient-summary/terminology-cache.json"
     }
   ]
 }
