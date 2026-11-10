@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/cdr-catalyst/template-kg-example.schema.json",
+  "title": "openEHR template knowledge-graph example",
+  "description": "One file per template example. A loader can list files from examples/manifest.json and fetch each example JSON (the same pattern TermViz uses for publicUrl models/… and maps/…). Nodes and edges are typed so a later demo can draw a Sugiyama graph from template → archetypes → nodes → ontology concepts → composition instances.",
+  "type": "object",
+  "required": ["schema", "example_id", "template", "nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "template-kg-example/v1",
+      "description": "Format identifier. Bump the suffix when the shape changes."
+    },
+    "example_id": { "type": "string", "description": "Stable slug, unique within the examples/ folder." },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "generated_at": { "type": "string", "description": "ISO-8601 timestamp in the author's timezone, with offset." },
+    "sources": {
+      "type": "object",
+      "description": "Where template, archetypes and terminology were read from."
+    },
+    "terminology_server": {
+      "type": "object",
+      "properties": {
+        "base_url": { "type": "string", "format": "uri" },
+        "request_style": { "type": "string" },
+        "auth": { "type": "string" },
+        "cors": { "type": "string" },
+        "software": { "type": "object" },
+        "operations_tested": { "type": "object" }
+      }
+    },
+    "template": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "description": "Template identifier (CKM name or uid)." },
+        "uid": { "type": "string" },
+        "ckm_cid": { "type": "string" },
+        "ckm_url": { "type": "string" },
+        "name": { "type": "string" },
+        "lifecycle_state": { "type": "string" },
+        "ckm_status": { "type": "string" },
+        "ckm_version": { "type": ["string", "number"] },
+        "root_archetype_id": { "type": "string" },
+        "author": { "type": "string" },
+        "purpose": { "type": "string" },
+        "verification": { "$ref": "#/$defs/verification" }
+      },
+      "additionalProperties": true
+    },
+    "sections": { "type": "array", "items": { "type": "object" } },
+    "archetypes": { "type": "array", "items": { "type": "object" } },
+    "ontologies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "system"],
+        "properties": {
+          "id": { "type": "string" },
+          "system": { "type": "string", "description": "Canonical CodeSystem URL." },
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "edition": { "type": "string" },
+          "display_language": { "type": "string" },
+          "on_ontoserver": { "type": "boolean" },
+          "resolves_for_lookup": { "type": "boolean" },
+          "notes": { "type": "string" },
+          "verification": { "$ref": "#/$defs/verification" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Graph nodes of every kind. Use type to distinguish template, section, archetype, archetype_node, concept, expression, composition_instance, entry_instance, element_instance.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "template", "section", "archetype", "archetype_node",
+              "concept", "expression",
+              "composition_instance", "entry_instance", "element_instance",
+              "patient"
+            ]
+          },
+          "verification": { "$ref": "#/$defs/verification" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "type"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "type": {
+            "type": "string",
+            "description": "contains | slot | has_node | binding | is_a | refinement | instance_of | coded_as | unit",
+            "enum": ["contains", "slot", "has_node", "binding", "is_a", "refinement", "instance_of", "coded_as", "unit"]
+          },
+          "binding_kind": { "type": "string", "enum": ["explicit", "implicit", "value"] },
+          "verification": { "$ref": "#/$defs/verification" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "instances": {
+      "type": "array",
+      "description": "Optional convenience index of composition instances (the instance nodes also live in nodes[])."
+    },
+    "problems": { "type": "array", "items": { "type": "string" } },
+    "counts": { "type": "object" }
+  },
+  "$defs": {
+    "verification": {
+      "type": "string",
+      "enum": [
+        "verified-by-connector",
+        "verified-by-fileset",
+        "verified-by-FHIR",
+        "sourced-from-FASS",
+        "listed-not-resolvable",
+        "absent-from-server",
+        "proposed/unverified"
+      ]
+    }
+  }
+}

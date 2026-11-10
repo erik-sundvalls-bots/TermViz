@@ -19,6 +19,7 @@ export default defineConfig({
         index: "index.html",
         mapper: "termviz-mapper-test.html",
         sample: "termviz-test-1.html",
+        ipsKg: "ips-kg-demo.html",
       },
     },
   },

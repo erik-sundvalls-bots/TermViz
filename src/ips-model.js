@@ -649,7 +649,7 @@ export async function loadTemplateFromUrl(url) {
   return loadTemplateFromText(text, { name });
 }
 
-function publicUrl(path) {
+export function publicUrl(path) {
   const base = import.meta.env.BASE_URL || "/";
   const prefix = base.endsWith("/") ? base : `${base}/`;
   return `${prefix}${String(path).replace(/^\/+/, "")}`;
