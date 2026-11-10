@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CDR Catalyst — unified knowledge graph</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/kg-demo.css" />
+  </head>
+  <body>
+    <div class="kg-shell">
+      <header class="kg-topbar">
+        <h1>CDR Catalyst — unified knowledge graph</h1>
+        <a href="%BASE_URL%">TermViz</a>
+        <a href="%BASE_URL%termviz-mapper-test.html">IPS mapping bench</a>
+        <div class="kg-controls">
+          <label>Example <select id="kgExample" aria-label="Knowledge-graph example"></select></label>
+          <input id="kgSearch" type="search" placeholder="Search nodes…" aria-label="Search graph" />
+          <label>Ontology
+            <select id="kgOntology" aria-label="Filter ontology">
+              <option value="all">All</option>
+              <option value="sct">SNOMED CT</option>
+              <option value="npu">NPU</option>
+              <option value="icd10">ICD-10</option>
+              <option value="atc">ATC</option>
+              <option value="ucum">UCUM</option>
+            </select>
+          </label>
+          <span role="group" aria-label="Patient instances">
+            <button type="button" class="kg-btn is-on" data-patient="both">Both patients</button>
+            <button type="button" class="kg-btn" data-patient="eva">Eva Holmgren</button>
+            <button type="button" class="kg-btn" data-patient="lars">Lars Nyström</button>
+          </span>
+          <button type="button" class="kg-btn is-on" id="kgPickMode" title="Click instance nodes to cherry-pick">Pick instances</button>
+          <label class="kg-inline"><input type="checkbox" id="kgCherryFocus" /> Cherry-pick focus</label>
+          <button type="button" class="kg-btn is-on" id="kgShowLabels">Labels on</button>
+          <button type="button" class="kg-btn" id="kgClearSel">Clear graph selection</button>
+        </div>
+      </header>
+      <p id="kgError" class="kg-error" hidden style="margin:8px 14px"></p>
+      <div class="kg-main">
+        <div class="kg-viewport" id="kgViewport">
+          <svg id="kgSvg" role="img" aria-label="Layered knowledge graph"></svg>
+          <div class="kg-zoom" aria-label="Zoom">
+            <button type="button" id="kgZoomIn" aria-label="Zoom in">+</button>
+            <button type="button" id="kgZoomOut" aria-label="Zoom out">−</button>
+            <button type="button" id="kgFit" aria-label="Fit for reading">Fit</button>
+            <button type="button" id="kgOverview" aria-label="Zoomed-out overview">Overview</button>
+          </div>
+          <div class="kg-status" id="kgStatus">Loading…</div>
+        </div>
+        <aside class="kg-aside" id="kgAside" aria-label="Node details">
+          <div class="kg-legend">
+            <span><i style="background:#7eb8da"></i>SNOMED / ontology</span>
+            <span><i style="background:#4a9a58"></i>template</span>
+            <span><i style="background:#8f72ad"></i>archetype</span>
+            <span><i style="background:#c45c4a"></i>Eva instances</span>
+            <span><i style="background:#2f6fad"></i>Lars instances</span>
+            <span class="kg-legend-shared">shared = teal outline</span>
+          </div>
+          <section class="kg-panel" aria-label="Cherry-pick focus">
+            <h2>Cherry-pick focus</h2>
+            <p class="kg-muted">Pick patient instance nodes, then enable <strong>focus</strong> to layout only those nodes and ancestors (template → terminology).</p>
+            <select id="kgPresetSelect" class="kg-select" aria-label="Suggested presets"></select>
+            <ul id="kgPickList" class="kg-pick-list"></ul>
+            <div class="kg-btn-row" style="display:flex;flex-wrap:wrap;gap:4px">
+              <button type="button" class="kg-btn" id="kgClearPicks">Clear picks</button>
+              <button type="button" class="kg-btn" id="kgExportPicks">Export JSON</button>
+              <label class="kg-btn kg-file-btn">Import JSON<input hidden type="file" id="kgImportPicks" accept="application/json" /></label>
+            </div>
+            <div class="kg-save-row" style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+              <input id="kgSaveName" type="text" placeholder="Save list as…" class="kg-save-input" />
+              <button type="button" class="kg-btn" id="kgSaveList">Save</button>
+              <select id="kgSavedSelect" class="kg-select" aria-label="Saved lists"></select>
+              <button type="button" class="kg-btn" id="kgLoadSaved">Load</button>
+            </div>
+            <p class="kg-muted">Share picks via URL hash <code>#focus=…</code> (auto-updated).</p>
+          </section>
+          <div class="kg-panel-filters" role="group" aria-label="Collapse layers">
+            <label><input type="checkbox" id="kgCollapseNodes" checked /> Collapse archetype nodes (default)</label>
+            <label><input type="checkbox" id="kgCollapseOntology" checked /> Collapse distant ontology is-a parents</label>
+          </div>
+          <div id="kgDetail">
+            <p>Loading manifest…</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div id="kgTooltip" class="kg-tooltip" role="tooltip"></div>
+    <script type="module" src="/src/kg-demo.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "schema": "template-kg-examples-manifest/v1",
+  "title": "openEHR template knowledge-graph examples",
+  "description": "List of example files a loader can fetch, analogous to how TermViz resolves models and maps via publicUrl(). Add another object here when a new template example is published.",
+  "schema_url": "schema/template-kg-example.schema.json",
+  "examples": [
+    {
+      "id": "international-patient-summary",
+      "title": "International Patient Summary — knowledge-graph example (Swedish-oriented)",
+      "path": "international-patient-summary/ips-kg-example.json",
+      "schema": "template-kg-example/v1",
+      "generated_at": "2026-11-10T17:40:00+01:00",
+      "terminology_cache": "international-patient-summary/terminology-cache.json"
+    }
+  ]
+}

@@ -31,9 +31,16 @@ The dev server listens on port **44731**. Open the mapping bench at `/termviz-ma
 
 `npm run check` rebuilds the template model in Node and checks the three suggestion targets, the systolic binding `271649006`, and the 26 shared SNOMED bindings.
 
+## CDR Catalyst knowledge graph
+
+[`ips-kg-demo.html`](ips-kg-demo.html) draws the verified International Patient Summary knowledge-graph example (254 nodes) as **one Sugiyama-layered graph** with two fictitious patients, live Ontoserver lookups on concept click, and layer/patient filters. Examples are listed from [`public/data/kg-examples/manifest.json`](public/data/kg-examples/manifest.json); see [`public/data/kg-examples/README.md`](public/data/kg-examples/README.md) to add more.
+
+On GitHub Pages: [erik-sundvalls-bots.github.io/TermViz/ips-kg-demo.html](https://erik-sundvalls-bots.github.io/TermViz/ips-kg-demo.html).
+
 ## Other pages
 
 - `/` — short index
+- `/ips-kg-demo.html` — CDR Catalyst unified knowledge graph (layered D3, IPS example)
 - `/termviz-test-1.html` — the original cardiovascular sample, redrawn with the D3 7 force layout, and the least-common-parent highlight
 - `/legacy/termviz-test-1-d3v2.html` — the 2013 page, still on D3 v2
 - `AAUtemplateConverter.html` — the CSV-to-tree helper, now calling `d3.csvParse` from D3 7.9.2
