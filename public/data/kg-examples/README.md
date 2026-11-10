@@ -25,4 +25,4 @@ These JSON files feed the **CDR Catalyst knowledge graph** page (`ips-kg-demo.ht
 
 4. Run `npm run dev` and open `/ips-kg-demo.html`; pick the new entry in **Example**.
 
-The bundled International Patient Summary graph (`international-patient-summary/ips-kg-example.json`) was built from the CDR Catalyst verification package (254 nodes, 423 typed edges).
+The bundled International Patient Summary graph (`international-patient-summary/ips-kg-example.json`) was built from the CDR Catalyst verification package. **Instance-level ICD-10**: the IPS template has no ICD value sets (`problem_diagnosis` `at0002` is `DV_TEXT`); fictitious patients pair SNOMED CT with **WHO ICD-10** codes from the Nordic Ontoserver (`http://hl7.org/fhir/sid/icd-10`, `2019-covid-expanded`; ICD-10-SE is not on the server). Eva Holmgren: S52.5, I10, Z88.0; Lars Nyström: E11.9, shared I10, Z91.0 — all `verified-by-FHIR` on `$lookup`.

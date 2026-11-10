@@ -2,10 +2,10 @@ import * as d3 from "d3";
 import { publicUrl } from "./ips-model.js";
 import {
   adjacencyFromPairs,
+  bandIndexForNode,
   collectDownstream,
   collectUpstream,
-  layoutPairs,
-  runSugiyama,
+  runBandedLayout,
 } from "./kg-layout.js";
 import { directChildren, expandSnomedParents, lookupTerminology } from "./kg-terminology.js";
 
@@ -19,42 +19,52 @@ const VERIFICATION_CLASS = {
   "proposed/unverified": "v-prop",
 };
 
-const NODE_FILL = {
+const TYPE_FILL = {
   concept: "#7eb8da",
   expression: "#5a9fd4",
-  template: "#5ba865",
-  section: "#8cc38c",
-  archetype: "#9b7bb8",
-  archetype_node: "#c4b0d9",
-  patient: "#e8a87c",
-  composition_instance: "#d4826a",
-  entry_instance: "#e09b7a",
-  element_instance: "#efb08f",
+  template: "#4a9a58",
+  section: "#79b87d",
+  archetype: "#8f72ad",
+  archetype_node: "#b8a0ce",
+  patient: "#888",
+  composition_instance: "#666",
+  entry_instance: "#888",
+  element_instance: "#888",
 };
 
-const LAYER_LABELS = [
-  { types: ["concept", "expression"], label: "Terminology & expressions" },
-  { types: ["template"], label: "Template" },
-  { types: ["section"], label: "Sections" },
-  { types: ["archetype"], label: "Archetypes" },
-  { types: ["archetype_node"], label: "Archetype nodes" },
-  { types: ["patient", "composition_instance", "entry_instance", "element_instance"], label: "Patients & instances" },
-];
+const PATIENT_FILL = {
+  eva: "#c45c4a",
+  lars: "#2f6fad",
+};
+
+const BAND_LABELS = new Map([
+  [0, "Ontology concepts (is-a roots)"],
+  [1, "Ontology concepts"],
+  [2, "Ontology concepts (leaf / detailed)"],
+  [10, "openEHR template"],
+  [11, "Template sections"],
+  [12, "Archetypes"],
+  [13, "Archetype nodes"],
+  [14, "Patients"],
+  [15, "Composition instances"],
+  [16, "Entry instances"],
+  [17, "Element values"],
+]);
 
 const state = {
   raw: null,
   nodeById: new Map(),
-  positions: new Map(),
-  layoutLinks: [],
+  layout: null,
   pairs: [],
   adjacency: null,
   selectedId: null,
   highlight: null,
   patientFilter: "both",
-  layerFilters: new Set(LAYER_LABELS.map((_, i) => i)),
   ontologyFilter: "all",
   search: "",
-  layoutFallback: false,
+  collapseArchetypeNodes: true,
+  collapseOntologyBelow: 1,
+  sharedNodes: new Set(),
 };
 
 let svg;
@@ -67,61 +77,42 @@ let tooltip;
 let detailEl;
 let statusEl;
 
-async function loadManifest() {
-  const response = await fetch(publicUrl("data/kg-examples/manifest.json"));
-  if (!response.ok) throw new Error(`Could not load manifest (${response.status})`);
-  return response.json();
-}
-
-async function loadExample(entry) {
-  const response = await fetch(publicUrl(`data/kg-examples/${entry.path}`));
-  if (!response.ok) throw new Error(`Could not load ${entry.path} (${response.status})`);
-  return response.json();
+function shortLabel(node) {
+  const text = node.display_sv || node.display || node.name;
+  if (text) return text.length > 24 ? `${text.slice(0, 22)}…` : text;
+  if (node.code) return String(node.code);
+  if (node.path) {
+    const leaf = node.path.split("/").pop() || "";
+    return leaf.length > 24 ? `${leaf.slice(0, 22)}…` : leaf;
+  }
+  const id = node.id.split(":").slice(1).join(":");
+  return id.length > 22 ? `${id.slice(0, 20)}…` : id;
 }
 
 function instanceOwnedByPatient(nodeId) {
-  if (nodeId.startsWith("inst:eva-") || nodeId.startsWith("elem:eva-") || nodeId === "composition:eva-holmgren-ips-20260315" || nodeId === "patient:eva-holmgren") return "eva";
-  if (nodeId.startsWith("inst:lars-") || nodeId.startsWith("elem:lars-") || nodeId === "composition:lars-nystrom-ips-20260402" || nodeId === "patient:lars-nystrom") return "lars";
+  if (nodeId.includes("eva-holmgren") || nodeId.startsWith("inst:eva-") || nodeId.startsWith("elem:eva-")) return "eva";
+  if (nodeId.includes("lars-nystrom") || nodeId.startsWith("inst:lars-") || nodeId.startsWith("elem:lars-")) return "lars";
   return null;
 }
 
-function nodeLabel(node) {
-  if (node.display_sv || node.display) return node.display_sv || node.display;
-  if (node.name) return node.name;
-  if (node.path) return node.path.split("/").pop() || node.path;
-  if (node.code) return String(node.code);
-  const short = node.id.split(":").slice(1).join(":");
-  return short.length > 42 ? `${short.slice(0, 40)}…` : short;
+function nodeFill(node) {
+  const owner = instanceOwnedByPatient(node.id);
+  if (owner && (node.type === "patient" || node.type.includes("instance"))) {
+    return PATIENT_FILL[owner];
+  }
+  return TYPE_FILL[node.type] || "#aaa";
 }
 
 function nodeMatchesSearch(node, query) {
   if (!query) return true;
   const hay = [
-    node.id,
-    node.display,
-    node.display_sv,
-    node.display_en,
-    node.name,
-    node.path,
-    node.code,
-    node.rm_type,
-    node.archetype_id,
-    node.verification,
-    node.ontology,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+    node.id, node.display, node.display_sv, node.display_en, node.name,
+    node.path, node.code, node.rm_type, node.archetype_id, node.verification, node.ontology,
+  ].filter(Boolean).join(" ").toLowerCase();
   return hay.includes(query);
 }
 
-function layerIndexForNode(node) {
-  return LAYER_LABELS.findIndex((band) => band.types.includes(node.type));
-}
-
-function nodePassesFilters(node) {
-  const li = layerIndexForNode(node);
-  if (li >= 0 && !state.layerFilters.has(li)) return false;
+function passesUiFilters(node) {
   if (state.ontologyFilter !== "all" && (node.type === "concept" || node.type === "expression")) {
     if ((node.ontology || "sct") !== state.ontologyFilter) return false;
   }
@@ -131,150 +122,172 @@ function nodePassesFilters(node) {
   return true;
 }
 
-function visibleNodeSet() {
-  const visible = new Set();
-  for (const node of state.raw.nodes) {
-    if (nodePassesFilters(node)) visible.add(node.id);
+function computeSharedNodes() {
+  const touched = { eva: new Set(), lars: new Set() };
+  for (const edge of state.raw.edges) {
+    const o1 = instanceOwnedByPatient(edge.from);
+    const o2 = instanceOwnedByPatient(edge.to);
+    if (o1) touched[o1].add(edge.to === edge.from ? edge.from : edge.to);
+    if (o2) touched[o2].add(edge.from);
+    if (o1 && !o2) touched[o1].add(edge.from);
+    if (o2 && !o1) touched[o2].add(edge.to);
   }
-  return visible;
-}
-
-function badgeHtml(verification) {
-  if (!verification) return "";
-  const cls = VERIFICATION_CLASS[verification] || "v-prop";
-  return `<span class="kg-badge ${cls}" title="${verification}">${verification}</span>`;
+  const shared = new Set();
+  for (const id of touched.eva) {
+    if (touched.lars.has(id) && !instanceOwnedByPatient(id)) shared.add(id);
+  }
+  // Model nodes used by both patients via instance_of / coded_as
+  for (const edge of state.raw.edges) {
+    const isInst = edge.from.startsWith("inst:") || edge.from.startsWith("composition:");
+    if (!isInst) continue;
+    const p = instanceOwnedByPatient(edge.from);
+    if (!p) continue;
+    if (edge.type === "instance_of" || edge.type === "coded_as" || edge.type === "contains") {
+      touched[p].add(edge.to);
+    }
+  }
+  for (const id of touched.eva) {
+    if (touched.lars.has(id) && !instanceOwnedByPatient(id)) shared.add(id);
+  }
+  state.sharedNodes = shared;
 }
 
 function layoutGraph() {
-  const visible = visibleNodeSet();
-  const edges = state.raw.edges.filter((e) => visible.has(e.from) && visible.has(e.to));
-  state.pairs = layoutPairs(edges, state.nodeById);
-  state.adjacency = adjacencyFromPairs(state.pairs);
+  const nodes = state.raw.nodes.filter(passesUiFilters);
+  const ids = new Set(nodes.map((n) => n.id));
+  const edges = state.raw.edges.filter((e) => ids.has(e.from) && ids.has(e.to));
 
-  const labelMax = 48;
-  const { nodes: laid, links, fallback } = runSugiyama(state.pairs, {
-    nodeWidth: labelMax,
-    nodeHeight: 10,
-    gap: [14, 32],
+  state.layout = runBandedLayout({
+    nodes,
+    edges,
+    nodeById: state.nodeById,
+    labelFor: shortLabel,
+    collapseOntologyBelow: state.collapseOntologyBelow,
+    collapseArchetypeNodes: state.collapseArchetypeNodes,
   });
-  state.layoutFallback = fallback;
-  state.layoutLinks = links;
 
-  state.positions = new Map();
-  for (const n of laid) {
-    const raw = state.nodeById.get(n.id);
-    state.positions.set(n.id, { ...n, node: raw });
-  }
+  state.pairs = edges.map((e) => {
+    const from = state.nodeById.get(e.from);
+    const to = state.nodeById.get(e.to);
+    const depth = state.layout.ontologyDepth;
+    const bandFor = (n) => bandIndexForNode(n, depth);
+    const bf = bandFor(from);
+    const bt = bandFor(to);
+    if (bf !== bt) return bf < bt ? [from.id, to.id] : [to.id, from.id];
+    const UP = new Set(["is_a", "binding", "instance_of", "coded_as", "unit"]);
+    return UP.has(e.type) ? [e.to, e.from] : [e.from, e.to];
+  });
+  state.adjacency = adjacencyFromPairs(state.pairs);
 }
 
-function sugiyamaPath(points) {
+function linkPath(points) {
   if (!points || points.length < 2) return "";
-  return d3.line().curve(d3.curveBumpY)(points.slice().reverse());
+  return d3.line()(points);
 }
 
 function render() {
   layoutGraph();
-  const visible = visibleNodeSet();
-
-  const nodes = [...state.positions.values()].filter((n) => visible.has(n.id));
+  const nodes = state.layout.nodes;
   const nodeIds = new Set(nodes.map((n) => n.id));
+  const highlight = state.highlight;
 
-  const highlight = state.highlight || (state.selectedId ? new Set([state.selectedId]) : null);
-
-  const linkSel = gLinks.selectAll("path").data(
-    state.layoutLinks.filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target)),
-    (d) => `${d.source}|${d.target}`,
-  );
-  linkSel.exit().remove();
-  linkSel
-    .enter()
-    .append("path")
+  gLinks
+    .selectAll("path")
+    .data(state.layout.links.filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target)), (d) => `${d.source}|${d.target}`)
+    .join("path")
     .attr("class", "kg-link")
-    .merge(linkSel)
-    .attr("d", (d) => sugiyamaPath(d.points))
+    .attr("d", (d) => linkPath(d.points))
     .classed("is-hl", (d) => highlight && highlight.has(d.source) && highlight.has(d.target))
-    .classed("is-dim", (d) => highlight && !(highlight.has(d.source) && highlight.has(d.target)));
+    .classed("is-dim", (d) => highlight && !(highlight.has(d.source) && highlight.has(d.target)))
+    .classed("is-shared-link", (d) => state.sharedNodes.has(d.source) && state.sharedNodes.has(d.target));
 
-  const shape = (node) => (node.type === "concept" || node.type === "expression" ? "circle" : "rect");
+  const join = gNodes.selectAll("g.kg-node").data(nodes, (d) => d.id);
+  join.exit().remove();
+  const enter = join
+    .enter()
+    .append("g")
+    .attr("class", "kg-node");
+  enter.append("rect").attr("class", "kg-shape kg-pill").attr("rx", 4);
+  enter.append("circle").attr("class", "kg-shape kg-dot").attr("r", 0);
+  enter.append("text").attr("class", "kg-node-label");
 
-  const nodeJoin = gNodes.selectAll("g.kg-node").data(nodes, (d) => d.id);
-  nodeJoin.exit().remove();
-  const enter = nodeJoin.enter().append("g").attr("class", "kg-node");
-  enter.each(function each(d) {
-    const g = d3.select(this);
-    const raw = d.node;
-    if (shape(raw) === "circle") {
-      g.append("circle").attr("r", 5);
-    } else {
-      g.append("rect").attr("width", 8).attr("height", 8).attr("x", -4).attr("y", -4).attr("rx", 1);
-    }
-  });
-
-  enter
-    .merge(nodeJoin)
+  const merged = enter.merge(join);
+  merged
     .attr("transform", (d) => `translate(${d.x},${d.y})`)
     .classed("is-hl", (d) => highlight && highlight.has(d.id))
     .classed("is-dim", (d) => highlight && !highlight.has(d.id))
-    .classed("is-shared", (d) => {
-      if (state.patientFilter === "both") return false;
-      const t = d.node.type;
-      return t !== "patient" && t !== "composition_instance" && t !== "entry_instance" && t !== "element_instance";
-    })
+    .classed("is-shared", (d) => state.sharedNodes.has(d.id))
     .each(function paint(d) {
-      const kind = shape(d.node);
-      d3.select(this).select(kind).attr("fill", NODE_FILL[d.node.type] || "#ccc");
+      const g = d3.select(this);
+      const node = d.node;
+      const isConcept = node.type === "concept" || node.type === "expression";
+      const pill = g.select(".kg-pill");
+      const dot = g.select(".kg-dot");
+      const label = g.select(".kg-node-label");
+      if (isConcept) {
+        pill.attr("width", 0).attr("height", 0);
+        dot.attr("r", 9).attr("fill", nodeFill(node)).attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430");
+        label.attr("x", 13).attr("y", 4).attr("text-anchor", "start").text(shortLabel(node));
+      } else {
+        dot.attr("r", 0);
+        const w = d.width;
+        const h = d.height;
+        pill
+          .attr("x", -w / 2)
+          .attr("y", -h / 2)
+          .attr("width", w)
+          .attr("height", h)
+          .attr("fill", nodeFill(node))
+          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430")
+          .attr("stroke-width", state.sharedNodes.has(d.id) ? 2 : 1);
+        label.attr("x", 0).attr("y", 4).attr("text-anchor", "middle").text(shortLabel(node));
+      }
     });
 
-  drawLayerBands(nodes);
+  drawBandGuides(nodes);
   updateStatus(nodes.length);
 }
 
-function drawLayerBands(nodes) {
+function drawBandGuides(nodes) {
   if (!nodes.length) {
     gBands.selectAll("*").remove();
     return;
   }
-  const xs = nodes.map((n) => n.x);
-  const minX = Math.min(...xs) - 80;
-  const maxX = Math.max(...xs) + 80;
-  const byLayer = new Map();
+  const xs = nodes.flatMap((n) => [n.x - n.width / 2, n.x + n.width / 2]);
+  const minX = Math.min(...xs) - 120;
+  const maxX = Math.max(...xs) + 120;
+  const bands = new Map();
   for (const n of nodes) {
-    const y = Math.round(n.y);
-    if (!byLayer.has(y)) byLayer.set(y, []);
-    byLayer.get(y).push(n);
+    const b = n.band;
+    if (!bands.has(b)) bands.set(b, { band: b, y0: n.y, y1: n.y });
+    const row = bands.get(b);
+    row.y0 = Math.min(row.y0, n.y - n.height);
+    row.y1 = Math.max(row.y1, n.y + n.height);
   }
-  const layers = [...byLayer.entries()].sort((a, b) => a[0] - b[0]);
-  const bands = layers.map(([y, list], index) => ({
-    y: y - 18,
-    height: 36,
-    label: LAYER_LABELS[layerIndexForNode(list[0].node)]?.label || `Layer ${index}`,
-    index,
-  }));
-
-  const sel = gBands.selectAll("g").data(bands, (d) => d.index);
-  sel.exit().remove();
-  const ent = sel.enter().append("g");
-  ent.append("rect").attr("class", "kg-layer-band");
-  ent.append("text").attr("class", "kg-label").attr("text-anchor", "start");
-  ent
-    .merge(sel)
-    .each(function update(d) {
-      d3.select(this).select("rect")
-        .attr("x", minX)
-        .attr("y", d.y)
-        .attr("width", maxX - minX)
-        .attr("height", d.height);
-      d3.select(this).select("text")
-        .attr("x", minX + 6)
-        .attr("y", d.y + 12)
-        .text(d.label);
+  const data = [...bands.values()].sort((a, b) => a.band - b.band);
+  gBands
+    .selectAll("g")
+    .data(data, (d) => d.band)
+    .join("g")
+    .each(function draw(row) {
+      const g = d3.select(this);
+      const y = row.y0 - 18;
+      const h = row.y1 - row.y0 + 36;
+      g.selectAll("rect").data([0]).join("rect").attr("class", "kg-layer-band").attr("x", minX).attr("y", y).attr("width", maxX - minX).attr("height", h);
+      g.selectAll("text").data([0]).join("text")
+        .attr("class", "kg-band-label")
+        .attr("x", minX + 8)
+        .attr("y", y + 16)
+        .text(BAND_LABELS.get(row.band) || `Band ${row.band}`);
     });
 }
 
 function updateStatus(visibleCount) {
   const total = state.raw?.nodes?.length ?? 0;
-  const fallback = state.layoutFallback ? " (decross two-layer fallback)" : "";
-  statusEl.textContent = `${visibleCount} / ${total} nodes visible · Sugiyama layered layout${fallback}`;
+  const collapsed = [];
+  if (state.collapseArchetypeNodes) collapsed.push("archetype nodes hidden");
+  if (state.collapseOntologyBelow < 9) collapsed.push(`ontology is-a depth ≤ ${state.collapseOntologyBelow}`);
+  statusEl.textContent = `${visibleCount} / ${total} nodes · banded Sugiyama-style layout${collapsed.length ? ` (${collapsed.join("; ")})` : ""}`;
 }
 
 function selectNode(id) {
@@ -292,95 +305,73 @@ function selectNode(id) {
   renderDetail(state.nodeById.get(id));
 }
 
+function badgeHtml(verification) {
+  if (!verification) return "";
+  const cls = VERIFICATION_CLASS[verification] || "v-prop";
+  return `<span class="kg-badge ${cls}" title="${verification}">${verification}</span>`;
+}
+
+function nodeLabel(node) {
+  return node.display_sv || node.display || node.name || node.id;
+}
+
 async function renderDetail(node) {
   if (!node) {
     detailEl.innerHTML = "<p>Select a node to inspect bindings, paths, and live terminology.</p>";
     return;
   }
-
   const rows = [
     ["ID", node.id],
     ["Type", node.type],
     ["Verification", badgeHtml(node.verification)],
     node.display_sv && ["Display (sv)", node.display_sv],
-    node.display_en && ["Display (en)", node.display_en],
-    node.display && !node.display_sv && ["Display", node.display],
     node.code && ["Code", node.code],
-    node.system && ["System", node.system],
     node.path && ["Path", node.path],
     node.rm_type && ["RM type", node.rm_type],
-    node.archetype_id && ["Archetype", node.archetype_id],
-    node.ontology && ["Ontology", node.ontology],
   ].filter(Boolean);
 
   let lookupBlock = "";
   if (node.type === "concept" && node.system && node.code) {
-    lookupBlock = '<p class="kg-error" id="kgLookupStatus">Loading terminology…</p><dl id="kgLookupBody"></dl>';
+    lookupBlock = '<p id="kgLookupStatus">Loading terminology…</p><dl id="kgLookupBody" class="kg-detail"></dl>';
     if (node.system.includes("snomed")) {
-      lookupBlock += '<button type="button" class="kg-btn" id="kgExpandParents">Expand is-a parents (server)</button> ';
-      lookupBlock += '<button type="button" class="kg-btn" id="kgListChildren">List SNOMED children</button>';
+      lookupBlock += '<p><button type="button" class="kg-btn" id="kgExpandParents">Expand is-a parents</button> <button type="button" class="kg-btn" id="kgListChildren">List children</button></p>';
     }
   }
 
-  detailEl.innerHTML = `
-    <h2>${badgeHtml(node.verification)} ${nodeLabel(node)}</h2>
-  <dl class="kg-detail">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
-  ${lookupBlock}
-  `;
+  detailEl.innerHTML = `<h2>${badgeHtml(node.verification)} ${nodeLabel(node)}</h2><dl class="kg-detail">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>${lookupBlock}`;
 
   if (node.type === "concept" && node.system && node.code) {
     const status = document.getElementById("kgLookupStatus");
     const body = document.getElementById("kgLookupBody");
-  try {
-    const lang = node.display_sv ? "sv" : undefined;
-    const record = await lookupTerminology(node.system, node.code, { displayLanguage: lang });
-      if (record.error) {
-        status.textContent = record.error;
-        status.className = "kg-error";
-      } else {
-        status.textContent = record.fromCache ? "From cache / bundled." : "Live Ontoserver lookup.";
-        status.className = "";
-        body.innerHTML = `
-          <dt>Lookup display</dt><dd>${record.display || "—"}</dd>
-          <dt>Parents</dt><dd>${(record.parents || []).join(", ") || "—"}</dd>
-          <dt>Inactive</dt><dd>${record.inactive ? "yes" : "no"}</dd>
-        `;
+    try {
+      const record = await lookupTerminology(node.system, node.code, { displayLanguage: node.display_sv ? "sv" : undefined });
+      status.textContent = record.error || (record.fromCache ? "From cache." : "Live Ontoserver lookup.");
+      if (!record.error) {
+        body.innerHTML = `<dt>Display</dt><dd>${record.display || "—"}</dd><dt>Parents</dt><dd>${(record.parents || []).join(", ") || "—"}</dd>`;
       }
     } catch (err) {
-      status.textContent = err instanceof Error ? err.message : "Lookup failed";
+      status.textContent = err.message;
       status.className = "kg-error";
     }
-
     document.getElementById("kgExpandParents")?.addEventListener("click", async () => {
-      const parents = [];
       for (const p of node.parents || []) {
         const r = await expandSnomedParents(p);
-        parents.push(`${p}: ${r.display || r.error || "?"}`);
+        body.innerHTML += `<dt>Parent ${p}</dt><dd>${r.display || r.error}</dd>`;
       }
-      body.innerHTML += `<dt>Graph parents expanded</dt><dd>${parents.join("<br>") || "—"}</dd>`;
     });
-
     document.getElementById("kgListChildren")?.addEventListener("click", async () => {
       try {
         const kids = await directChildren(node.code);
-        body.innerHTML += `<dt>Children (server)</dt><dd>${kids.slice(0, 40).map((k) => `${k.code}: ${k.display}`).join("<br>") || "—"}${kids.length > 40 ? `<br>…and ${kids.length - 40} more` : ""}</dd>`;
+        body.innerHTML += `<dt>Children</dt><dd>${kids.slice(0, 30).map((k) => `${k.code}: ${k.display}`).join("<br>")}</dd>`;
       } catch (err) {
-        body.innerHTML += `<dt>Children</dt><dd class="kg-error">${err.message}</dd>`;
+        body.innerHTML += `<dd class="kg-error">${err.message}</dd>`;
       }
     });
   }
 }
 
 function showTooltip(event, node) {
-  const lines = [
-    nodeLabel(node),
-    node.id,
-    node.verification && `verification: ${node.verification}`,
-    node.path,
-    node.code && `code: ${node.code}`,
-    node.rm_type && `rm: ${node.rm_type}`,
-  ].filter(Boolean);
-  tooltip.textContent = lines.join("\n");
+  tooltip.textContent = [nodeLabel(node), node.id, node.verification, node.path, node.code && `code: ${node.code}`].filter(Boolean).join("\n");
   tooltip.classList.add("is-on");
   tooltip.style.left = `${event.clientX + 12}px`;
   tooltip.style.top = `${event.clientY + 12}px`;
@@ -390,35 +381,50 @@ function hideTooltip() {
   tooltip.classList.remove("is-on");
 }
 
-function fitGraph() {
-  const nodes = [...state.positions.values()];
+function fitGraph(mode = "readable") {
+  const nodes = state.layout?.nodes || [];
   if (!nodes.length) return;
-  const pad = 40;
-  const x0 = Math.min(...nodes.map((n) => n.x)) - pad;
-  const x1 = Math.max(...nodes.map((n) => n.x)) + pad;
-  const y0 = Math.min(...nodes.map((n) => n.y)) - pad;
-  const y1 = Math.max(...nodes.map((n) => n.y)) + pad;
+  const padX = 48;
+  const padY = 56;
+  const x0 = Math.min(...nodes.map((n) => n.x - n.width / 2)) - padX;
+  const x1 = Math.max(...nodes.map((n) => n.x + n.width / 2)) + padX;
+  const y0 = Math.min(...nodes.map((n) => n.y - n.height)) - padY;
+  const y1 = Math.max(...nodes.map((n) => n.y + n.height)) + padY;
   const width = svg.node().clientWidth;
   const height = svg.node().clientHeight;
-  const scale = Math.min(0.95, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height));
-  const tx = width / 2 - (scale * (x0 + x1)) / 2;
-  const ty = height / 2 - (scale * (y0 + y1)) / 2;
-  svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  const scaleX = (width * 0.96) / (x1 - x0);
+  const scaleY = (height * 0.92) / (y1 - y0);
+  let scale = mode === "overview" ? Math.min(scaleX, scaleY) : Math.min(scaleX, Math.max(0.42, scaleY));
+  scale = Math.min(2.2, Math.max(0.35, scale));
+  const tx = width / 2 - scale * ((x0 + x1) / 2);
+  const ty = mode === "overview" ? height * 0.05 - scale * y0 : Math.max(24, height * 0.08) - scale * y0;
+  svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
 
-function wireControls(manifest, selectEl) {
+async function loadManifest() {
+  const response = await fetch(publicUrl("data/kg-examples/manifest.json"));
+  if (!response.ok) throw new Error(`Could not load manifest (${response.status})`);
+  return response.json();
+}
+
+async function loadExample(entry) {
+  const response = await fetch(publicUrl(`data/kg-examples/${entry.path}`));
+  if (!response.ok) throw new Error(`Could not load example (${response.status})`);
+  return response.json();
+}
+
+function wireControls(manifest) {
+  const selectEl = document.getElementById("kgExample");
   for (const ex of manifest.examples) {
     const opt = document.createElement("option");
     opt.value = ex.id;
     opt.textContent = ex.title;
     selectEl.appendChild(opt);
   }
-
   selectEl.addEventListener("change", async () => {
     const entry = manifest.examples.find((e) => e.id === selectEl.value);
     if (entry) await bootExample(entry);
   });
-
   document.querySelectorAll("[data-patient]").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("[data-patient]").forEach((b) => b.classList.remove("is-on"));
@@ -428,92 +434,76 @@ function wireControls(manifest, selectEl) {
       render();
     });
   });
-
   document.getElementById("kgSearch").addEventListener("input", (ev) => {
     state.search = ev.target.value.trim().toLowerCase();
     render();
   });
-
   document.getElementById("kgOntology").addEventListener("change", (ev) => {
     state.ontologyFilter = ev.target.value;
     render();
   });
-
-  document.querySelectorAll("[data-layer]").forEach((input) => {
-    input.addEventListener("change", () => {
-      const idx = Number(input.dataset.layer);
-      if (input.checked) state.layerFilters.add(idx);
-      else state.layerFilters.delete(idx);
-      render();
-    });
+  document.getElementById("kgCollapseNodes").addEventListener("change", (ev) => {
+    state.collapseArchetypeNodes = ev.target.checked;
+    render();
+    fitGraph();
   });
-
-  document.getElementById("kgFit").addEventListener("click", fitGraph);
+  document.getElementById("kgCollapseOntology").addEventListener("change", (ev) => {
+    state.collapseOntologyBelow = ev.target.checked ? 1 : 9;
+    render();
+    fitGraph();
+  });
+  document.getElementById("kgFit").addEventListener("click", () => fitGraph("readable"));
+  document.getElementById("kgOverview").addEventListener("click", () => fitGraph("overview"));
   document.getElementById("kgClearSel").addEventListener("click", () => selectNode(null));
 }
 
 async function bootExample(entry) {
-  const data = await loadExample(entry);
-  state.raw = data;
-  state.nodeById = new Map(data.nodes.map((n) => [n.id, n]));
+  state.raw = await loadExample(entry);
+  state.nodeById = new Map(state.raw.nodes.map((n) => [n.id, n]));
+  computeSharedNodes();
   state.selectedId = null;
   state.highlight = null;
   render();
   renderDetail(null);
-  requestAnimationFrame(() => fitGraph());
+  requestAnimationFrame(() => fitGraph("readable"));
 }
 
 function initSvg() {
-  const viewport = document.getElementById("kgViewport");
   svg = d3.select("#kgSvg");
   tooltip = document.getElementById("kgTooltip");
   detailEl = document.getElementById("kgDetail");
   statusEl = document.getElementById("kgStatus");
-
-  const width = viewport.clientWidth;
-  const height = viewport.clientHeight;
-  svg.attr("viewBox", `0 0 ${width} ${height}`);
-
-  zoom = d3.zoom().scaleExtent([0.02, 8]).on("zoom", (event) => {
-    gRoot.attr("transform", event.transform);
-  });
+  zoom = d3.zoom().scaleExtent([0.08, 4]).on("zoom", (event) => gRoot.attr("transform", event.transform));
   svg.call(zoom);
-
   gRoot = svg.append("g");
-  gBands = gRoot.append("g").attr("class", "kg-bands");
-  gLinks = gRoot.append("g").attr("class", "kg-links");
+  gBands = gRoot.append("g");
+  gLinks = gRoot.append("g");
   gNodes = gRoot.append("g").attr("class", "kg-nodes");
-
   gNodes
-    .on("mouseover", function onOver(event) {
-      const d = d3.select(this).datum();
-      if (d) showTooltip(event, d.node);
+    .on("mouseover", function h(event) {
+      showTooltip(event, d3.select(this).datum().node);
     })
     .on("mousemove", (event) => {
       tooltip.style.left = `${event.clientX + 12}px`;
       tooltip.style.top = `${event.clientY + 12}px`;
     })
     .on("mouseout", hideTooltip)
-    .on("click", function onClick(event) {
+    .on("click", function c(event) {
       event.stopPropagation();
-      const d = d3.select(this).datum();
-      if (d) selectNode(d.id);
+      selectNode(d3.select(this).datum().id);
     });
-
   svg.on("click", () => selectNode(null));
-
-  document.getElementById("kgZoomIn").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 1.3));
-  document.getElementById("kgZoomOut").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 0.75));
+  document.getElementById("kgZoomIn").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 1.25));
+  document.getElementById("kgZoomOut").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 0.8));
 }
 
 async function main() {
   initSvg();
   const manifest = await loadManifest();
-  const selectEl = document.getElementById("kgExample");
-  wireControls(manifest, selectEl);
+  wireControls(manifest);
   const first = manifest.examples[0];
   if (first) {
-    selectEl.value = first.id;
+    document.getElementById("kgExample").value = first.id;
     await bootExample(first);
   }
 }

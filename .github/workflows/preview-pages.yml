@@ -1,0 +1,28 @@
+name: Preview GitHub Pages (PR)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pages: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: TERMVIZ_BASE=/TermViz/previews/pr-${{ github.event.pull_request.number }}/ npm run pages
+      - name: Publish preview subtree on gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          target-folder: previews/pr-${{ github.event.pull_request.number }}
+          branch: gh-pages
+          single-commit: true

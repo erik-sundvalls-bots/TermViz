@@ -3,7 +3,7 @@
   "example_id": "international-patient-summary",
   "title": "International Patient Summary — knowledge-graph example (Swedish-oriented)",
   "description": "Official openEHR International Patient Summary template (CKM 1013.26.376) with its archetypes, selected nodes, terminology concepts, and two fictitious IPS composition instances. Preferred ontologies are those available on the Nordic Ontoserver: SNOMED CT Swedish edition, NPU (lab results), WHO ICD-10 (ICD-10-SE is not on the server), and ATC (listed but not resolvable; Swedish names from FASS). KVÅ is listed only as an empty stub and is not used. LOINC is omitted.",
-  "generated_at": "2026-11-10T17:40:00+01:00",
+  "generated_at": "2026-11-10T19:05:00+01:00",
   "sources": {
     "ckm_template": "https://ckm.openehr.org/ckm/templates/1013.26.376",
     "fetched_via": "user-openehr assistant MCP ckm_template_get / ckm_archetype_get",
@@ -3323,9 +3323,8 @@
         "64961000052105",
         "310611001"
       ],
-      "role": "fig5b-blood-pressure",
-      "notes": "Fig 5b 'Blood pressure'. Official BP archetype binding on at0000 is 364090009 (systemiskt artärtryck), not this code. 75367002 is parent of systolic/diastolic BP observables.",
-      "verification": "verified-by-FHIR"
+      "role": "ontology-is-a-parent",
+      "notes": "SNOMED CT is-a parent of systolic/diastolic blood pressure (271649006, 271650006) per Ontoserver $lookup. Not the IPS blood_pressure.v2 at0000 binding; that is 364090009 (systemiskt artärtryck) from CKM/adl term_bindings."
     },
     {
       "id": "concept:sct:80146002",
@@ -3551,15 +3550,18 @@
       "verification": "verified-by-FHIR"
     },
     {
-      "id": "concept:icd10:S52.1",
+      "id": "concept:icd10:S52.5",
       "type": "concept",
       "ontology": "icd10",
       "system": "http://hl7.org/fhir/sid/icd-10",
       "version": "2019-covid-expanded",
-      "code": "S52.1",
-      "display": "Fracture of upper end of radius",
+      "code": "S52.5",
+      "display": "Fracture of lower end of radius",
       "is_group": false,
-      "notes": "Paired at instance level with the post-coordinated SNOMED expression; ICD-10 does not capture laterality here.",
+      "parents": [
+        "S52"
+      ],
+      "notes": "WHO ICD-10 on the Ontoserver (ICD-10-SE not available). Paired at instance level with Eva's post-coordinated SNOMED radius fracture expression.",
       "verification": "verified-by-FHIR"
     },
     {
@@ -4195,6 +4197,36 @@
       "magnitude": 94,
       "unit": "%",
       "verification": "proposed/unverified"
+    },
+    {
+      "id": "concept:icd10:Z88.0",
+      "type": "concept",
+      "ontology": "icd10",
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "version": "2019-covid-expanded",
+      "code": "Z88.0",
+      "display": "Personal history of allergy to penicillin",
+      "is_group": false,
+      "parents": [
+        "Z88"
+      ],
+      "notes": "WHO ICD-10; instance-level pairing alongside SNOMED for Eva's penicillin allergy (template has no ICD value set on adverse_reaction_risk).",
+      "verification": "verified-by-FHIR"
+    },
+    {
+      "id": "concept:icd10:Z91.0",
+      "type": "concept",
+      "ontology": "icd10",
+      "system": "http://hl7.org/fhir/sid/icd-10",
+      "version": "2019-covid-expanded",
+      "code": "Z91.0",
+      "display": "Personal history of allergy, other than to drugs and biological substances",
+      "is_group": false,
+      "parents": [
+        "Z91"
+      ],
+      "notes": "WHO ICD-10; instance-level pairing alongside SNOMED for Lars's peanut allergy.",
+      "verification": "verified-by-FHIR"
     }
   ],
   "edges": [
@@ -5992,12 +6024,6 @@
       "verification": "verified-by-FHIR"
     },
     {
-      "from": "concept:icd10:S52.1",
-      "to": "concept:icd10:S52",
-      "type": "is_a",
-      "verification": "verified-by-FHIR"
-    },
-    {
       "from": "concept:icd10:S52",
       "to": "concept:icd10:S50-S59",
       "type": "is_a",
@@ -6131,7 +6157,7 @@
     },
     {
       "from": "inst:eva-dx-radius-fracture",
-      "to": "concept:icd10:S52.1",
+      "to": "concept:icd10:S52.5",
       "type": "coded_as",
       "verification": "verified-by-FHIR"
     },
@@ -6367,12 +6393,6 @@
     {
       "from": "inst:eva-vs-bp",
       "to": "concept:sct:364090009",
-      "type": "coded_as",
-      "verification": "verified-by-FHIR"
-    },
-    {
-      "from": "inst:eva-vs-bp",
-      "to": "concept:sct:75367002",
       "type": "coded_as",
       "verification": "verified-by-FHIR"
     },
@@ -6821,12 +6841,6 @@
     },
     {
       "from": "inst:lars-vs-bp",
-      "to": "concept:sct:75367002",
-      "type": "coded_as",
-      "verification": "verified-by-FHIR"
-    },
-    {
-      "from": "inst:lars-vs-bp",
       "to": "concept:sct:271649006",
       "type": "coded_as",
       "verification": "verified-by-FHIR"
@@ -6956,15 +6970,6 @@
       "binding_kind": "value",
       "proposed": true,
       "notes": "Proposed finding-site value (bone structure of radius) for the Fig 5b expression.",
-      "verification": "proposed/unverified"
-    },
-    {
-      "from": "node:openEHR-EHR-OBSERVATION.blood_pressure.v2:/",
-      "to": "concept:sct:75367002",
-      "type": "binding",
-      "binding_kind": "explicit",
-      "proposed": true,
-      "notes": "Fig 5b Blood pressure (75367002). Official binding on at0000 is 364090009; this is an additional proposed concept and the parent of systolic/diastolic observables.",
       "verification": "proposed/unverified"
     },
     {
@@ -7101,6 +7106,24 @@
       "proposed": true,
       "notes": "Proposed post-coordinated Fig 5b value (fracture of right radius).",
       "verification": "proposed/unverified"
+    },
+    {
+      "from": "concept:icd10:S52.5",
+      "to": "concept:icd10:S52",
+      "type": "is_a",
+      "verification": "verified-by-FHIR"
+    },
+    {
+      "from": "inst:eva-allergy-penicillin",
+      "to": "concept:icd10:Z88.0",
+      "type": "coded_as",
+      "verification": "verified-by-FHIR"
+    },
+    {
+      "from": "inst:lars-allergy-peanut",
+      "to": "concept:icd10:Z91.0",
+      "type": "coded_as",
+      "verification": "verified-by-FHIR"
     }
   ],
   "instances": [
@@ -7124,22 +7147,23 @@
     "UCUM is listed but not resolvable by $lookup. Unit codes are conventional UCUM strings marked listed-not-resolvable.",
     "CodeSystem/$validate-code (GET and POST) returns HTTP 400 'A code/system pair must be provided' on this server. Code checks used CodeSystem/$lookup and, for NPU, ValueSet/$validate-code POST against NPUFull (NPU02319 result=true).",
     "No SNOMED↔ATC (or SNOMED↔ICD-10, SNOMED↔NPU) ConceptMap was found on the server. Cross-ontology pairing is only at the instance layer via coded_as, not as asserted maps.",
+    "The IPS template does not fix ICD value sets (problem_diagnosis at0002 is DV_TEXT). Fictitious instances therefore pair SNOMED CT with WHO ICD-10 codes verified on the Nordic Ontoserver (http://hl7.org/fhir/sid/icd-10, 2019-covid-expanded); ICD-10-SE is not on the server. Eva: S52.5, I10, Z88.0; Lars: E11.9, I10 (shared), Z91.0.",
     "CLUSTER.anatomical_location.v1 is slotted by problem_diagnosis at0039 but is not filled in the 2020 IPS OET; it is included so the Fig 5b laterality example can be instantiated.",
-    "Official blood-pressure archetype binding on at0000 is 364090009 (systemiskt artärtryck), not Fig 5b 75367002 (blodtryck). Both are in the graph; 75367002 is proposed/additional and is a parent of the systolic/diastolic observables.",
+    "Blood-pressure OBSERVATION.blood_pressure.v2 at0000 uses the official CKM term binding 364090009 (systemiskt artärtryck), verified from ADL/OET term_bindings — not Fig 5b 75367002 (blodtryck). 75367002 remains only as a verified SNOMED is-a parent of the systolic/diastolic observables.",
     "431314004 Swedish display is 'perifer syremättnad' (Peripheral oxygen saturation), not the older 'Peripheral pulse oximetry' label.",
     "LOINC is omitted from the graph because it is little used in Sweden. A few archetypes still carry official LOINC term bindings in their ADL; those leftover bindings are noted in the README only.",
     "The two composition instances (Eva Holmgren, Lars Nyström) are clearly fictitious demo data with synthetic IDs, not Swedish personnummer.",
     "TermViz currently loads an OPT, the IPS ADL fileset and a Snap2SNOMED CSV via publicUrl(); it does not yet load this template-kg-example/v1 JSON. The format is designed so a loader could fetch examples/manifest.json and then each example file the same way."
   ],
   "counts": {
-    "nodes": 254,
-    "edges": 423,
+    "nodes": 256,
+    "edges": 422,
     "by_node_type": {
       "template": 1,
       "section": 14,
       "archetype": 41,
       "archetype_node": 76,
-      "concept": 87,
+      "concept": 89,
       "expression": 1,
       "patient": 2,
       "composition_instance": 2,
@@ -7154,13 +7178,13 @@
       "is_a": 28,
       "refinement": 5,
       "instance_of": 32,
-      "coded_as": 47,
+      "coded_as": 49,
       "unit": 11
     },
     "by_verification": {
       "verified-by-connector": 128,
       "verified-by-fileset": 4,
-      "verified-by-FHIR": 70,
+      "verified-by-FHIR": 136,
       "sourced-from-FASS": 13,
       "listed-not-resolvable": 5,
       "proposed/unverified": 34

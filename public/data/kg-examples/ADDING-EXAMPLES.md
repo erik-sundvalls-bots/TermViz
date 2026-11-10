@@ -135,7 +135,7 @@ Swedish displays below come from `$lookup` with `displayLanguage=sv` on the Swed
 | 72704001 | fraktur | Fig 5b fracture concept. Parents include 37782003 (skada). |
 | 24028007 | höger | Official **value** binding on `CLUSTER.anatomical_location.v1` term `at0004` (“Right”), which is a value of Laterality (`at0002`, itself bound to attribute 272741003). |
 | 62413002 | (Finding site) Bone structure of radius | Used in the post-coordinated expression. |
-| 75367002 | blodtryck | Fig 5b “Blood pressure”. **Not** the official BP archetype binding. Official binding on `blood_pressure.v2` `at0000` is **364090009** (systemiskt artärtryck). 75367002 is a parent of the systolic/diastolic observables and is marked proposed/additional on the archetype node. |
+| 75367002 | blodtryck | SNOMED CT is-a parent of systolic/diastolic BP observables (verified-by-FHIR). **Not** the IPS `blood_pressure.v2` `at0000` binding — that is **364090009**. |
 | 364090009 | systemiskt artärtryck | Official BP `at0000` binding. |
 | 271649006 / 271650006 | systoliskt / diastoliskt blodtryck | Official bindings on `at0004` / `at0005`. Both is-a 75367002. |
 | 431314004 | perifer syremättnad | Official SpO2 `at0006` binding. This is “Peripheral oxygen saturation”, **not** the older “Peripheral pulse oximetry” label. is-a 103228002. |
@@ -156,7 +156,7 @@ Display: `Fracture:Laterality=Right,Finding site=Bone structure of radius`. Pare
 | 59621000 | essentiell hypertoni | Both (plus ICD-10 I10) |
 | 387506000 | atenolol | Both (plus ATC C07AB03) |
 | 46233009 | vaccin mot influensavirus | Both (plus ATC J07BB) |
-| 72704001 + expression + S52.1 | fraktur of upper end of right radius | Eva only |
+| 72704001 + expression + S52.5 | fraktur of lower end of right radius | Eva only |
 | 91936005 | penicillinallergi | Eva only |
 | 239279000 | fixering av fraktur | Eva only (no KVÅ) |
 | NPU02319 | B—Haemoglobin(Fe); subst.c. = ? mmol/L | Eva only — use **mmol/L**, not g/L. Designations en-GB only. |
@@ -172,7 +172,9 @@ ICD-10 (WHO, English, 2019-covid-expanded) — **not** ICD-10-SE:
 | --- | --- | --- |
 | I10 | Essential (primary) hypertension | I10-I15 Hypertensive diseases |
 | E11.9 | Type 2 diabetes mellitus : Without complications | E11 → E10-E14 |
-| S52.1 | Fracture of upper end of radius | S52 → S50-S59 |
+| S52.5 | Fracture of lower end of radius | S52 → S50-S59 |
+| Z88.0 | Personal history of allergy to penicillin | Eva allergy instance |
+| Z91.0 | Personal history of allergy, other than to drugs… | Lars peanut allergy instance |
 
 ATC hierarchy with Swedish FASS names (2026-11-10), `is_a` edges follow the WHO/FASS tree:
 
@@ -188,9 +190,10 @@ Clearly synthetic IDs — **not** Swedish personnummer. Both compositions instan
 
 **Eva Holmgren** (`ehr-demo-ips-001`), composition `demo-composition-eva-holmgren-ips-20260315`, 2026-03-15T10:30:00+01:00
 
-- Fracture of the upper end of the right radius (SNOMED expression + 72704001 + ICD-10 S52.1; laterality 24028007, site 62413002)
+- Fracture of the lower end of the right radius (SNOMED expression + 72704001 + ICD-10 **S52.5**; laterality 24028007, site 62413002)
+- Penicillin allergy: SNOMED + ICD-10 **Z88.0**
 - Essential hypertension (59621000 / I10)
-- Penicillin allergy (91936005)
+- Penicillin allergy (91936005 / ICD-10 Z88.0)
 - Atenolol 50 mg (387506000 / C07AB03)
 - Influenza vaccine (46233009 / J07BB)
 - Fixation of fracture (239279000)
@@ -202,7 +205,7 @@ Clearly synthetic IDs — **not** Swedish personnummer. Both compositions instan
 
 - Type 2 diabetes mellitus without complications (44054006 / E11.9)
 - Essential hypertension (shared)
-- Peanut allergy (91935009)
+- Peanut allergy (91935009 / ICD-10 Z91.0)
 - Atenolol 50 mg (shared) and Metformin 1000 mg (109081006 / A10BA02)
 - Influenza vaccine (shared)
 - Appendectomy (80146002)
@@ -260,7 +263,7 @@ Ids are never invented: archetype uids, at-codes, official bindings and terminol
 - `CodeSystem/$validate-code` is broken on this server.
 - No ConceptMap between SNOMED and ATC / ICD-10 / NPU on the server.
 - `CLUSTER.anatomical_location.v1` is slotted but not filled in the 2020 OET.
-- Official BP binding is 364090009, not Fig 5b 75367002. 431314004 is “perifer syremättnad”, not “Peripheral pulse oximetry”.
+- Official BP `at0000` binding is **364090009** (from ADL term_bindings / CKM IPS). Fig 5b **75367002** is not bound on the archetype; it remains only as an is-a parent of 271649006/271650006. 431314004 is “perifer syremättnad”, not “Peripheral pulse oximetry”.
 - LOINC is omitted from the graph. Leftover official LOINC term bindings still present in the IPS ADLs (not emitted as edges):
   - `body_mass_index.v2` `at0004` `[LOINC::39156-5]`
   - `body_weight.v2` `at0004` `[LOINC::29463-7]`
