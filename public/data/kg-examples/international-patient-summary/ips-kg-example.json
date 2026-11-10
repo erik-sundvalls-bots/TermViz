@@ -4197,36 +4197,6 @@
       "magnitude": 94,
       "unit": "%",
       "verification": "proposed/unverified"
-    },
-    {
-      "id": "concept:icd10:Z88.0",
-      "type": "concept",
-      "ontology": "icd10",
-      "system": "http://hl7.org/fhir/sid/icd-10",
-      "version": "2019-covid-expanded",
-      "code": "Z88.0",
-      "display": "Personal history of allergy to penicillin",
-      "is_group": false,
-      "parents": [
-        "Z88"
-      ],
-      "notes": "WHO ICD-10; instance-level pairing alongside SNOMED for Eva's penicillin allergy (template has no ICD value set on adverse_reaction_risk).",
-      "verification": "verified-by-FHIR"
-    },
-    {
-      "id": "concept:icd10:Z91.0",
-      "type": "concept",
-      "ontology": "icd10",
-      "system": "http://hl7.org/fhir/sid/icd-10",
-      "version": "2019-covid-expanded",
-      "code": "Z91.0",
-      "display": "Personal history of allergy, other than to drugs and biological substances",
-      "is_group": false,
-      "parents": [
-        "Z91"
-      ],
-      "notes": "WHO ICD-10; instance-level pairing alongside SNOMED for Lars's peanut allergy.",
-      "verification": "verified-by-FHIR"
     }
   ],
   "edges": [
@@ -7112,18 +7082,6 @@
       "to": "concept:icd10:S52",
       "type": "is_a",
       "verification": "verified-by-FHIR"
-    },
-    {
-      "from": "inst:eva-allergy-penicillin",
-      "to": "concept:icd10:Z88.0",
-      "type": "coded_as",
-      "verification": "verified-by-FHIR"
-    },
-    {
-      "from": "inst:lars-allergy-peanut",
-      "to": "concept:icd10:Z91.0",
-      "type": "coded_as",
-      "verification": "verified-by-FHIR"
     }
   ],
   "instances": [
@@ -7147,7 +7105,7 @@
     "UCUM is listed but not resolvable by $lookup. Unit codes are conventional UCUM strings marked listed-not-resolvable.",
     "CodeSystem/$validate-code (GET and POST) returns HTTP 400 'A code/system pair must be provided' on this server. Code checks used CodeSystem/$lookup and, for NPU, ValueSet/$validate-code POST against NPUFull (NPU02319 result=true).",
     "No SNOMED↔ATC (or SNOMED↔ICD-10, SNOMED↔NPU) ConceptMap was found on the server. Cross-ontology pairing is only at the instance layer via coded_as, not as asserted maps.",
-    "The IPS template does not fix ICD value sets (problem_diagnosis at0002 is DV_TEXT). Fictitious instances therefore pair SNOMED CT with WHO ICD-10 codes verified on the Nordic Ontoserver (http://hl7.org/fhir/sid/icd-10, 2019-covid-expanded); ICD-10-SE is not on the server. Eva: S52.5, I10, Z88.0; Lars: E11.9, I10 (shared), Z91.0.",
+    "The IPS template does not fix ICD value sets (problem_diagnosis at0002 is DV_TEXT). Diagnosis instances pair SNOMED CT with WHO ICD-10 on the Nordic Ontoserver (http://hl7.org/fhir/sid/icd-10, 2019-covid-expanded; ICD-10-SE not on the server): Eva S52.5 and shared I10; Lars E11.9 and shared I10. Allergies are SNOMED CT only (Eva 91936005 penicillinallergi; Lars 91935009 jordnötsallergi), verified-by-FHIR on the Swedish edition.",
     "CLUSTER.anatomical_location.v1 is slotted by problem_diagnosis at0039 but is not filled in the 2020 IPS OET; it is included so the Fig 5b laterality example can be instantiated.",
     "Blood-pressure OBSERVATION.blood_pressure.v2 at0000 uses the official CKM term binding 364090009 (systemiskt artärtryck), verified from ADL/OET term_bindings — not Fig 5b 75367002 (blodtryck). 75367002 remains only as a verified SNOMED is-a parent of the systolic/diastolic observables.",
     "431314004 Swedish display is 'perifer syremättnad' (Peripheral oxygen saturation), not the older 'Peripheral pulse oximetry' label.",
@@ -7156,14 +7114,14 @@
     "TermViz currently loads an OPT, the IPS ADL fileset and a Snap2SNOMED CSV via publicUrl(); it does not yet load this template-kg-example/v1 JSON. The format is designed so a loader could fetch examples/manifest.json and then each example file the same way."
   ],
   "counts": {
-    "nodes": 256,
-    "edges": 422,
+    "nodes": 254,
+    "edges": 420,
     "by_node_type": {
       "template": 1,
       "section": 14,
       "archetype": 41,
       "archetype_node": 76,
-      "concept": 89,
+      "concept": 87,
       "expression": 1,
       "patient": 2,
       "composition_instance": 2,
@@ -7178,13 +7136,13 @@
       "is_a": 28,
       "refinement": 5,
       "instance_of": 32,
-      "coded_as": 49,
+      "coded_as": 45,
       "unit": 11
     },
     "by_verification": {
       "verified-by-connector": 128,
       "verified-by-fileset": 4,
-      "verified-by-FHIR": 136,
+      "verified-by-FHIR": 132,
       "sourced-from-FASS": 13,
       "listed-not-resolvable": 5,
       "proposed/unverified": 34

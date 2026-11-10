@@ -173,8 +173,6 @@ ICD-10 (WHO, English, 2019-covid-expanded) — **not** ICD-10-SE:
 | I10 | Essential (primary) hypertension | I10-I15 Hypertensive diseases |
 | E11.9 | Type 2 diabetes mellitus : Without complications | E11 → E10-E14 |
 | S52.5 | Fracture of lower end of radius | S52 → S50-S59 |
-| Z88.0 | Personal history of allergy to penicillin | Eva allergy instance |
-| Z91.0 | Personal history of allergy, other than to drugs… | Lars peanut allergy instance |
 
 ATC hierarchy with Swedish FASS names (2026-11-10), `is_a` edges follow the WHO/FASS tree:
 
@@ -191,9 +189,9 @@ Clearly synthetic IDs — **not** Swedish personnummer. Both compositions instan
 **Eva Holmgren** (`ehr-demo-ips-001`), composition `demo-composition-eva-holmgren-ips-20260315`, 2026-03-15T10:30:00+01:00
 
 - Fracture of the lower end of the right radius (SNOMED expression + 72704001 + ICD-10 **S52.5**; laterality 24028007, site 62413002)
-- Penicillin allergy: SNOMED + ICD-10 **Z88.0**
+- Penicillin allergy: SNOMED **91936005** (penicillinallergi) only — no ICD-10 on allergies
 - Essential hypertension (59621000 / I10)
-- Penicillin allergy (91936005 / ICD-10 Z88.0)
+- Penicillin allergy (91936005)
 - Atenolol 50 mg (387506000 / C07AB03)
 - Influenza vaccine (46233009 / J07BB)
 - Fixation of fracture (239279000)
@@ -205,7 +203,7 @@ Clearly synthetic IDs — **not** Swedish personnummer. Both compositions instan
 
 - Type 2 diabetes mellitus without complications (44054006 / E11.9)
 - Essential hypertension (shared)
-- Peanut allergy (91935009 / ICD-10 Z91.0)
+- Peanut allergy (91935009)
 - Atenolol 50 mg (shared) and Metformin 1000 mg (109081006 / A10BA02)
 - Influenza vaccine (shared)
 - Appendectomy (80146002)
