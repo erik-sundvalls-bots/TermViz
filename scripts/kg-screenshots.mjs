@@ -7,27 +7,28 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
 await page.goto(base, { waitUntil: "networkidle" });
 await page.waitForSelector("#kgStatus");
-await page.waitForTimeout(800);
+await page.waitForTimeout(900);
 
 await page.click("#kgOverview");
-await page.waitForTimeout(600);
-await page.screenshot({ path: `${out}/kg-demo-overview.png` });
-
-await page.click("#kgFit");
-await page.waitForTimeout(900);
+await page.waitForTimeout(500);
 await page.screenshot({ path: `${out}/kg-demo-full.png` });
 
-await page.evaluate(() => {
-  const nodes = [...document.querySelectorAll(".kg-node")];
-  const pick = nodes.find((el) => el.querySelector(".kg-dot")) || nodes[0];
-  pick?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
-});
+await page.selectOption("#kgPresetSelect", "pedagogical-five");
 await page.waitForTimeout(400);
-await page.screenshot({ path: `${out}/kg-demo-highlight.png` });
-
-await page.click('[data-patient="lars"]');
+await page.check("#kgCherryFocus");
+await page.waitForTimeout(700);
+await page.click("#kgFit");
 await page.waitForTimeout(500);
-await page.screenshot({ path: `${out}/kg-demo-patient-toggle.png` });
+await page.screenshot({ path: `${out}/kg-demo-cherry-five.png` });
+
+await page.click("#kgShowLabels");
+await page.waitForTimeout(400);
+await page.screenshot({ path: `${out}/kg-demo-labels-hidden.png` });
+
+await page.click("#kgShowLabels");
+await page.locator(".kg-node .kg-dot").first().hover();
+await page.waitForTimeout(500);
+await page.screenshot({ path: `${out}/kg-demo-hover.png` });
 
 await browser.close();
-console.log("saved screenshots to", out);
+console.log("saved screenshots");

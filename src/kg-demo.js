@@ -7,6 +7,17 @@ import {
   collectUpstream,
   runBandedLayout,
 } from "./kg-layout.js";
+import {
+  applyUrlFocus,
+  buildChildrenMap,
+  buildParentMap,
+  collectAncestors,
+  decodeFocusHash,
+  decodeFocusQuery,
+  isInstanceNode,
+  loadSavedLists,
+  persistSavedLists,
+} from "./kg-focus.js";
 import { directChildren, expandSnomedParents, lookupTerminology } from "./kg-terminology.js";
 
 const VERIFICATION_CLASS = {
@@ -32,10 +43,7 @@ const TYPE_FILL = {
   element_instance: "#888",
 };
 
-const PATIENT_FILL = {
-  eva: "#c45c4a",
-  lars: "#2f6fad",
-};
+const PATIENT_FILL = { eva: "#c45c4a", lars: "#2f6fad" };
 
 const BAND_LABELS = new Map([
   [0, "Ontology concepts (is-a roots)"],
@@ -53,18 +61,29 @@ const BAND_LABELS = new Map([
 
 const state = {
   raw: null,
+  exampleId: null,
   nodeById: new Map(),
+  parentMap: null,
+  childMap: null,
   layout: null,
   pairs: [],
   adjacency: null,
   selectedId: null,
   highlight: null,
+  hoverId: null,
+  hoverSet: null,
   patientFilter: "both",
   ontologyFilter: "all",
   search: "",
   collapseArchetypeNodes: true,
   collapseOntologyBelow: 1,
   sharedNodes: new Set(),
+  showLabels: true,
+  pickMode: true,
+  cherryFocus: false,
+  cherryPicks: new Set(),
+  savedLists: loadSavedLists(),
+  focusPresets: [],
 };
 
 let svg;
@@ -76,22 +95,23 @@ let zoom;
 let tooltip;
 let detailEl;
 let statusEl;
+let pickListEl;
 
 function shortLabel(node) {
   const text = node.display_sv || node.display || node.name;
-  if (text) return text.length > 24 ? `${text.slice(0, 22)}…` : text;
+  if (text) return text.length > 28 ? `${text.slice(0, 26)}…` : text;
   if (node.code) return String(node.code);
   if (node.path) {
     const leaf = node.path.split("/").pop() || "";
-    return leaf.length > 24 ? `${leaf.slice(0, 22)}…` : leaf;
+    return leaf.length > 28 ? `${leaf.slice(0, 26)}…` : leaf;
   }
   const id = node.id.split(":").slice(1).join(":");
-  return id.length > 22 ? `${id.slice(0, 20)}…` : id;
+  return id.length > 26 ? `${id.slice(0, 24)}…` : id;
 }
 
 function instanceOwnedByPatient(nodeId) {
-  if (nodeId.includes("eva-holmgren") || nodeId.startsWith("inst:eva-") || nodeId.startsWith("elem:eva-")) return "eva";
-  if (nodeId.includes("lars-nystrom") || nodeId.startsWith("inst:lars-") || nodeId.startsWith("elem:lars-")) return "lars";
+  if (nodeId.includes("eva-holmgren") || nodeId.startsWith("inst:eva-")) return "eva";
+  if (nodeId.includes("lars-nystrom") || nodeId.startsWith("inst:lars-")) return "lars";
   return null;
 }
 
@@ -106,8 +126,8 @@ function nodeFill(node) {
 function nodeMatchesSearch(node, query) {
   if (!query) return true;
   const hay = [
-    node.id, node.display, node.display_sv, node.display_en, node.name,
-    node.path, node.code, node.rm_type, node.archetype_id, node.verification, node.ontology,
+    node.id, node.display, node.display_sv, node.name,
+    node.path, node.code, node.rm_type, node.verification, node.ontology,
   ].filter(Boolean).join(" ").toLowerCase();
   return hay.includes(query);
 }
@@ -122,48 +142,42 @@ function passesUiFilters(node) {
   return true;
 }
 
+function focusAncestorSet() {
+  if (!state.cherryFocus || state.cherryPicks.size === 0) return null;
+  return collectAncestors(state.cherryPicks, state.parentMap);
+}
+
 function computeSharedNodes() {
   const touched = { eva: new Set(), lars: new Set() };
   for (const edge of state.raw.edges) {
-    const o1 = instanceOwnedByPatient(edge.from);
-    const o2 = instanceOwnedByPatient(edge.to);
-    if (o1) touched[o1].add(edge.to === edge.from ? edge.from : edge.to);
-    if (o2) touched[o2].add(edge.from);
-    if (o1 && !o2) touched[o1].add(edge.from);
-    if (o2 && !o1) touched[o2].add(edge.to);
-  }
-  const shared = new Set();
-  for (const id of touched.eva) {
-    if (touched.lars.has(id) && !instanceOwnedByPatient(id)) shared.add(id);
-  }
-  // Model nodes used by both patients via instance_of / coded_as
-  for (const edge of state.raw.edges) {
-    const isInst = edge.from.startsWith("inst:") || edge.from.startsWith("composition:");
-    if (!isInst) continue;
-    const p = instanceOwnedByPatient(edge.from);
-    if (!p) continue;
-    if (edge.type === "instance_of" || edge.type === "coded_as" || edge.type === "contains") {
-      touched[p].add(edge.to);
+    const p1 = instanceOwnedByPatient(edge.from);
+    const p2 = instanceOwnedByPatient(edge.to);
+    if (p1 && (edge.type === "instance_of" || edge.type === "coded_as" || edge.type === "contains")) {
+      touched[p1].add(edge.to);
     }
+    if (p2 && (edge.type === "instance_of" || edge.type === "coded_as")) touched[p2].add(edge.from);
   }
-  for (const id of touched.eva) {
-    if (touched.lars.has(id) && !instanceOwnedByPatient(id)) shared.add(id);
-  }
-  state.sharedNodes = shared;
+  state.sharedNodes = new Set([...touched.eva].filter((id) => touched.lars.has(id) && !instanceOwnedByPatient(id)));
 }
 
 function layoutGraph() {
-  const nodes = state.raw.nodes.filter(passesUiFilters);
+  let nodes = state.raw.nodes.filter(passesUiFilters);
+  const focusSet = focusAncestorSet();
+  if (focusSet) nodes = nodes.filter((n) => focusSet.has(n.id));
+
   const ids = new Set(nodes.map((n) => n.id));
   const edges = state.raw.edges.filter((e) => ids.has(e.from) && ids.has(e.to));
+
+  const collapseNodes = focusSet ? false : state.collapseArchetypeNodes;
+  const collapseOntology = focusSet ? 9 : state.collapseOntologyBelow;
 
   state.layout = runBandedLayout({
     nodes,
     edges,
     nodeById: state.nodeById,
     labelFor: shortLabel,
-    collapseOntologyBelow: state.collapseOntologyBelow,
-    collapseArchetypeNodes: state.collapseArchetypeNodes,
+    collapseOntologyBelow: collapseOntology,
+    collapseArchetypeNodes: collapseNodes,
   });
 
   state.pairs = edges.map((e) => {
@@ -180,16 +194,49 @@ function layoutGraph() {
   state.adjacency = adjacencyFromPairs(state.pairs);
 }
 
+function activeDimSet() {
+  if (state.hoverSet) return state.hoverSet;
+  if (state.highlight) return state.highlight;
+  return null;
+}
+
+function labelVisible(d) {
+  if (state.showLabels) return true;
+  if (!state.hoverSet) return false;
+  return state.hoverSet.has(d.id);
+}
+
 function linkPath(points) {
   if (!points || points.length < 2) return "";
   return d3.line()(points);
+}
+
+function renderPickList() {
+  if (!pickListEl) return;
+  const items = [...state.cherryPicks].map((id) => {
+    const n = state.nodeById.get(id);
+    const label = n ? shortLabel(n) : id;
+    return `<li><button type="button" class="kg-pick-remove" data-id="${id}" aria-label="Remove">×</button> <span>${label}</span><code>${id}</code></li>`;
+  });
+  pickListEl.innerHTML = items.length
+    ? `<ul class="kg-pick-ul">${items.join("")}</ul>`
+    : "<p class='kg-muted'>Click patient instance nodes to add picks.</p>";
+  pickListEl.querySelectorAll(".kg-pick-remove").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.cherryPicks.delete(btn.dataset.id);
+      applyUrlFocus(state.cherryPicks);
+      renderPickList();
+      render();
+      if (state.cherryFocus) fitGraph("readable");
+    });
+  });
 }
 
 function render() {
   layoutGraph();
   const nodes = state.layout.nodes;
   const nodeIds = new Set(nodes.map((n) => n.id));
-  const highlight = state.highlight;
+  const dim = activeDimSet();
 
   gLinks
     .selectAll("path")
@@ -197,26 +244,25 @@ function render() {
     .join("path")
     .attr("class", "kg-link")
     .attr("d", (d) => linkPath(d.points))
-    .classed("is-hl", (d) => highlight && highlight.has(d.source) && highlight.has(d.target))
-    .classed("is-dim", (d) => highlight && !(highlight.has(d.source) && highlight.has(d.target)))
+    .classed("is-hl", (d) => dim && dim.has(d.source) && dim.has(d.target))
+    .classed("is-dim", (d) => dim && !(dim.has(d.source) && dim.has(d.target)))
     .classed("is-shared-link", (d) => state.sharedNodes.has(d.source) && state.sharedNodes.has(d.target));
 
   const join = gNodes.selectAll("g.kg-node").data(nodes, (d) => d.id);
   join.exit().remove();
-  const enter = join
-    .enter()
-    .append("g")
-    .attr("class", "kg-node");
+  const enter = join.enter().append("g").attr("class", "kg-node");
   enter.append("rect").attr("class", "kg-shape kg-pill").attr("rx", 4);
-  enter.append("circle").attr("class", "kg-shape kg-dot").attr("r", 0);
+  enter.append("circle").attr("class", "kg-shape kg-dot");
   enter.append("text").attr("class", "kg-node-label");
 
   const merged = enter.merge(join);
   merged
     .attr("transform", (d) => `translate(${d.x},${d.y})`)
-    .classed("is-hl", (d) => highlight && highlight.has(d.id))
-    .classed("is-dim", (d) => highlight && !highlight.has(d.id))
+    .classed("is-hl", (d) => dim && dim.has(d.id))
+    .classed("is-dim", (d) => dim && !dim.has(d.id))
     .classed("is-shared", (d) => state.sharedNodes.has(d.id))
+    .classed("is-picked", (d) => state.cherryPicks.has(d.id))
+    .classed("is-hover", (d) => state.hoverId === d.id)
     .each(function paint(d) {
       const g = d3.select(this);
       const node = d.node;
@@ -224,9 +270,16 @@ function render() {
       const pill = g.select(".kg-pill");
       const dot = g.select(".kg-dot");
       const label = g.select(".kg-node-label");
+      const show = labelVisible(d);
+      label
+        .classed("is-off", !show)
+        .attr("opacity", show ? 1 : 0);
       if (isConcept) {
         pill.attr("width", 0).attr("height", 0);
-        dot.attr("r", 9).attr("fill", nodeFill(node)).attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430");
+        dot
+          .attr("r", 9)
+          .attr("fill", nodeFill(node))
+          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430");
         label.attr("x", 13).attr("y", 4).attr("text-anchor", "start").text(shortLabel(node));
       } else {
         dot.attr("r", 0);
@@ -238,14 +291,15 @@ function render() {
           .attr("width", w)
           .attr("height", h)
           .attr("fill", nodeFill(node))
-          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : "#1c2430")
-          .attr("stroke-width", state.sharedNodes.has(d.id) ? 2 : 1);
+          .attr("stroke", state.sharedNodes.has(d.id) ? "#0b4f4d" : state.cherryPicks.has(d.id) ? "#b45309" : "#1c2430")
+          .attr("stroke-width", state.sharedNodes.has(d.id) || state.cherryPicks.has(d.id) ? 2.4 : 1);
         label.attr("x", 0).attr("y", 4).attr("text-anchor", "middle").text(shortLabel(node));
       }
     });
 
   drawBandGuides(nodes);
   updateStatus(nodes.length);
+  renderPickList();
 }
 
 function drawBandGuides(nodes) {
@@ -264,10 +318,9 @@ function drawBandGuides(nodes) {
     row.y0 = Math.min(row.y0, n.y - n.height);
     row.y1 = Math.max(row.y1, n.y + n.height);
   }
-  const data = [...bands.values()].sort((a, b) => a.band - b.band);
   gBands
     .selectAll("g")
-    .data(data, (d) => d.band)
+    .data([...bands.values()].sort((a, b) => a.band - b.band), (d) => d.band)
     .join("g")
     .each(function draw(row) {
       const g = d3.select(this);
@@ -284,10 +337,49 @@ function drawBandGuides(nodes) {
 
 function updateStatus(visibleCount) {
   const total = state.raw?.nodes?.length ?? 0;
-  const collapsed = [];
-  if (state.collapseArchetypeNodes) collapsed.push("archetype nodes hidden");
-  if (state.collapseOntologyBelow < 9) collapsed.push(`ontology is-a depth ≤ ${state.collapseOntologyBelow}`);
-  statusEl.textContent = `${visibleCount} / ${total} nodes · banded Sugiyama-style layout${collapsed.length ? ` (${collapsed.join("; ")})` : ""}`;
+  const bits = [];
+  if (state.cherryFocus) bits.push(`focus ${state.cherryPicks.size} picks`);
+  if (!state.showLabels) bits.push("labels hidden");
+  statusEl.textContent = `${visibleCount} / ${total} nodes${bits.length ? ` · ${bits.join(" · ")}` : ""}`;
+}
+
+function setHover(id) {
+  if (!id) {
+    state.hoverId = null;
+    state.hoverSet = null;
+    render();
+    hideTooltip();
+    return;
+  }
+  state.hoverId = id;
+  const parents = state.adjacency?.parents.get(id) || new Set();
+  const children = state.adjacency?.children.get(id) || new Set();
+  state.hoverSet = new Set([id, ...parents, ...children]);
+  render();
+  const node = state.nodeById.get(id);
+  if (node) showTooltipLast(node);
+}
+
+function toggleCherryPick(id) {
+  if (state.cherryPicks.has(id)) state.cherryPicks.delete(id);
+  else state.cherryPicks.add(id);
+  applyUrlFocus(state.cherryPicks);
+  render();
+  if (state.cherryFocus) fitGraph("readable");
+}
+
+function clearCherryPicks() {
+  state.cherryPicks.clear();
+  applyUrlFocus(state.cherryPicks);
+  render();
+}
+
+function loadCherryIds(ids) {
+  state.cherryPicks = new Set(ids.filter((id) => state.nodeById.has(id)));
+  applyUrlFocus(state.cherryPicks);
+  renderPickList();
+  render();
+  if (state.cherryFocus) fitGraph("readable");
 }
 
 function selectNode(id) {
@@ -301,6 +393,7 @@ function selectNode(id) {
   const up = collectUpstream(id, state.adjacency.parents);
   const down = collectDownstream(id, state.adjacency.children);
   state.highlight = new Set([...up, ...down]);
+  state.hoverSet = null;
   render();
   renderDetail(state.nodeById.get(id));
 }
@@ -315,6 +408,15 @@ function nodeLabel(node) {
   return node.display_sv || node.display || node.name || node.id;
 }
 
+let lastTooltipEvent = null;
+function showTooltipLast(node) {
+  if (!lastTooltipEvent || !node) return;
+  tooltip.textContent = [nodeLabel(node), node.id, node.verification].filter(Boolean).join("\n");
+  tooltip.classList.add("is-on");
+  tooltip.style.left = `${lastTooltipEvent.clientX + 12}px`;
+  tooltip.style.top = `${lastTooltipEvent.clientY + 12}px`;
+}
+
 async function renderDetail(node) {
   if (!node) {
     detailEl.innerHTML = "<p>Select a node to inspect bindings, paths, and live terminology.</p>";
@@ -327,7 +429,6 @@ async function renderDetail(node) {
     node.display_sv && ["Display (sv)", node.display_sv],
     node.code && ["Code", node.code],
     node.path && ["Path", node.path],
-    node.rm_type && ["RM type", node.rm_type],
   ].filter(Boolean);
 
   let lookupBlock = "";
@@ -370,13 +471,6 @@ async function renderDetail(node) {
   }
 }
 
-function showTooltip(event, node) {
-  tooltip.textContent = [nodeLabel(node), node.id, node.verification, node.path, node.code && `code: ${node.code}`].filter(Boolean).join("\n");
-  tooltip.classList.add("is-on");
-  tooltip.style.left = `${event.clientX + 12}px`;
-  tooltip.style.top = `${event.clientY + 12}px`;
-}
-
 function hideTooltip() {
   tooltip.classList.remove("is-on");
 }
@@ -395,7 +489,7 @@ function fitGraph(mode = "readable") {
   const scaleX = (width * 0.96) / (x1 - x0);
   const scaleY = (height * 0.92) / (y1 - y0);
   let scale = mode === "overview" ? Math.min(scaleX, scaleY) : Math.min(scaleX, Math.max(0.42, scaleY));
-  scale = Math.min(2.2, Math.max(0.35, scale));
+  scale = Math.min(2.4, Math.max(0.35, scale));
   const tx = width / 2 - scale * ((x0 + x1) / 2);
   const ty = mode === "overview" ? height * 0.05 - scale * y0 : Math.max(24, height * 0.08) - scale * y0;
   svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
@@ -411,6 +505,87 @@ async function loadExample(entry) {
   const response = await fetch(publicUrl(`data/kg-examples/${entry.path}`));
   if (!response.ok) throw new Error(`Could not load example (${response.status})`);
   return response.json();
+}
+
+function exportPicksJson() {
+  const blob = new Blob([JSON.stringify({ example_id: state.exampleId, node_ids: [...state.cherryPicks] }, null, 2)], {
+    type: "application/json",
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `kg-focus-${state.exampleId || "export"}.json`;
+  a.click();
+}
+
+function importPicksJson(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const body = JSON.parse(String(reader.result));
+      loadCherryIds(body.node_ids || []);
+    } catch {
+      alert("Could not parse JSON");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function wireCherryControls() {
+  pickListEl = document.getElementById("kgPickList");
+  document.getElementById("kgPickMode").addEventListener("click", (ev) => {
+    state.pickMode = !state.pickMode;
+    ev.currentTarget.classList.toggle("is-on", state.pickMode);
+  });
+  document.getElementById("kgCherryFocus").addEventListener("change", (ev) => {
+    state.cherryFocus = ev.target.checked;
+    render();
+    fitGraph(state.cherryFocus ? "readable" : "overview");
+  });
+  document.getElementById("kgClearPicks").addEventListener("click", clearCherryPicks);
+  document.getElementById("kgShowLabels").addEventListener("click", (ev) => {
+    state.showLabels = !state.showLabels;
+    ev.currentTarget.classList.toggle("is-on", state.showLabels);
+    ev.currentTarget.textContent = state.showLabels ? "Labels on" : "Labels off";
+    render();
+  });
+  document.getElementById("kgExportPicks").addEventListener("click", exportPicksJson);
+  document.getElementById("kgImportPicks").addEventListener("change", (ev) => {
+    const file = ev.target.files?.[0];
+    if (file) importPicksJson(file);
+    ev.target.value = "";
+  });
+  document.getElementById("kgSaveList").addEventListener("click", () => {
+    const name = document.getElementById("kgSaveName").value.trim();
+    if (!name) return;
+    state.savedLists.named[name] = { example_id: state.exampleId, node_ids: [...state.cherryPicks] };
+    persistSavedLists(state.savedLists);
+    refreshSavedSelect();
+  });
+  document.getElementById("kgLoadSaved").addEventListener("click", () => {
+    const name = document.getElementById("kgSavedSelect").value;
+    const entry = state.savedLists.named[name];
+    if (entry) loadCherryIds(entry.node_ids || []);
+  });
+  document.getElementById("kgPresetSelect").addEventListener("change", (ev) => {
+    const id = ev.target.value;
+    const preset = state.focusPresets.find((p) => p.id === id);
+    if (preset) loadCherryIds(preset.node_ids);
+  });
+}
+
+function refreshSavedSelect() {
+  const sel = document.getElementById("kgSavedSelect");
+  sel.innerHTML = Object.keys(state.savedLists.named)
+    .sort()
+    .map((n) => `<option value="${n}">${n}</option>`)
+    .join("");
+}
+
+function refreshPresetSelect() {
+  const sel = document.getElementById("kgPresetSelect");
+  sel.innerHTML = `<option value="">Suggested presets…</option>${state.focusPresets
+    .map((p) => `<option value="${p.id}">${p.title}</option>`)
+    .join("")}`;
 }
 
 function wireControls(manifest) {
@@ -455,14 +630,29 @@ function wireControls(manifest) {
   document.getElementById("kgFit").addEventListener("click", () => fitGraph("readable"));
   document.getElementById("kgOverview").addEventListener("click", () => fitGraph("overview"));
   document.getElementById("kgClearSel").addEventListener("click", () => selectNode(null));
+  wireCherryControls();
 }
 
 async function bootExample(entry) {
   state.raw = await loadExample(entry);
+  state.exampleId = entry.id;
   state.nodeById = new Map(state.raw.nodes.map((n) => [n.id, n]));
+  state.focusPresets = state.raw.focus_presets || [];
+  state.parentMap = buildParentMap(state.raw.nodes, state.raw.edges, state.nodeById);
+  state.childMap = buildChildrenMap(state.parentMap);
   computeSharedNodes();
   state.selectedId = null;
   state.highlight = null;
+  state.hoverSet = null;
+
+  const fromHash = decodeFocusHash(window.location.hash);
+  const fromQuery = decodeFocusQuery(window.location.search);
+  const initial = fromHash || fromQuery;
+  if (initial?.length) state.cherryPicks = new Set(initial.filter((id) => state.nodeById.has(id)));
+  else state.cherryPicks = new Set();
+
+  refreshPresetSelect();
+  refreshSavedSelect();
   render();
   renderDetail(null);
   requestAnimationFrame(() => fitGraph("readable"));
@@ -473,26 +663,41 @@ function initSvg() {
   tooltip = document.getElementById("kgTooltip");
   detailEl = document.getElementById("kgDetail");
   statusEl = document.getElementById("kgStatus");
+
   zoom = d3.zoom().scaleExtent([0.08, 4]).on("zoom", (event) => gRoot.attr("transform", event.transform));
   svg.call(zoom);
   gRoot = svg.append("g");
   gBands = gRoot.append("g");
   gLinks = gRoot.append("g");
   gNodes = gRoot.append("g").attr("class", "kg-nodes");
+
   gNodes
     .on("mouseover", function h(event) {
-      showTooltip(event, d3.select(this).datum().node);
+      lastTooltipEvent = event;
+      const d = d3.select(this).datum();
+      setHover(d.id);
     })
     .on("mousemove", (event) => {
-      tooltip.style.left = `${event.clientX + 12}px`;
-      tooltip.style.top = `${event.clientY + 12}px`;
+      lastTooltipEvent = event;
+      if (state.hoverId) showTooltipLast(state.nodeById.get(state.hoverId));
     })
-    .on("mouseout", hideTooltip)
+    .on("mouseout", () => setHover(null))
     .on("click", function c(event) {
       event.stopPropagation();
-      selectNode(d3.select(this).datum().id);
+      const d = d3.select(this).datum();
+      const node = d.node;
+      if (state.pickMode && isInstanceNode(node)) {
+        toggleCherryPick(d.id);
+        return;
+      }
+      selectNode(d.id);
     });
-  svg.on("click", () => selectNode(null));
+
+  svg.on("click", () => {
+    selectNode(null);
+    setHover(null);
+  });
+
   document.getElementById("kgZoomIn").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 1.25));
   document.getElementById("kgZoomOut").addEventListener("click", () => svg.transition().call(zoom.scaleBy, 0.8));
 }

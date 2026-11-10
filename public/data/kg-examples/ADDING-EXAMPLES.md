@@ -215,6 +215,22 @@ Instance nodes use `instance_of` (composition → template, entry → archetype,
 
 ---
 
+## Cherry-pick focus presets (`focus_presets`)
+
+The IPS example JSON includes `focus_presets[]` for `ips-kg-demo.html`. Each preset lists `node_ids` (typically **entry_instance** / **element_instance** ids) that the UI can load as a cherry-pick set; **focus mode** then keeps only those nodes and **ancestors** upward (instances → template → archetypes → archetype nodes → terminology, including **is_a** parents).
+
+| `id` | Title |
+| --- | --- |
+| `shared-i10` | Shared I10 hypertension (Eva + Lars) |
+| `medication-to-atc` | Atenolol medication entries (SNOMED + ATC) |
+| `blood-pressure-364090009` | Vital-sign BP entries (364090009 binding) |
+| `allergies-snomed` | Penicillin + peanut allergies (SNOMED only) |
+| `pedagogical-five` | Five mixed picks for teaching |
+
+Users can save custom lists in **localStorage**, export/import JSON, and share via URL hash `#focus=inst:…,inst:…`.
+
+---
+
 ## Counts (generated 2026-11-10T17:40:00+01:00, Europe/Stockholm)
 
 | | |

@@ -33,7 +33,10 @@
             <button type="button" class="kg-btn" data-patient="eva">Eva Holmgren</button>
             <button type="button" class="kg-btn" data-patient="lars">Lars Nyström</button>
           </span>
-          <button type="button" class="kg-btn" id="kgClearSel">Clear selection</button>
+          <button type="button" class="kg-btn is-on" id="kgPickMode" title="Click instance nodes to cherry-pick">Pick instances</button>
+          <label class="kg-inline"><input type="checkbox" id="kgCherryFocus" /> Cherry-pick focus</label>
+          <button type="button" class="kg-btn is-on" id="kgShowLabels">Labels on</button>
+          <button type="button" class="kg-btn" id="kgClearSel">Clear graph selection</button>
         </div>
       </header>
       <p id="kgError" class="kg-error" hidden style="margin:8px 14px"></p>
@@ -57,6 +60,24 @@
             <span><i style="background:#2f6fad"></i>Lars instances</span>
             <span class="kg-legend-shared">shared = teal outline</span>
           </div>
+          <section class="kg-panel" aria-label="Cherry-pick focus">
+            <h2>Cherry-pick focus</h2>
+            <p class="kg-muted">Pick patient instance nodes, then enable <strong>focus</strong> to layout only those nodes and ancestors (template → terminology).</p>
+            <select id="kgPresetSelect" class="kg-select" aria-label="Suggested presets"></select>
+            <ul id="kgPickList" class="kg-pick-list"></ul>
+            <div class="kg-btn-row" style="display:flex;flex-wrap:wrap;gap:4px">
+              <button type="button" class="kg-btn" id="kgClearPicks">Clear picks</button>
+              <button type="button" class="kg-btn" id="kgExportPicks">Export JSON</button>
+              <label class="kg-btn kg-file-btn">Import JSON<input hidden type="file" id="kgImportPicks" accept="application/json" /></label>
+            </div>
+            <div class="kg-save-row" style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+              <input id="kgSaveName" type="text" placeholder="Save list as…" class="kg-save-input" />
+              <button type="button" class="kg-btn" id="kgSaveList">Save</button>
+              <select id="kgSavedSelect" class="kg-select" aria-label="Saved lists"></select>
+              <button type="button" class="kg-btn" id="kgLoadSaved">Load</button>
+            </div>
+            <p class="kg-muted">Share picks via URL hash <code>#focus=…</code> (auto-updated).</p>
+          </section>
           <div class="kg-panel-filters" role="group" aria-label="Collapse layers">
             <label><input type="checkbox" id="kgCollapseNodes" checked /> Collapse archetype nodes (default)</label>
             <label><input type="checkbox" id="kgCollapseOntology" checked /> Collapse distant ontology is-a parents</label>

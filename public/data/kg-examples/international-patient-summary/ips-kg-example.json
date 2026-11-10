@@ -7151,5 +7151,51 @@
     "extra_archetypes": 1,
     "sections": 14,
     "composition_instances": 2
-  }
+  },
+  "focus_presets": [
+    {
+      "id": "shared-i10",
+      "title": "Shared I10 hypertension across both patients",
+      "node_ids": [
+        "inst:eva-dx-hypertension",
+        "inst:lars-dx-hypertension"
+      ]
+    },
+    {
+      "id": "medication-to-atc",
+      "title": "One medication down to ATC",
+      "node_ids": [
+        "inst:eva-med-atenolol",
+        "inst:lars-med-atenolol"
+      ]
+    },
+    {
+      "id": "blood-pressure-364090009",
+      "title": "Blood pressure 364090009 in both patients",
+      "node_ids": [
+        "inst:eva-vs-bp",
+        "inst:lars-vs-bp"
+      ]
+    },
+    {
+      "id": "allergies-snomed",
+      "title": "Allergies to SNOMED CT",
+      "node_ids": [
+        "inst:eva-allergy-penicillin",
+        "inst:lars-allergy-peanut"
+      ]
+    },
+    {
+      "id": "pedagogical-five",
+      "title": "Pedagogical mix (~5 picks)",
+      "description": "Hypertension, BP, allergies, and one shared medication.",
+      "node_ids": [
+        "inst:eva-dx-hypertension",
+        "inst:lars-dx-hypertension",
+        "inst:eva-vs-bp",
+        "inst:eva-allergy-penicillin",
+        "inst:lars-med-atenolol"
+      ]
+    }
+  ]
 }
