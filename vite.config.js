@@ -18,6 +18,7 @@ export default defineConfig({
       input: {
         index: "index.html",
         mapper: "termviz-mapper-test.html",
+        cdrKg: "cdr-kg-explorer.html",
         sample: "termviz-test-1.html",
       },
     },
