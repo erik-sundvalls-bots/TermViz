@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TermViz sample — D3 7</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      main { display: block; }
+      .stage { height: 68vh; background: var(--sea); }
+      .substage { height: 42vh; background: var(--paper); border-top: 1px solid var(--line); }
+    </style>
+    <script type="module" crossorigin src="/TermViz/assets/sample-DIM0AjPR.js"></script>
+    <link rel="modulepreload" crossorigin href="/TermViz/assets/termviz-2-D0V2iIhT.js">
+    <link rel="stylesheet" crossorigin href="/TermViz/assets/mapper-B4RSGozI.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TermViz · D3 <span id="d3version"></span></p>
+        <h1>Sample graph</h1>
+        <p class="lede">
+          The cardiovascular fragment shipped with the 2013 demo, drawn with the D3 7 force layout.
+          Arrows run from the more specific concept toward its parent.
+          <a href="/TermViz/legacy/termviz-test-1-d3v2.html">The original D3 v2 page</a> is unchanged.
+          <a href="/TermViz/termviz-mapper-test.html">Open the IPS mapping bench.</a>
+        </p>
+      </div>
+      <button id="lcp" class="text-button is-on" type="button">Highlight least common parent</button>
+    </header>
+    <div class="viewport stage"><svg id="forceSvg" role="img" aria-label="Sample SNOMED graph"></svg></div>
+    <div class="viewport substage"><svg id="treeSvg" role="img" aria-label="Sample template tree"></svg></div>
+    <script src="/TermViz/least-common-parent.js"></script>
+  </body>
+</html>
