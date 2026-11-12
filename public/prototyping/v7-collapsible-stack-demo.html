@@ -26,7 +26,7 @@ svg.hovering .hi>rect.card,svg.hovering .hi>circle{stroke:#1c2430!important;stro
 <h1>V7 · Collapsible three-layer stack: clustered ontology DAG · archetypes over templates · content-sized cascaded instance treemaps</h1>
 <div class="sub">Top (locked): Sugiyama DAG per code system; intermediate SNOMED CT concepts are grouped into clusters (<b>+n</b> = hidden concepts; click to expand) and their labels show on hover. Middle: click an archetype or template to open it as a treemap of its nodes and elements (from the IPS OPT, CKM 1013.26.376). Bottom: click any card to shrink a patient, composition or subtree to a blob. Collapsed things get bundled links with counts; expanded things split them into dotted element-level links.</div></header>
 <div class="bar">
- <span>Patients:</span><button data-p="both" class="on">Both</button><button data-p="Eva Holmgren">Eva</button><button data-p="Lars Nyström">Lars</button>
+ <span>Patients:</span><button data-p="both">Both</button><button data-p="Eva Holmgren">Eva</button><button data-p="Lars Nyström" class="on">Lars</button>
  <button id="syn">+ 30 synthetic patients</button>
  <button id="collapseAll">Collapse everything</button><button id="expandInst">Expand all instances</button>
  <button id="lbl">Show intermediate labels</button>
@@ -118,7 +118,7 @@ for (const p of ALLPAT) (function w(n, par) { INST.set(n.id, { n, par, pat: p })
 const instAnc = (id) => { const out = []; let e = INST.get(id); while (e && e.par) { out.push(e.par.id); e = INST.get(e.par.id); } return out; };
 const subtree = (n, acc = []) => { acc.push(n); (n.children || []).forEach((c) => subtree(c, acc)); return acc; };
 // ================= state =================
-const S = { patient: "both", synthetic: false, labelsAll: false, off: 4, collapsed: new Set(synth.map((p) => p.id)), expArch: new Set(), expTpl: new Set(), expCl: new Set() };
+const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 4, collapsed: new Set(synth.map((p) => p.id)), expArch: new Set(), expTpl: new Set(), expCl: new Set() };
 // ================= representative (visible) node for any fine id =================
 function repInst(id) { let top = null, e = INST.get(id), cur = id; while (e) { if (S.collapsed.has(cur)) top = cur; if (!e.par) break; cur = e.par.id; e = INST.get(cur); } return top || id; }
 const repArch = (id) => S.expArch.has(archOf(id)) ? id : archOf(id) + "|/";
