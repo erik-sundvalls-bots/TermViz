@@ -95,6 +95,9 @@ const rmOf = (aid) => (aid || "").split("-")[2]?.split(".")[0] || "CLUSTER";
 const ONT = new Map(D.ont.nodes.map((n) => [n.id, { ...n, parents: [], kids: [] }]));
 for (const [c, p] of D.ont.edges) { const a = ONT.get(c), b = ONT.get(p); if (a && b && !a.parents.includes(p)) { a.parents.push(p); b.kids.push(c); } }
 const CLU = new Map(D.ont.clusters.map((c) => [c.id, c]));
+// one stable colour per cluster: Tableau 10 (without grey), light hues darkened for the cream paper; fixed by the cluster's index in the data
+const CLPAL = d3.schemeTableau10.filter((c) => c !== "#bab0ac").map((c) => { const h = d3.hcl(c); h.l = Math.min(h.l, 58); h.c = Math.min(h.c, 55); return h.formatHex(); });
+const CLCOL = new Map(D.ont.clusters.map((c, i) => [c.id, CLPAL[i % CLPAL.length]]));
 const memo = (f) => { const m = new Map(); return (id) => { if (!m.has(id)) m.set(id, f(id)); return m.get(id); }; };
 const ancestors = memo((id) => { const acc = new Set(), st = [id]; while (st.length) for (const p of ONT.get(st.pop())?.parents || []) if (!acc.has(p)) { acc.add(p); st.push(p); } return acc; });
 const descendants = memo((id) => { const acc = new Set([id]), st = [id]; while (st.length) for (const k of ONT.get(st.pop())?.kids || []) if (!acc.has(k)) { acc.add(k); st.push(k); } return acc; });
@@ -192,27 +195,33 @@ function render() {
   }
   const gap = 18, total = d3.sum(layouts, (l) => l.size.width) + gap * (layouts.length - 1), avail = W - 56, sx = Math.min(1, avail / total);
   let x = 28 + Math.max(0, (avail - total) / 2); const topH = d3.max(layouts, (l) => l.size.height) + 44;
-  const dagLinks = [];
+  const dagLinks = [], clPts = new Map();
   for (const L of layouts) {
     const w = Math.max(70, L.size.width * sx), g = gTop.append("g").attr("transform", `translate(${x},${TOPY})`);
     gBands.append("rect").attr("x", x - 10).attr("y", TOPY - 24).attr("width", w + 20).attr("height", topH).attr("rx", 16).attr("fill", C.ont[L.sys]).attr("fill-opacity", .05).attr("stroke", C.ont[L.sys]).attr("stroke-opacity", .2);
     gBands.append("text").attr("x", x).attr("y", TOPY - 9).attr("font-size", 11).attr("font-weight", 700).attr("letter-spacing", 1).attr("fill", C.ont[L.sys]).text(C.ontName[L.sys].toUpperCase());
     for (const l of L.dag.links()) { const pairs = l.target.data.par.get(l.source.data.id) || [];
       const pts = l.points.map(([px, py]) => [x + px * sx, TOPY + py + 12]);
-      dagLinks.push({ pts, pairs, sys: L.sys, cnt: pairs.length, cl: !!(l.source.data.cl || l.target.data.cl) }); }
+      const ca = l.source.data.n?.cluster, cb = l.target.data.n?.cluster, inCl = ca && ca === cb && S.expCl.has(ca) ? ca : null;
+      dagLinks.push({ pts, pairs, sys: L.sys, cnt: pairs.length, cl: !!(l.source.data.cl || l.target.data.cl), clCol: inCl ? CLCOL.get(inCl) : null }); }
     for (const nd of L.dag.nodes()) { const v = nd.data, nx = x + nd.x * sx, ny = TOPY + nd.y + 12;
       R.set(v.id, { x: nx, y: ny - 7, yb: ny + 7, kind: "ont" });
       const ng = gTop.append("g").attr("class", "node box dimmable" + (S.labelsAll ? " showlbl" : "")).datum({ kind: v.cl ? "cluster" : "ont", id: v.id }).attr("transform", `translate(${nx},${ny})`);
-      if (v.cl) { ng.append("rect").attr("class", "card").attr("x", -17).attr("y", -8).attr("width", 34).attr("height", 16).attr("rx", 8).attr("fill", C.card).attr("stroke", C.ont[L.sys]).attr("stroke-width", 1.3).attr("stroke-dasharray", "3 2");
+      if (v.cl) { ng.append("rect").attr("class", "card").attr("x", -17).attr("y", -8).attr("width", 34).attr("height", 16).attr("rx", 8).attr("fill", C.card).attr("stroke", CLCOL.get(v.id)).attr("stroke-width", 1.6).attr("stroke-dasharray", "3 2");
         ng.append("text").attr("text-anchor", "middle").attr("y", 3.5).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", C.ont[L.sys]).text("+" + v.cl.members.length); continue; }
       const n = v.n, root = isRootN(n), use = usedCodes.has(n.id);
-      if (n.cluster) ng.append("circle").attr("r", 7.5).attr("fill", "none").attr("stroke", C.amber).attr("stroke-width", 1.3).attr("stroke-dasharray", "2 2");
+      if (n.cluster && S.expCl.has(n.cluster)) { ng.append("circle").attr("r", 8).attr("fill", "none").attr("stroke", CLCOL.get(n.cluster)).attr("stroke-width", 1.7).attr("stroke-dasharray", "2 2");
+        (clPts.get(n.cluster) || clPts.set(n.cluster, []).get(n.cluster)).push([nx, ny]); }
       ng.append("circle").attr("r", use ? 6 : root ? 7 : n.bound ? 5 : 3.6).attr("fill", use ? C.ont[L.sys] : n.bound ? C.ont[L.sys] + "66" : C.card).attr("stroke", C.ont[L.sys]).attr("stroke-width", 1.5);
-      if (n.parents.length > 1) ng.append("text").attr("x", 6).attr("y", -5).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", C.amber).text(`${n.parents.length}↑`);
       const lines = v.lines.length ? v.lines : v.hlines, t = ng.append("text").attr("class", v.lines.length ? "" : "hl").attr("text-anchor", "middle").attr("font-size", 10).attr("fill", C.ink).attr("paint-order", "stroke").attr("stroke", C.paper).attr("stroke-width", 3).attr("font-weight", root ? 700 : 400);
       lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("y", root ? -12 - (lines.length - 1 - i) * 11 : 16 + i * 10.5).text(ln)); }
     x += w + gap;
   }
+  // faint same-coloured hull behind each expanded cluster's members
+  const gHull = gBands.append("g").attr("class", "cl-hulls").style("pointer-events", "none");
+  for (const [cid, pts] of clPts) { const col = CLCOL.get(cid), h = pts.length >= 3 ? d3.polygonHull(pts) : null;
+    const d = h ? "M" + h.join("L") + "Z" : pts.length === 2 ? `M${pts[0]}L${pts[1]}` : `M${pts[0]}l0.01,0`;
+    gHull.append("path").attr("d", d).attr("fill", h ? col : "none").attr("fill-opacity", .1).attr("stroke", col).attr("stroke-opacity", .14).attr("stroke-width", 30).attr("stroke-linejoin", "round").attr("stroke-linecap", "round"); }
   // ===== MIDDLE: archetypes (top rows) over templates (bottom rows) =====
   const MIDY = TOPY + topH + 34, Wm = W - 72;
   // archetype order: barycenter of the concepts they link to
@@ -297,7 +306,7 @@ function render() {
     const fine = L.fineA && L.fineB && L.pairs.length === 1, cnt = L.pairs.length;
     const m = (s[1] + t[1]) / 2, d = `M${s[0]},${s[1]} C${s[0]},${m} ${t[0]},${m} ${t[0]},${t[1]}`;
     links.push({ d, pairs: L.pairs, color: famStyle[L.fam](L), fine, cnt, mid: [(s[0] + t[0]) / 2, m], fam: L.fam }); }
-  for (const l of dagLinks) links.push({ d: d3.line().curve(d3.curveBumpY)(l.pts), pairs: l.pairs, color: C.ont[l.sys], fine: true, cnt: l.cnt, dag: true, cl: l.cl, mid: l.pts[Math.floor(l.pts.length / 2)] });
+  for (const l of dagLinks) links.push({ d: d3.line().curve(d3.curveBumpY)(l.pts), pairs: l.pairs, color: l.clCol || C.ont[l.sys], fine: true, cnt: l.cnt, dag: true, cl: l.cl, mid: l.pts[Math.floor(l.pts.length / 2)] });
   gLinks.selectAll("path").data(links).join("path").attr("class", "lk dimmable").attr("d", (l) => l.d).attr("stroke", (l) => l.color)
     .attr("stroke-opacity", (l) => l.dag ? .6 : l.fine ? .55 : .42).attr("stroke-width", (l) => l.dag ? 1.2 + (l.cnt > 1 ? Math.sqrt(l.cnt) : 0) : l.fine ? 1.1 : 1 + 1.4 * Math.sqrt(l.cnt))
     .attr("stroke-dasharray", (l) => l.dag ? null : l.fine ? "2 3" : null).attr("stroke-linecap", "round");
