@@ -469,6 +469,23 @@ h2 {
   border-color: var(--ink);
 }
 
+.graph-tip {
+  position: fixed;
+  z-index: 30;
+  max-width: 300px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.graph-tip[hidden] { display: none; }
+
 #snomedPane.is-tangled [data-zoom="burst"],
 #snomedPane.is-sugiyama [data-zoom="burst"] { visibility: hidden; }
 
@@ -1058,6 +1075,11 @@ svg { display: block; }
 #snomedSvg .node-slices path { stroke: rgba(255, 255, 255, 0.85); stroke-width: 0.6; }
 #snomedSvg .is-lcp .node-disk { stroke-width: 1.6; }
 #snomedSvg .force-node { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+#snomedSvg .is-cluster { cursor: pointer; }
+#snomedSvg .is-cluster .node-hit { pointer-events: none; }
+#snomedSvg .cluster-count { font-size: 11px; font-weight: 700; fill: #1c2430; pointer-events: none; }
+#snomedSvg .cluster-hull { cursor: pointer; }
+#snomedSvg.is-clusters-plain .cluster-hull { fill: transparent; stroke: transparent; }
 #snomedSvg .pin-dot { fill: transparent; stroke: none; pointer-events: none; }
 #snomedSvg .is-user-pinned .pin-dot { fill: #fffdf8; stroke: #1c2430; stroke-width: 1; }
 

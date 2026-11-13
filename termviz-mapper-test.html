@@ -23,6 +23,7 @@
             <button type="button" data-layout="force">Force</button>
             <button type="button" data-layout="tangled">Tangled tree</button>
             <button type="button" data-layout="sugiyama" class="is-on">Sugiyama</button>
+            <button type="button" id="clusterToggle" class="is-on" aria-pressed="true" title="Group intermediate SNOMED CT concepts on the same chain into a +n cluster. Click a cluster to expand it. Click its coloured background, not a node or an edge, to collapse it. A drag does not. Hiding the list on the right removes the coloured background.">Clusters</button>
           </div>
           <p class="caption" id="snomedCaption"></p>
           <div class="legend" aria-hidden="true">
@@ -97,6 +98,7 @@
       </section>
     </main>
     <svg id="linkOverlay" class="link-overlay" aria-hidden="true"></svg>
+    <div id="graphTip" class="graph-tip" hidden></div>
     <dialog id="templateDialog" class="template-dialog" aria-labelledby="templateDialogTitle">
       <h2 id="templateDialogTitle">Load template</h2>
       <p class="dialog-note">The <a href="https://github.com/ErikSundvall/ehrtslib" target="_blank" rel="noreferrer">Ehrtslib</a> TypeScript library reads an openEHR template in any of the formats OPT, OET, web template JSON, or ADL file. A GitHub file URL to a *.t.json template from Archetype Designer also pulls the archetype dependencies/closure.</p>
