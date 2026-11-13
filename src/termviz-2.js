@@ -98,7 +98,7 @@ export function graphZoom(svgSelection) {
     .filter((event) => {
       if (event.type === "wheel") return event.ctrlKey || event.metaKey;
       const target = event.target;
-      if (typeof target?.closest === "function" && target.closest(".force-node, .tpl-node")) return false;
+      if (typeof target?.closest === "function" && target.closest(".force-node, .tpl-node, .cluster-hull")) return false;
       return !event.button;
     })
     .on("zoom", (event) => {
@@ -150,6 +150,286 @@ export function zoomGraph(svgSelection, mode) {
   const tx = (width - bounds.width * k) / 2 - bounds.x * k;
   const ty = (height - bounds.height * k) / 2 - bounds.y * k;
   play(280, (selection) => selection.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k)));
+}
+
+/**
+ * Fold intermediate is-a chains the way the V7 prototype does.
+ * Kept visible: the root, the root's children, switched-on concepts
+ * (and imported ones marked pinned), their direct parents, least common
+ * parents, and branch points. A branch point is a concept with two or
+ * more children that lead to different kept concepts. Everything else
+ * that shares the same nearest kept descendants and touches in the
+ * is-a graph becomes one +n cluster. A group of one stays a normal node.
+ * Links run child → parent, matching closureToRoot.
+ */
+export function foldSnomedClusters(nodes, links, { clustering = false, expanded = new Set() } = {}) {
+  const sourceNodes = nodes || [];
+  const sourceLinks = links || [];
+  if (!clustering || sourceNodes.length < 3) {
+    return { nodes: sourceNodes, links: sourceLinks, hulls: [] };
+  }
+  const copies = sourceNodes.map((node) => ({ ...node }));
+  const byId = new Map(copies.map((node) => [String(node.id), node]));
+  const rawLinks = [];
+  for (const link of sourceLinks) {
+    const source = String(link.source?.id ?? link.source);
+    const target = String(link.target?.id ?? link.target);
+    if (!byId.has(source) || !byId.has(target) || source === target) continue;
+    rawLinks.push({ source, target });
+  }
+  const parents = new Map([...byId.keys()].map((id) => [id, []]));
+  const kids = new Map([...byId.keys()].map((id) => [id, []]));
+  for (const link of rawLinks) {
+    if (!parents.get(link.source).includes(link.target)) parents.get(link.source).push(link.target);
+    if (!kids.get(link.target).includes(link.source)) kids.get(link.target).push(link.source);
+  }
+
+  const focus = new Set();
+  for (const node of copies) {
+    const id = String(node.id);
+    const painted = Array.isArray(node.sliceFills) && node.sliceFills.length > 0;
+    if (node.suggestion || painted || node.lcp || node.pinned) focus.add(id);
+  }
+  const kept = new Set(focus);
+  for (const id of byId.keys()) {
+    if (parents.get(id).length === 0) {
+      kept.add(id);
+      for (const child of kids.get(id)) kept.add(child);
+    }
+  }
+  for (const id of focus) for (const parent of parents.get(id)) kept.add(parent);
+
+  const memo = new Map();
+  function nearest(id, stack) {
+    if (memo.has(id)) return memo.get(id);
+    if (stack.has(id)) return "";
+    stack.add(id);
+    const acc = new Set();
+    for (const child of kids.get(id) || []) {
+      if (kept.has(child)) acc.add(child);
+      else {
+        const nested = nearest(child, stack);
+        if (nested) for (const part of nested.split("~")) if (part) acc.add(part);
+      }
+    }
+    stack.delete(id);
+    const signature = [...acc].sort().join("~");
+    memo.set(id, signature);
+    return signature;
+  }
+  let grew = true;
+  while (grew) {
+    grew = false;
+    memo.clear();
+    for (const id of byId.keys()) {
+      if (kept.has(id)) continue;
+      const distinct = new Set();
+      for (const child of kids.get(id)) {
+        if (kept.has(child)) distinct.add(child);
+        else {
+          const signature = nearest(child, new Set());
+          if (signature) distinct.add(signature);
+        }
+      }
+      if (distinct.size > 1) {
+        kept.add(id);
+        grew = true;
+      }
+    }
+  }
+  memo.clear();
+  const rest = [...byId.keys()].filter((id) => !kept.has(id));
+  const signatureOf = new Map(rest.map((id) => [id, nearest(id, new Set())]));
+  const restSet = new Set(rest);
+  const seen = new Set();
+  const clusters = [];
+  for (const start of rest) {
+    if (seen.has(start)) continue;
+    const members = [];
+    const stack = [start];
+    seen.add(start);
+    const signature = signatureOf.get(start);
+    while (stack.length) {
+      const current = stack.pop();
+      members.push(current);
+      for (const other of kids.get(current).concat(parents.get(current))) {
+        if (restSet.has(other) && !seen.has(other) && signatureOf.get(other) === signature) {
+          seen.add(other);
+          stack.push(other);
+        }
+      }
+    }
+    if (members.length >= 2) clusters.push(members.sort((a, b) => a.localeCompare(b, "en", { numeric: true })));
+  }
+  clusters.sort((a, b) => a.join("~").localeCompare(b.join("~"), "en", { numeric: true }));
+
+  const palette = clusterPalette();
+  const collapsed = new Map();
+  const open = new Map();
+  const clusterNodes = [];
+  const hulls = [];
+  clusters.forEach((members, index) => {
+    const id = `cluster:${members.join("~")}`;
+    const color = palette[index % palette.length];
+    if (expanded.has(id)) {
+      for (const member of members) open.set(member, { clusterId: id, color });
+      hulls.push({ id, members, color });
+      return;
+    }
+    for (const member of members) collapsed.set(member, id);
+    const names = members.map((member) => {
+      const node = byId.get(member);
+      const name = node?.name || node?.display || "";
+      return name && name !== member ? name : member;
+    });
+    const listed = names.slice(0, 8).join(", ");
+    clusterNodes.push({
+      id,
+      kind: "cluster",
+      clusterId: id,
+      members,
+      name: `+${members.length}`,
+      display: `+${members.length}`,
+      suggestion: false,
+      lcp: false,
+      cp: false,
+      showLabel: true,
+      fill: "#fffdf8",
+      stroke: color,
+      clusterColor: color,
+      clusterTip: `Cluster of ${members.length} intermediate concepts: ${listed}${names.length > 8 ? "…" : ""}. Click to expand.`,
+    });
+  });
+
+  const rep = (id) => collapsed.get(id) || id;
+  const visible = [];
+  const seenNode = new Set();
+  for (const node of copies) {
+    const id = String(node.id);
+    if (collapsed.has(id)) continue;
+    const mark = open.get(id);
+    visible.push(mark ? { ...node, clusterId: mark.clusterId, clusterColor: mark.color } : node);
+    seenNode.add(id);
+  }
+  for (const cluster of clusterNodes) {
+    visible.push(cluster);
+    seenNode.add(cluster.id);
+  }
+  const seenLink = new Set();
+  const foldedLinks = [];
+  for (const link of rawLinks) {
+    const source = rep(link.source);
+    const target = rep(link.target);
+    if (!source || !target || source === target || !seenNode.has(source) || !seenNode.has(target)) continue;
+    const key = `${source}>${target}`;
+    if (seenLink.has(key)) continue;
+    seenLink.add(key);
+    foldedLinks.push({ source, target });
+  }
+  return { nodes: visible, links: foldedLinks, hulls };
+}
+
+function clusterPalette() {
+  return d3.schemeTableau10.filter((color) => color !== "#bab0ac").map((color) => {
+    const hue = d3.hcl(color);
+    hue.l = Math.min(hue.l, 58);
+    hue.c = Math.min(hue.c, 55);
+    return hue.formatHex();
+  });
+}
+
+export function clusterHullPath(points) {
+  if (!points?.length) return "";
+  if (points.length >= 3) {
+    const hull = d3.polygonHull(points);
+    return hull ? `M${hull.join("L")}Z` : "";
+  }
+  if (points.length === 2) return `M${points[0]}L${points[1]}`;
+  return `M${points[0]}l0.1,0`;
+}
+
+const CLUSTER_CLICK_MOVE = 6;
+
+export function drawClusterHulls(layer, hulls, nodes, { onCollapseCluster, onClusterHover, onClusterHoverEnd } = {}) {
+  const at = new Map((nodes || []).map((node) => [String(node.id), node]));
+  const data = (hulls || []).filter((hull) => hull.members.some((id) => at.has(String(id))));
+  const group = layer.append("g").attr("class", "cluster-hulls");
+  const paths = group.selectAll("path").data(data, (item) => item.id).join("path")
+    .attr("class", "cluster-hull")
+    .attr("data-cluster", (item) => item.id)
+    .attr("fill", (item) => item.color)
+    .attr("fill-opacity", 0.12)
+    .attr("stroke", (item) => item.color)
+    .attr("stroke-opacity", 0.22)
+    .attr("stroke-width", 28)
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("pointer-events", "all")
+    .attr("d", (item) => clusterHullPath(item.members.map((id) => {
+      const node = at.get(String(id));
+      return node && Number.isFinite(node.x) && Number.isFinite(node.y) ? [node.x, node.y] : null;
+    }).filter(Boolean)));
+  paths.append("title").text((item) => `Click the background to collapse this cluster of ${item.members.length}. A drag does not.`);
+  paths
+    .on("pointerdown", function remember(event) {
+      this.__down = { x: event.clientX, y: event.clientY };
+    })
+    .on("click", function collapse(event, item) {
+      const down = this.__down;
+      if (down && Math.hypot(event.clientX - down.x, event.clientY - down.y) > CLUSTER_CLICK_MOVE) return;
+      if (event.defaultPrevented) return;
+      event.stopPropagation();
+      onClusterHoverEnd?.();
+      onCollapseCluster?.(item.id);
+    })
+    .on("pointerenter", (event, item) => onClusterHover?.(event, `Click the background to collapse this cluster of ${item.members.length}. A drag does not.`))
+    .on("pointermove", (event, item) => onClusterHover?.(event, `Click the background to collapse this cluster of ${item.members.length}. A drag does not.`))
+    .on("pointerleave", () => onClusterHoverEnd?.());
+  const parent = group.node()?.parentNode;
+  if (parent?.firstChild && parent.firstChild !== group.node()) parent.insertBefore(group.node(), parent.firstChild);
+  return paths;
+}
+
+export function syncClusterHulls(paths, pointAt) {
+  paths?.attr("d", (item) => clusterHullPath(item.members.map((id) => {
+    const point = pointAt(String(id));
+    return point && Number.isFinite(point.x) && Number.isFinite(point.y) ? [point.x, point.y] : null;
+  }).filter(Boolean)));
+}
+
+function drawClusterChrome(host, item) {
+  if (item.clusterId && item.kind !== "cluster") {
+    host.append("circle")
+      .attr("class", "cluster-ring")
+      .attr("r", 11.5)
+      .attr("fill", "none")
+      .attr("stroke", item.clusterColor || "#9aa8b5")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-dasharray", "2 2")
+      .attr("pointer-events", "none");
+  }
+  if (item.kind !== "cluster") return false;
+  const label = `+${item.members.length}`;
+  const width = Math.max(36, 16 + label.length * 7);
+  host.append("rect")
+    .attr("class", "cluster-pill")
+    .attr("x", -width / 2)
+    .attr("y", -9)
+    .attr("width", width)
+    .attr("height", 18)
+    .attr("rx", 9)
+    .attr("fill", "#fffdf8")
+    .attr("stroke", item.stroke || "#0f6e6b")
+    .attr("stroke-width", 1.6)
+    .attr("stroke-dasharray", "3 2");
+  host.append("text")
+    .attr("class", "cluster-count")
+    .attr("text-anchor", "middle")
+    .attr("y", 4)
+    .text(label);
+  host.append("circle").attr("class", "node-disk").attr("r", 1).attr("fill", "none").attr("stroke", "none");
+  host.append("title").text(item.clusterTip || "Click to expand this cluster");
+  return true;
 }
 
 const REST_CHARGE = -160;
@@ -570,7 +850,10 @@ export function renderTemplateTree(svgSelection, rootData, { selectedId, activeI
  * stay quiet until hover or until a concept is shared, and hovering a
  * node pushes its parents and children apart.
  */
-export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLinger, pins, released, onPinMove, labels, labelHidden } = {}) {
+export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLinger, pins, released, onPinMove, labels, labelHidden, clustering = false, expanded, onCollapseCluster, onClusterHover, onClusterHoverEnd } = {}) {
+  const folded = foldSnomedClusters(graph?.nodes || [], graph?.links || [], { clustering, expanded });
+  const clusterHulls = folded.hulls;
+  graph = { nodes: folded.nodes, links: folded.links };
   const svg = d3.select(svgSelection);
   clear(svg);
   svg.classed("is-tangled", false);
@@ -725,15 +1008,18 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
       if (item.lcp) classes.push("is-lcp");
       if (item.inactive) classes.push("is-inactive");
       if (item.userPinned) classes.push("is-user-pinned");
+      if (item.kind === "cluster") classes.push("is-cluster");
       if (item.showLabel) classes.push("is-labeled");
       if (item.labelOff) classes.push("is-label-off");
       return classes.join(" ");
     })
-    .attr("data-id", (item) => item.id);
+    .attr("data-id", (item) => item.id)
+    .attr("data-members", (item) => (item.kind === "cluster" ? item.members.join(" ") : null));
 
   const sliceArc = d3.arc().innerRadius(0).outerRadius(8);
   node.each(function paint(item) {
     const host = d3.select(this);
+    if (drawClusterChrome(host, item)) return;
     const slices = item.sliceFills || [];
     if (slices.length > 1) {
       const pie = d3.pie().sort(null).value(() => 1)(slices);
@@ -758,6 +1044,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
     .attr("r", 2.3);
 
   node.each(function label(item) {
+    if (item.kind === "cluster") return;
     const lines = wrapLabel(visibleName(item), 24);
     const group = d3.select(this);
     for (const kind of ["shadow", "ink"]) {
@@ -891,6 +1178,9 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
     .on("mouseover", (event, item) => paintHover(null, item))
     .on("mouseout", () => paintHover(null, null));
 
+  const hullPaths = drawClusterHulls(layer, clusterHulls, nodes, { onCollapseCluster, onClusterHover, onClusterHoverEnd });
+  const hullAt = new Map(nodes.map((item) => [String(item.id), item]));
+
   const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).distance((edge) => (edge.target.layoutFixed ? 80 : 52)).strength(0.85))
     .force("charge", d3.forceManyBody().strength(REST_CHARGE))
@@ -933,6 +1223,7 @@ export function renderSnomedForce(svgSelection, graph, { onTick, onSelect, onLin
         .attr("x2", (item) => item.target.x)
         .attr("y2", (item) => item.target.y);
       node.attr("transform", (item) => `translate(${item.x},${item.y})`);
+      syncClusterHulls(hullPaths, (id) => hullAt.get(id));
       onTick?.();
     });
   svg.node().__termvizSimulation = simulation;
@@ -1076,7 +1367,10 @@ function tanglePath(link) {
   return `M${xs} ${ys} L${xb + c2} ${ys} A${c2} ${c2} 90 0 1 ${xb} ${ys - c2} L${xb} ${yt + c1} A${c1} ${c1} 90 0 0 ${xb - c1} ${yt} L${xt} ${yt}`;
 }
 
-export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, labelHidden } = {}) {
+export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, labelHidden, clustering = false, expanded, onCollapseCluster, onClusterHover, onClusterHoverEnd } = {}) {
+  const folded = foldSnomedClusters(graph?.nodes || [], graph?.links || [], { clustering, expanded });
+  const clusterHulls = folded.hulls;
+  graph = { nodes: folded.nodes, links: folded.links };
   const svg = d3.select(svgSelection);
   clear(svg);
   svg.classed("is-tangled", true);
@@ -1239,16 +1533,19 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
       if (item.cp) classes.push("is-cp");
       if (item.lcp) classes.push("is-lcp");
       if (item.inactive) classes.push("is-inactive");
+      if (item.kind === "cluster") classes.push("is-cluster");
       if (item.showLabel) classes.push("is-labeled");
       if (item.labelOff) classes.push("is-label-off");
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.id)
+    .attr("data-members", (item) => (item.kind === "cluster" ? item.members.join(" ") : null))
     .attr("transform", (item) => `translate(${item.x},${item.y})`);
 
   const sliceArc = d3.arc().innerRadius(0).outerRadius(radius);
   node.each(function paint(item) {
     const host = d3.select(this);
+    if (drawClusterChrome(host, item)) return;
     const slices = item.sliceFills || [];
     if (slices.length > 1) {
       const pie = d3.pie().sort(null).value(() => 1)(slices);
@@ -1267,6 +1564,7 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
       .style("stroke", item.stroke || "#4682b4");
   });
   node.each(function label(item) {
+    if (item.kind === "cluster") return;
     const lines = wrapToWidth(visibleName(item), tangleLabelMax, (text) => measurer.measure(text, { fontSize: "13px" }));
     const group = d3.select(this);
     for (const kind of ["shadow", "ink"]) {
@@ -1279,6 +1577,7 @@ export function renderSnomedTangled(svgSelection, graph, { onSelect, onLinger, l
   });
   measurer.remove();
   node.append("circle").attr("class", "node-hit").attr("r", radius + 2);
+  drawClusterHulls(layer, clusterHulls, nodes, { onCollapseCluster, onClusterHover, onClusterHoverEnd });
 
   function walk(start, direction, nodesOut, linksOut) {
     const seen = new Set([start]);
@@ -1538,7 +1837,10 @@ function adjustSugiyama(nodes, links, maxLines) {
  * force graph. Optimal decrossing refuses a graph it judges too large; that
  * case falls back to two-layer decrossing and the caller is told.
  */
-export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, labels, labelHidden, preserve = false, onFrame } = {}) {
+export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, labels, labelHidden, preserve = false, onFrame, clustering = false, expanded, onCollapseCluster, onClusterHover, onClusterHoverEnd } = {}) {
+  const folded = foldSnomedClusters(graph?.nodes || [], graph?.links || [], { clustering, expanded });
+  const clusterHulls = folded.hulls;
+  graph = { nodes: folded.nodes, links: folded.links };
   const livePos = new Map();
   const livePath = new Map();
   d3.select(svgSelection).selectAll(".force-node").each(function read(datum) {
@@ -1612,8 +1914,8 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     item.lineCount = lines.length;
     const textWidth = Math.max(...lines.map((line) => measure(line)));
     item.textWidth = Math.max(SUGIYAMA_DISK, Math.ceil(textWidth + 4));
-    const shown = !item.labelOff && (item.showLabel || item.suggestion || item.cp);
-    item.layoutWidth = shown ? item.textWidth : SUGIYAMA_DISK;
+    const shown = !item.labelOff && (item.showLabel || item.suggestion || item.cp || item.kind === "cluster");
+    item.layoutWidth = item.kind === "cluster" ? Math.max(40, item.textWidth) : (shown ? item.textWidth : SUGIYAMA_DISK);
     if (!shown) continue;
     widths.set(String(item.id), item.layoutWidth);
     maxLines = Math.max(maxLines, lines.length);
@@ -1687,16 +1989,19 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       if (item.cp) classes.push("is-cp");
       if (item.lcp) classes.push("is-lcp");
       if (item.inactive) classes.push("is-inactive");
+      if (item.kind === "cluster") classes.push("is-cluster");
       if (item.showLabel) classes.push("is-labeled");
       if (item.labelOff) classes.push("is-label-off");
       return classes.join(" ");
     })
     .attr("data-id", (item) => item.id)
+    .attr("data-members", (item) => (item.kind === "cluster" ? item.members.join(" ") : null))
     .attr("transform", (item) => `translate(${item.x},${item.y})`);
 
   const sliceArc = d3.arc().innerRadius(0).outerRadius(radius);
   node.each(function paint(item) {
     const hostNode = d3.select(this);
+    if (drawClusterChrome(hostNode, item)) return;
     const slices = item.sliceFills || [];
     if (slices.length > 1) {
       const pie = d3.pie().sort(null).value(() => 1)(slices);
@@ -1715,6 +2020,7 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       .style("stroke", item.stroke || "#4682b4");
   });
   node.each(function label(item) {
+    if (item.kind === "cluster") return;
     const lines = item.labelLines || [visibleName(item)];
     const first = -(radius + 4) - (lines.length - 1) * SUGIYAMA_LINE;
     const group = d3.select(this);
@@ -1726,6 +2032,7 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
     }
   });
   node.append("circle").attr("class", "node-hit").attr("r", radius);
+  const hullPaths = drawClusterHulls(layer, clusterHulls, nodes, { onCollapseCluster, onClusterHover, onClusterHoverEnd });
 
   if (gentle) {
     const curves = linkWrap.selectAll("path");
@@ -1734,6 +2041,7 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
       return `translate(${at.x},${at.y})`;
     });
     curves.attr("d", (item) => livePath.get(`${item.source.id}|${item.target.id}`) || sugiyamaPath(item.points));
+    syncClusterHulls(hullPaths, (id) => fromPos.get(id) || nodes.find((item) => String(item.id) === id));
     const place = new Map();
     for (const item of nodes) {
       const at = fromPos.get(String(item.id)) || item;
@@ -1754,6 +2062,10 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
           return `translate(${at.x(t)},${at.y(t)})`;
         });
         curves.attr("d", (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points));
+        syncClusterHulls(hullPaths, (id) => {
+          const at = place.get(id);
+          return at ? { x: at.x(t), y: at.y(t) } : null;
+        });
         onFrame?.();
       });
   }
@@ -1925,6 +2237,10 @@ export function renderSnomedDag(svgSelection, graph, { onSelect, onLinger, label
         const at = (item) => draw.get(`${item.source.id}|${item.target.id}`)?.(t) || sugiyamaPath(item.points);
         halo.attr("d", at);
         link.attr("d", at);
+        syncClusterHulls(hullPaths, (id) => {
+          const spot = place.get(id);
+          return spot ? { x: spot.x(t), y: spot.y(t) } : null;
+        });
         onFrame?.();
       });
   }

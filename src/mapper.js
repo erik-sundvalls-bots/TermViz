@@ -45,6 +45,8 @@ const state = {
   dismissIdle: new Set(),
   treeDirection: "bottom",
   snomedLayout: "sugiyama",
+  clustering: true,
+  expandedClusters: new Set(),
 };
 
 function chip(text) {
@@ -854,6 +856,7 @@ function annotate(graph) {
     item.lcp = lcpIds.has(id);
     item.name = item.display && item.display !== id ? item.display : "";
     item.fillOpacity = 1;
+    item.pinned = state.importedCodes.has(id);
     item.sliceFills = paints.map((paint) => paint.fill);
     if (!paints.length) {
       item.fill = "#ffffff";
@@ -884,6 +887,14 @@ function forceOptions() {
       placePop();
     },
     onSelect: (item) => {
+      if (item?.kind === "cluster") {
+        state.expandedClusters.add(item.clusterId || item.id);
+        hideGraphTip();
+        renderSnomed();
+        drawSuggestionLines();
+        if (state.snomedLayout !== "force") requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
+        return;
+      }
       if (state.grabNodeId) {
         const node = findNode(state.grabNodeId);
         state.grabNodeId = null;
@@ -1266,6 +1277,42 @@ function overlayPoint(clientX, clientY) {
   return { x: local.x, y: local.y };
 }
 
+function conceptDisk(code) {
+  const direct = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
+  if (direct) return direct;
+  for (const cluster of snomedSvg.querySelectorAll(".is-cluster")) {
+    const members = (cluster.getAttribute("data-members") || "").split(/\s+/);
+    if (members.includes(String(code))) return cluster.querySelector(".node-disk");
+  }
+  return null;
+}
+
+function showGraphTip(event, text) {
+  const tip = document.querySelector("#graphTip");
+  if (!tip) return;
+  tip.hidden = false;
+  tip.textContent = text;
+  tip.style.left = `${Math.max(8, Math.min(window.innerWidth - 320, event.clientX + 14))}px`;
+  tip.style.top = `${Math.max(8, Math.min(window.innerHeight - 72, event.clientY + 14))}px`;
+}
+
+function hideGraphTip() {
+  const tip = document.querySelector("#graphTip");
+  if (tip) tip.hidden = true;
+}
+
+function collapseCluster(id) {
+  state.expandedClusters.delete(id);
+  hideGraphTip();
+  renderSnomed();
+  drawSuggestionLines();
+  if (state.snomedLayout !== "force") requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
+}
+
+function syncClusterChrome() {
+  snomedSvg?.classList.toggle("is-clusters-plain", shelfHidden());
+}
+
 function circleCenter(circle) {
   const svg = circle.ownerSVGElement;
   const matrix = circle.getScreenCTM();
@@ -1339,7 +1386,7 @@ function drawSuggestionLines() {
     const codes = (row.dataset.codes || row.dataset.code || "").split(/\s+/).filter(Boolean);
     const from = rowPoint(row);
     for (const code of codes) {
-      const circle = snomedSvg.querySelector(`[data-id="${CSS.escape(code)}"] .node-disk`);
+      const circle = conceptDisk(code);
       const to = circle ? circleCenter(circle) : null;
       if (!to) continue;
       lines.push({
@@ -1390,6 +1437,7 @@ function pinConcept(code, on) {
 }
 
 function renderSnomed({ preserve = false } = {}) {
+  syncClusterChrome();
   const draw = state.snomedLayout === "tangled"
     ? renderSnomedTangled
     : state.snomedLayout === "sugiyama"
@@ -1398,6 +1446,11 @@ function renderSnomed({ preserve = false } = {}) {
   const note = draw(snomedSvg, state.graph || { nodes: [], links: [] }, {
     ...forceOptions(),
     preserve,
+    clustering: state.clustering,
+    expanded: state.expandedClusters,
+    onCollapseCluster: collapseCluster,
+    onClusterHover: showGraphTip,
+    onClusterHoverEnd: hideGraphTip,
     onFrame: () => {
       drawSuggestionLines();
       placePop();
@@ -1443,6 +1496,7 @@ function wireChrome() {
   document.querySelector("#shelfToggle")?.addEventListener("click", () => {
     const body = document.querySelector(".snomed-body");
     const hidden = body?.classList.toggle("is-shelf-hidden");
+    snomedSvg?.classList.toggle("is-clusters-plain", Boolean(hidden));
     const button = document.querySelector("#shelfToggle");
     button?.setAttribute("aria-expanded", hidden ? "false" : "true");
     button?.setAttribute("aria-label", hidden ? "Show filtered nodes" : "Hide filtered nodes");
@@ -1469,6 +1523,16 @@ function wireChrome() {
       drawSuggestionLines();
       requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
     });
+  });
+  document.querySelector("#clusterToggle")?.addEventListener("click", () => {
+    state.clustering = !state.clustering;
+    const button = document.querySelector("#clusterToggle");
+    button?.classList.toggle("is-on", state.clustering);
+    button?.setAttribute("aria-pressed", state.clustering ? "true" : "false");
+    hideGraphTip();
+    renderSnomed();
+    drawSuggestionLines();
+    if (state.snomedLayout !== "force") requestAnimationFrame(() => zoomGraph(snomedSvg, "fit"));
   });
   for (const viewport of [document.querySelector("#snomedViewport"), document.querySelector("#treeViewport")]) {
     viewport?.querySelectorAll("[data-zoom]").forEach((button) => {
