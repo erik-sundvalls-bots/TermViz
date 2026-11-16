@@ -15,11 +15,13 @@ svg text{pointer-events:none}
 .cl-hull{cursor:pointer}
 .dimmable{transition:opacity .12s}
 @media (prefers-reduced-motion: reduce){.dimmable{transition:none}}
-svg.hovering .dimmable{opacity:.12}
-svg.hovering .dimmable.hi{opacity:1}
-svg.hovering path.lk.hi{stroke-opacity:.95!important}
-svg.hovering .hi>rect.card,svg.hovering .hi>circle{stroke:#1c2430!important;stroke-width:2px!important}
+svg.layouting .dimmable{transition:none!important}
+svg.hovering:not(.layouting) .dimmable{opacity:.12}
+svg.hovering:not(.layouting) .dimmable.hi{opacity:1}
+svg.hovering:not(.layouting) path.lk.hi{stroke-opacity:.95!important}
+svg.hovering:not(.layouting) .hi>rect.card,svg.hovering:not(.layouting) .hi>circle{stroke:#1c2430!important;stroke-width:2px!important}
 .hl{display:none} .node.showlbl .hl{display:inline} svg.hovering .node.hi .hl{display:inline}
+.elabs text, g.box text.halo{paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round}
 .band-label{font-size:11px;letter-spacing:1.4px;font-weight:700;fill:var(--muted)}
 .legend{font-size:12px;color:var(--muted);padding:0 24px 6px}
 .legend b{color:var(--ink)}
@@ -170,9 +172,19 @@ function boxLayout(n, cfg, depth = 0) {
 function place(L, x, y, out, parentId) { L.x = x; L.y = y; L.parentId = parentId || null; out.push(L); for (const k of L.kids) place(k, x + k.rx, y + k.ry, out, L.n.id); return out; }
 // ================= motion & persistent layers =================
 const reduceMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-const DUR = () => (reduceMotion() || firstPaint) ? 0 : 700;
-const anim = (sel) => { const d = DUR(); return d ? sel.transition().duration(d).ease(d3.easeCubicInOut) : sel; };
+const LAYOUT_MS = 900;
+const DUR = () => (reduceMotion() || firstPaint) ? 0 : LAYOUT_MS;
+let layoutT = null, layoutTimer = null;
+const anim = (sel) => layoutT ? sel.transition(layoutT) : sel;
 let LYS = null, PREV = new Map(), firstPaint = true, pendingH = null;
+function beginLayoutTrans() {
+  const d = DUR();
+  layoutT = d ? d3.transition("layout").duration(d).ease(d3.easeCubicInOut) : null;
+  if (layoutTimer) clearTimeout(layoutTimer);
+  svg.classed("layouting", !!d);
+  if (d) layoutTimer = setTimeout(() => { svg.classed("layouting", false); layoutTimer = null; }, d + 40);
+  return layoutT;
+}
 function layers() {
   if (LYS) return LYS;
   const defs = svg.append("defs");
@@ -180,21 +192,24 @@ function layers() {
     .append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 5).attr("stroke", "#fff").attr("stroke-opacity", .28).attr("stroke-width", 1.4);
   const gBands = svg.append("g").attr("class", "bands");
   const gHulls = svg.append("g").attr("class", "cl-hulls");
-  const gLinks = svg.append("g").attr("class", "links").attr("fill", "none").style("pointer-events", "none");
+  const gExp = svg.append("g").attr("class", "exp");
+  const gXLinks = svg.append("g").attr("class", "xlinks").attr("fill", "none").style("pointer-events", "none");
+  const gCol = svg.append("g").attr("class", "col");
+  const gDagLinks = svg.append("g").attr("class", "daglinks").attr("fill", "none").style("pointer-events", "none");
   const gTop = svg.append("g").attr("class", "top");
-  const gMid = svg.append("g").attr("class", "mid");
-  const gBot = svg.append("g").attr("class", "bot");
+  const gLab = svg.append("g").attr("class", "elabs");
   const gBadges = svg.append("g").attr("class", "badges").style("pointer-events", "none");
-  LYS = { defs, gBands, gHulls, gLinks, gTop, gMid, gBot, gBadges };
+  LYS = { defs, gBands, gHulls, gExp, gXLinks, gCol, gDagLinks, gTop, gLab, gBadges };
   return LYS;
 }
 function snapPos() {
   const m = new Map();
   svg.selectAll("g.box").each(function (d) {
     if (!d || d.id == null) return;
+    const live = this.__xy;
     const tr = this.getAttribute("transform") || "";
     const mt = /translate\(\s*([^,\s]+)[,\s]+([^)\s]+)\s*\)/.exec(tr);
-    const tx = mt ? +mt[1] : (d.tx ?? d.x ?? 0), ty = mt ? +mt[2] : (d.ty ?? d.y ?? 0);
+    const tx = live ? live.tx : mt ? +mt[1] : (d.tx ?? d.x ?? 0), ty = live ? live.ty : mt ? +mt[2] : (d.ty ?? d.y ?? 0);
     m.set(d.id, { tx, ty, x: d.x, y: d.y, w: d.w, h: d.h, kind: d.kind, clId: d.clId || d.n?.cluster, lx: d.lx, ly: d.ly, parentId: d.parentId });
   });
   return m;
@@ -223,13 +238,33 @@ function exitTarget(d, newById) {
   }
   return { tx: d.tx ?? d.x, ty: d.ty ?? d.y };
 }
+function tweenXY(sel, getEnd, endOp) {
+  const apply = (node, d, t) => {
+    const s = node.__from || { tx: d.tx ?? d.x, ty: d.ty ?? d.y }, e = getEnd(d);
+    const xy = { tx: s.tx + (e.tx - s.tx) * t, ty: s.ty + (e.ty - s.ty) * t };
+    node.__xy = xy;
+    return `translate(${xy.tx},${xy.ty})`;
+  };
+  sel.each(function (d) {
+    const cur = this.__xy, tr = this.getAttribute("transform") || "";
+    const mt = /translate\(\s*([^,\s]+)[,\s]+([^)\s]+)\s*\)/.exec(tr);
+    this.__from = cur || (mt ? { tx: +mt[1], ty: +mt[2] } : { tx: d.tx ?? d.x, ty: d.ty ?? d.y });
+  });
+  if (!layoutT) {
+    return sel.attr("transform", function (d) { return apply(this, d, 1); }).style("opacity", endOp);
+  }
+  return anim(sel).attrTween("transform", function (d) { return (t) => apply(this, d, t); }).style("opacity", endOp);
+}
 const cubic = (s, t) => { const m = (s[1] + t[1]) / 2; return `M${s[0]},${s[1]} C${s[0]},${m} ${t[0]},${m} ${t[0]},${t[1]}`; };
 const stub = (x, y) => `M${x},${y} C${x},${y} ${x},${y} ${x},${y}`;
+const ISA_GREY = "#6a7068";
 function linkWidth(l, hi) {
-  const base = l.dag ? 0.7 + 0.3 * (l.cnt > 1 ? Math.sqrt(l.cnt) : 0) : l.fine ? 0.7 : 0.7 + 0.5 * Math.sqrt(l.cnt);
+  if (l.dag) return hi ? 2.2 : 0.85;
+  const base = l.fine ? 0.7 : 0.7 + 0.5 * Math.sqrt(l.cnt);
   return hi ? Math.max(base * 2, 1.6) : base;
 }
-function linkOp(l) { return l.dag ? 0.13 : l.fine ? 0.12 : 0.15; }
+function linkOp(l) { return l.dag ? 1 : l.fine ? 0.12 : 0.15; }
+function linkColor(l, hi) { return l.dag ? (hi ? C.ink : ISA_GREY) : l.color; }
 function resampleRing(pts, n = 24) {
   const raw = pts.length >= 3 ? (d3.polygonHull(pts) || pts) : pts.slice();
   if (!raw.length) return Array.from({ length: n }, () => [0, 0]);
@@ -342,8 +377,9 @@ function render() {
   const H = BOTY + pr.h + 40;
   const oldH = +svg.attr("height") || H;
   svg.attr("height", Math.max(oldH, H));
+  beginLayoutTrans();
   if (pendingH && typeof pendingH.stop === "function") pendingH.stop();
-  if (DUR()) pendingH = anim(svg).attr("height", H);
+  if (layoutT) pendingH = anim(svg).attr("height", H);
   else { svg.attr("height", H); pendingH = null; }
   // ===== bands (tween size when the top layer grows) =====
   const bands = bandSys.concat([
@@ -398,37 +434,45 @@ function render() {
       t.selectAll("tspan").data(isCl ? [] : lines).join("tspan")
         .attr("x", 0).attr("y", (ln, i) => d.root ? -12 - (lines.length - 1 - i) * 11 : 16 + i * 10.5).text((ln) => ln);
     });
-    const go = firstPaint ? mer : anim(mer);
-    go.attr("transform", (d) => `translate(${d.tx},${d.ty})`).style("opacity", 1);
+    tweenXY(mer, (d) => ({ tx: d.tx, ty: d.ty }), 1);
     const ex = sel.exit();
     const byId = new Map(nodes.map((d) => [d.id, d]));
-    anim(ex).attr("transform", function (d) { const t = exitTarget(d, byId); return `translate(${t.tx},${t.ty})`; }).style("opacity", 0).remove();
+    tweenXY(ex, (d) => exitTarget(d, byId), 0).remove();
     bindBoxEvents(mer);
   }
   drawOnt(ontNodes);
   // ===== cluster hulls =====
   const hulls = [...clPts].map(([cid, pts]) => ({ id: cid, pts, col: CLCOL.get(cid), d: hullD(pts) }));
-  const hSel = Lyr.gHulls.selectAll("path.cl-hull").data(hulls, (d) => d.id);
-  const hEnt = hSel.enter().append("path").attr("class", "cl-hull").attr("fill-opacity", .1).attr("stroke-opacity", .14).attr("stroke-width", 30).attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("pointer-events", "all")
-    .attr("d", (d) => { const o = prevOf(d.id); const seed = o ? [[o.tx, o.ty]] : d.pts.slice(0, 1); return hullD(seed); })
-    .attr("fill-opacity", 0).attr("stroke-opacity", 0);
+  const hSel = Lyr.gHulls.selectAll("g.cl-hull").data(hulls, (d) => d.id);
+  const hEnt = hSel.enter().append("g").attr("class", "cl-hull");
+  hEnt.append("path").attr("class", "cl-hull-vis").attr("fill-opacity", 0).attr("stroke-width", 1).attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("pointer-events", "none");
+  hEnt.append("path").attr("class", "cl-hull-hit").attr("fill-opacity", 0).attr("stroke-opacity", 0).attr("stroke-width", 30).attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("pointer-events", "all");
   hEnt.append("title").text("Click the background to collapse this cluster");
   const hMer = hEnt.merge(hSel);
-  hMer.attr("fill", (d) => d.pts.length >= 3 ? d.col : "none").attr("stroke", (d) => d.col);
   hMer.each(function (d) {
-    const s = d3.select(this), prev = this.__hullPts;
+    const g = d3.select(this), prev = this.__hullPts;
     const starter = prev || (prevOf(d.id) ? [[prevOf(d.id).tx, prevOf(d.id).ty]] : d.pts);
     this.__hullPts = d.pts;
-    if (DUR() && starter && starter.length) anim(s).attrTween("d", () => interpHull(starter, d.pts)).attr("fill-opacity", .1).attr("stroke-opacity", .14);
-    else s.attr("d", d.d).attr("fill-opacity", .1).attr("stroke-opacity", .14);
+    const vis = g.select("path.cl-hull-vis").attr("fill", d.pts.length >= 3 ? d.col : "none").attr("stroke", d.col);
+    const hit = g.select("path.cl-hull-hit").attr("fill", d.pts.length >= 3 ? d.col : "none").attr("stroke", d.col);
+    if (layoutT && starter && starter.length) {
+      anim(vis).attrTween("d", () => interpHull(starter, d.pts)).attr("fill-opacity", .1).attr("stroke-opacity", .35);
+      anim(hit).attrTween("d", () => interpHull(starter, d.pts));
+    } else {
+      vis.attr("d", d.d).attr("fill-opacity", .1).attr("stroke-opacity", .35);
+      hit.attr("d", d.d);
+    }
   });
   const hEx = hSel.exit();
-  if (DUR()) {
-    anim(hEx).attrTween("d", function (d) {
+  if (layoutT) {
+    hEx.each(function (d) {
       const o = ontNodes.find((n) => n.id === d.id);
       const end = o ? [[o.tx, o.ty]] : (d.pts?.slice(0, 1) || [[0, 0]]);
-      return interpHull(this.__hullPts || d.pts, end);
-    }).attr("fill-opacity", 0).attr("stroke-opacity", 0).remove();
+      const tween = interpHull(this.__hullPts || d.pts, end);
+      anim(d3.select(this).select("path.cl-hull-vis")).attrTween("d", () => tween).attr("fill-opacity", 0).attr("stroke-opacity", 0);
+      anim(d3.select(this).select("path.cl-hull-hit")).attrTween("d", () => tween);
+    });
+    anim(hEx).style("opacity", 0).remove();
   } else hEx.remove();
   const HULL_MOVE = 6;
   Lyr.gHulls.selectAll(".cl-hull")
@@ -473,12 +517,30 @@ function render() {
     R.set(key, { x: b.x + (b.blob || b.leaf ? b.w : b.w - P) / 2, y: b.y, yb: b.y + (b.blob || b.leaf ? b.h : b.h - P), kind: mode });
     return { kind: mode, id: key, n, b, parentId: b.parentId, x: b.x, y: b.y, tx: b.x, ty: b.y, w: cardW, h: cardH, fill, stroke, sw, txt, hatch, bind, rmLab, minus, sub, lbl: n.name, lblW, hpx: b.hpx || 10, blob: !!b.blob, leaf: !!b.leaf, cnt, cntCol };
   }
-  function drawBoxes(Ls, g, mode) {
-    const items = Ls.flatMap((L) => (L.all || []).map((b) => styleBox(b, mode)));
-    const sel = g.selectAll("g.box." + mode).data(items, (d) => d.id);
-    const ent = sel.enter().append("g").attr("class", "box dimmable " + mode)
-      .attr("transform", (d) => { const o = enterOrigin(d); return `translate(${o.tx},${o.ty})`; })
-      .style("opacity", 0);
+  function paintBoxContent(g, d, halo) {
+    anim(g.select("rect.card")).attr("x", 0).attr("y", 0).attr("width", d.w).attr("height", d.h).attr("rx", 0).attr("ry", 0).attr("fill", d.fill).attr("stroke", d.stroke).attr("stroke-width", d.sw);
+    anim(g.select("rect.hatch")).attr("width", d.w).attr("height", d.h).attr("rx", 0).attr("opacity", d.hatch ? 1 : 0);
+    anim(g.select("circle.bind")).attr("cx", d.w - 4).attr("cy", 4).attr("opacity", d.bind ? 1 : 0);
+    const lbl = g.select("text.lbl");
+    lbl.attr("class", "lbl" + (halo ? " halo" : "")).attr("fill", d.txt).attr("font-weight", d.leaf || d.blob ? 600 : 700).attr("font-size", d.blob ? 11 : d.leaf ? 10 : d.hpx)
+      .text(fit(d.lbl, d.lblW, d.blob ? 11 : d.leaf ? 10 : d.hpx, d.leaf || d.blob ? 600 : 700));
+    anim(lbl).attr("x", d.blob ? 8 : d.leaf ? 4.5 : 5).attr("y", d.blob ? 14 : d.leaf ? 11 : d.hpx + 2);
+    const sub = g.select("text.sub");
+    sub.attr("class", "sub" + (halo ? " halo" : "")).attr("fill", d.txt).attr("fill-opacity", .9).attr("font-size", 9.5).text(d.sub ? fit(d.sub, d.w - 7, 9.5) : "");
+    anim(sub).attr("x", 4.5).attr("y", 21.5).attr("opacity", d.sub ? 1 : 0);
+    const rm = g.select("text.rm");
+    rm.attr("class", "rm" + (halo ? " halo" : "")).attr("fill", C.rm[d.rmLab] || C.muted).text(d.rmLab || "");
+    anim(rm).attr("x", d.w / 2).attr("y", -3).attr("opacity", d.rmLab ? 1 : 0);
+    anim(g.select("text.minus")).attr("x", d.w - 6).attr("y", d.hpx + 2).attr("opacity", d.minus ? 1 : 0);
+    const cntG = g.select("g.cnt"), cw = d.cnt ? tw(String(d.cnt), 9.5, 700) + 9 : 0;
+    cntG.attr("opacity", d.cnt ? 1 : 0);
+    if (d.cnt) {
+      anim(cntG).attr("transform", `translate(${d.w - cw - 4},4)`);
+      cntG.select("rect").attr("width", cw).attr("height", 12).attr("rx", 0).attr("fill", d.cntCol);
+      cntG.select("text").attr("x", cw / 2).attr("y", 9.5).text(d.cnt);
+    }
+  }
+  function appendBoxParts(ent) {
     ent.append("rect").attr("class", "card").attr("width", (d) => { const o = prevOf(d.parentId || d.id); return o?.w || d.w; }).attr("height", (d) => { const o = prevOf(d.parentId || d.id); return o?.h || d.h; });
     ent.append("rect").attr("class", "hatch").attr("fill", "url(#hatch)").attr("pointer-events", "none");
     ent.append("circle").attr("class", "bind").attr("r", 2.6).attr("fill", C.teal);
@@ -489,41 +551,56 @@ function render() {
     const cg = ent.append("g").attr("class", "cnt");
     cg.append("rect").attr("fill", (d) => d.cntCol);
     cg.append("text").attr("text-anchor", "middle").attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#fff");
+  }
+  function bindBoxGroup(g, items, mode, halo, events) {
+    const sel = g.selectAll("g.box." + mode).data(items, (d) => d.id);
+    const ent = sel.enter().append("g").attr("class", "box dimmable " + mode)
+      .attr("transform", (d) => { const o = enterOrigin(d); return `translate(${o.tx},${o.ty})`; })
+      .style("opacity", 0);
+    appendBoxParts(ent);
     const mer = ent.merge(sel);
-    mer.attr("class", (d) => "box dimmable " + d.kind);
-    mer.each(function (d) {
-      const g = d3.select(this);
-      anim(g.select("rect.card")).attr("x", 0).attr("y", 0).attr("width", d.w).attr("height", d.h).attr("rx", 0).attr("ry", 0).attr("fill", d.fill).attr("stroke", d.stroke).attr("stroke-width", d.sw);
-      anim(g.select("rect.hatch")).attr("width", d.w).attr("height", d.h).attr("rx", 0).attr("opacity", d.hatch ? 1 : 0);
-      anim(g.select("circle.bind")).attr("cx", d.w - 4).attr("cy", 4).attr("opacity", d.bind ? 1 : 0);
-      const lbl = g.select("text.lbl");
-      lbl.attr("fill", d.txt).attr("font-weight", d.leaf || d.blob ? 600 : 700).attr("font-size", d.blob ? 11 : d.leaf ? 10 : d.hpx)
-        .text(fit(d.lbl, d.lblW, d.blob ? 11 : d.leaf ? 10 : d.hpx, d.leaf || d.blob ? 600 : 700));
-      anim(lbl).attr("x", d.blob ? 8 : d.leaf ? 4.5 : 5).attr("y", d.blob ? 14 : d.leaf ? 11 : d.hpx + 2);
-      const sub = g.select("text.sub");
-      sub.attr("fill", d.txt).attr("fill-opacity", .9).attr("font-size", 9.5).text(d.sub ? fit(d.sub, d.w - 7, 9.5) : "");
-      anim(sub).attr("x", 4.5).attr("y", 21.5).attr("opacity", d.sub ? 1 : 0);
-      const rm = g.select("text.rm");
-      rm.attr("fill", C.rm[d.rmLab] || C.muted).text(d.rmLab || "");
-      anim(rm).attr("x", d.w / 2).attr("y", -3).attr("opacity", d.rmLab ? 1 : 0);
-      anim(g.select("text.minus")).attr("x", d.w - 6).attr("y", d.hpx + 2).attr("opacity", d.minus ? 1 : 0);
-      const cntG = g.select("g.cnt"), cw = d.cnt ? tw(String(d.cnt), 9.5, 700) + 9 : 0;
-      cntG.attr("opacity", d.cnt ? 1 : 0);
-      if (d.cnt) {
-        anim(cntG).attr("transform", `translate(${d.w - cw - 4},4)`);
-        cntG.select("rect").attr("width", cw).attr("height", 12).attr("rx", 0).attr("fill", d.cntCol);
-        cntG.select("text").attr("x", cw / 2).attr("y", 9.5).text(d.cnt);
-      }
-    });
-    const go = firstPaint ? mer : anim(mer);
-    go.attr("transform", (d) => `translate(${d.x},${d.y})`).style("opacity", 1);
+    mer.attr("class", (d) => "box dimmable " + d.kind + (d.blob && !d.parentId ? " pill" : " treemap"));
+    mer.each(function (d) { paintBoxContent(d3.select(this), d, halo); });
+    // Expanded tiles keep only the card/hatch in this (under-arc) layer; labels are drawn on top in gLab.
+    if (!halo) mer.selectAll("text.lbl, text.sub, text.rm, text.minus, g.cnt").style("opacity", 0);
+    else mer.selectAll("text.lbl, text.sub, text.rm, text.minus, g.cnt").style("opacity", null);
+    tweenXY(mer, (d) => ({ tx: d.x, ty: d.y }), 1);
     const byId = new Map(items.map((d) => [d.id, d]));
-    anim(sel.exit()).attr("transform", function (d) { const t = exitTarget(d, byId); return `translate(${t.tx},${t.ty})`; }).style("opacity", 0).remove();
-    bindBoxEvents(mer);
+    tweenXY(sel.exit(), (d) => exitTarget(d, byId), 0).remove();
+    if (events) bindBoxEvents(mer);
+    return mer;
+  }
+  function drawBoxes(Ls, mode) {
+    const items = Ls.flatMap((L) => (L.all || []).map((b) => styleBox(b, mode)));
+    // Top-level collapsed pills sit above the cross-layer links; tiles of an expanded treemap (including inner blobs) sit below them.
+    const pills = items.filter((d) => d.blob && !d.parentId);
+    const tiles = items.filter((d) => !(d.blob && !d.parentId));
+    const pillIds = new Set(pills.map((d) => d.id)), tileIds = new Set(tiles.map((d) => d.id));
+    Lyr.gCol.selectAll("g.box." + mode).each(function (d) { if (d && tileIds.has(d.id)) Lyr.gExp.node().appendChild(this); });
+    Lyr.gExp.selectAll("g.box." + mode).each(function (d) { if (d && pillIds.has(d.id)) Lyr.gCol.node().appendChild(this); });
+    bindBoxGroup(Lyr.gExp, tiles, mode, false, true);
+    bindBoxGroup(Lyr.gCol, pills, mode, true, true);
+    // Label layer on top of the arcs, only for expanded treemap tiles
+    const lsel = Lyr.gLab.selectAll("g.elab." + mode).data(tiles, (d) => d.id);
+    const lent = lsel.enter().append("g").attr("class", "elab dimmable " + mode)
+      .attr("transform", (d) => { const o = enterOrigin(d); return `translate(${o.tx},${o.ty})`; })
+      .style("opacity", 0).style("pointer-events", "none");
+    appendBoxParts(lent);
+    lent.selectAll("rect, circle").attr("opacity", 0).attr("fill", "none").attr("stroke", "none");
+    const lmer = lent.merge(lsel);
+    lmer.attr("class", (d) => "elab dimmable " + d.kind);
+    lmer.each(function (d) {
+      const g = d3.select(this);
+      paintBoxContent(g, d, true);
+      g.selectAll("rect.card, rect.hatch, circle.bind").style("visibility", "hidden").attr("opacity", 0);
+    });
+    tweenXY(lmer, (d) => ({ tx: d.x, ty: d.y }), 1);
+    const lBy = new Map(tiles.map((d) => [d.id, d]));
+    tweenXY(lsel.exit(), (d) => exitTarget(d, lBy), 0).remove();
     return items;
   }
-  const midItems = drawBoxes(arL, Lyr.gMid, "arch").concat(drawBoxes(tpL, Lyr.gMid, "tpl"));
-  const botItems = drawBoxes(ptL, Lyr.gBot, "inst");
+  const midItems = drawBoxes(arL, "arch").concat(drawBoxes(tpL, "tpl"));
+  const botItems = drawBoxes(ptL, "inst");
   const allBox = midItems.concat(botItems);
   const newById = new Map(ontNodes.map((d) => [d.id, d]).concat(allBox.map((d) => [d.id, d])));
   // ===== cross-layer links =====
@@ -559,16 +636,20 @@ function render() {
     if (Number.isFinite(x) && Number.isFinite(y)) return stub(x, y);
     return l.d;
   }
-  const pSel = Lyr.gLinks.selectAll("path.lk").data(links, (d) => d.key);
-  const pEnt = pSel.enter().append("path").attr("class", "lk dimmable").attr("d", startPath).attr("stroke-opacity", 0).attr("stroke-linecap", "round");
-  const pMer = pEnt.merge(pSel);
-  pMer.attr("stroke", (l) => l.color).attr("stroke-dasharray", (l) => l.dag ? null : l.fine ? "2 3" : null);
-  anim(pMer).attr("d", (l) => l.d).attr("stroke-opacity", (l) => linkOp(l)).attr("stroke-width", (l) => linkWidth(l, false));
-  const pEx = pSel.exit();
-  anim(pEx).attr("d", function (l) {
-    const o = newById.get(l.a) || newById.get(l.b);
-    return o ? stub(o.tx ?? o.x, o.ty ?? o.y) : this.getAttribute("d");
-  }).attr("stroke-opacity", 0).remove();
+  function drawLinkLayer(g, data) {
+    const pSel = g.selectAll("path.lk").data(data, (d) => d.key);
+    const pEnt = pSel.enter().append("path").attr("class", "lk dimmable").attr("d", startPath).attr("stroke-opacity", 0).attr("stroke-linecap", "round");
+    const pMer = pEnt.merge(pSel);
+    pMer.attr("stroke", (l) => linkColor(l, false)).attr("stroke-dasharray", (l) => l.dag ? null : l.fine ? "2 3" : null);
+    anim(pMer).attr("d", (l) => l.d).attr("stroke-opacity", (l) => linkOp(l)).attr("stroke-width", (l) => linkWidth(l, false));
+    anim(pSel.exit()).attr("d", function (l) {
+      const o = newById.get(l.a) || newById.get(l.b);
+      return o ? stub(o.tx ?? o.x, o.ty ?? o.y) : this.getAttribute("d");
+    }).attr("stroke-opacity", 0).remove();
+  }
+  const xLinks = links.filter((l) => !l.dag), dLinks = links.filter((l) => l.dag);
+  drawLinkLayer(Lyr.gXLinks, xLinks);
+  drawLinkLayer(Lyr.gDagLinks, dLinks);
   const bl = links.filter((l) => l.cnt > 1);
   const bg = Lyr.gBadges.selectAll("g.lk-badge").data(bl, (d) => d.key);
   const bgE = bg.enter().append("g").attr("class", "lk-badge dimmable").attr("transform", (l) => { const o = prevOf(l.a) || prevOf(l.b); return `translate(${o ? (o.tx ?? o.x) : l.mid[0]},${o ? (o.ty ?? o.y) : l.mid[1]})`; }).attr("opacity", 0);
@@ -579,8 +660,8 @@ function render() {
   bgM.select("text").attr("fill", (l) => l.color).text((l) => l.cnt);
   anim(bgM).attr("transform", (l) => `translate(${l.mid[0]},${l.mid[1]})`).attr("opacity", 0.35);
   anim(bg.exit()).attr("opacity", 0).remove();
-  CUR = { links, gLinks: Lyr.gLinks, gBadges: Lyr.gBadges };
-  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, bundled: bl.length, dur: DUR() };
+  CUR = { links, gXLinks: Lyr.gXLinks, gDagLinks: Lyr.gDagLinks, gBadges: Lyr.gBadges };
+  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS };
   firstPaint = false;
 }
 function bindBoxEvents(sel) {
@@ -620,18 +701,28 @@ function trace(d) {
     for (const a of D.archetypes) for (const [el, c] of a.bindings) if (Dd.has(c)) addArchEl(el); }
   return T;
 }
+function restyleLinks(g, hiFn) {
+  if (!g) return;
+  g.selectAll("path.lk").classed("hi", hiFn)
+    .attr("stroke-width", (l) => linkWidth(l, hiFn(l)))
+    .attr("stroke", (l) => linkColor(l, hiFn(l)));
+}
 function apply(T) {
   const vis = new Set([...T].map(rep));
+  const isHi = (l) => l.pairs.some(([a, b]) => T.has(a) && T.has(b));
   svg.classed("hovering", true);
-  svg.selectAll(".box").classed("hi", (d) => vis.has(d.id));
-  CUR.gLinks.selectAll("path.lk").classed("hi", (l) => l.pairs.some(([a, b]) => T.has(a) && T.has(b)))
-    .attr("stroke-width", function (l) { return linkWidth(l, d3.select(this).classed("hi")); });
-  CUR.gBadges.selectAll("g").classed("hi", (l) => l.pairs.some(([a, b]) => T.has(a) && T.has(b)));
+  svg.selectAll(".box, g.elab").classed("hi", (d) => vis.has(d.id));
+  restyleLinks(CUR.gXLinks, isHi);
+  restyleLinks(CUR.gDagLinks, isHi);
+  CUR.gBadges.selectAll("g").classed("hi", isHi);
 }
 function clear() {
   svg.classed("hovering", false);
   svg.selectAll(".hi").classed("hi", false);
-  if (CUR) CUR.gLinks.selectAll("path.lk").attr("stroke-width", (l) => linkWidth(l, false));
+  if (CUR) {
+    restyleLinks(CUR.gXLinks, () => false);
+    restyleLinks(CUR.gDagLinks, () => false);
+  }
   tip.style("display", "none");
 }
 function tipHtml(d, T) {
