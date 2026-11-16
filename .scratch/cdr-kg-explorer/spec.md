@@ -2,7 +2,7 @@
 
 <!-- Spec for the feature `cdr-kg-explorer`, kept in the local-markdown issue-tracker layout (`.scratch/<feature>/spec.md`) used by the engineering agent skills. Implementation tickets can go in `.scratch/cdr-kg-explorer/issues/NN-<slug>.md`. -->
 
-Status: draft v2, 2026-11-12. Owner: Erik Sundvall. Target design: **V7 collapsible stack**, built piece by piece in small PRs on top of TermViz PR #2. Replaces draft v1 (2026-11-11), which was also the basis for PR #2.
+Status: draft v3, 2026-11-16. Owner: Erik Sundvall. Target design: **V7 collapsible stack**, built piece by piece in small PRs on top of TermViz PR #2. Replaces draft v1 (2026-11-11), which was also the basis for PR #2.
 
 ## 1. Why
 The single banded Sugiyama graph of TermViz PR #1 became a hairball. PR #2 restarted from a copy of `termviz-mapper-test.html` (calm look, split view, root on top, one root per ontology). The layout study (V1–V7) showed that the views can stay readable at every scale if every layer can be collapsed and links follow what is visible. V7 is the agreed target.
@@ -24,6 +24,9 @@ Cross-cutting behaviour:
 - **Cherry-picking:** clicking instance or template nodes picks them, and the top pane can then show only their codes and ancestors. Named pick lists are saved in the URL hash, with presets in the manifest.
 - **Language:** Swedish terms by default and an English switch. The English prototype shows the target content.
 - Keep the PR #2 / mapper look: fonts, curves, zoom controls, concept popover, pin and label switches, and loading feedback that names any failing URL.
+- **Smooth transitions.** Most big graph changes — cluster expand/collapse, Sugiyama re-layouts, archetype or template expand-to-treemap, instance treemap collapse or expand, and patient-filter changes — must animate with object constancy: keyed joins on stable ids, about 600–800 ms, easeCubicInOut. Nodes, cluster pills and hulls tween from their old positions to the new ones; edges morph; entering items fade in from the expanded cluster's or parent card's previous position; exiting items shrink into the collapsed position. If the user clicks mid-transition, the next animation starts from the in-flight positions. The page respects `prefers-reduced-motion` (animation duration is 0).
+- **Treemap styling.** Tiles keep the tight content-fitted sizing. The look is inspired by the [Observable cascaded treemap](https://observablehq.com/@d3/cascaded-treemap): thin strokes (about 0.5–1 px, or fill steps with no stroke), square corners (no rounded rects on treemap tiles), and a slightly tighter default cascade offset (3 px) and header padding so the packing stays compact and less cluttered.
+- **Link de-emphasis and z-order.** When nothing is hovered or selected, all links (bundled and dotted) are much more transparent (about 0.12–0.2 opacity) and thinner, and every link layer is drawn underneath the node layers so the middle archetype and template nodes are never covered. Hover or selection restores the highlighted path to full strength.
 
 ## 3. Roadmap: small PRs on top of PR #2
 Each step is its own PR, stacked on the previous one. Each must be previewable on its own under `/TermViz/previews/pr-<n>/` and keep the earlier steps working.
@@ -53,6 +56,7 @@ Steps 2 and 3 can be done in parallel. Each PR should stay at about one agent se
 - With everything collapsed, the page fits one screen. Expanding one archetype or one patient keeps the other positions stable.
 - Picking 5 instance nodes gives a readable top pane of at most about 40 visible nodes, with no overlapping labels at Fit.
 - There are no visual regressions against PR #2 / `termviz-mapper-test.html`. Every step deploys to its PR preview.
+- Expanding or collapsing a large SNOMED CT cluster, a treemap, or a patient filter animates over about 700 ms so existing nodes can be followed to their new positions (unless the user prefers reduced motion).
 
 ## 6. Decisions taken (from v1 open questions)
 1. Instances get their own bottom layer, not an extra level of the template tree.
