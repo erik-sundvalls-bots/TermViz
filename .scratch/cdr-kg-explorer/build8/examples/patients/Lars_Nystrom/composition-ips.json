@@ -1,0 +1,1837 @@
+{
+  "id": "pat:lars",
+  "k": "patient",
+  "name": "Lars Nyström",
+  "born": 1959,
+  "sex": "male",
+  "children": [
+    {
+      "id": "lars:ips",
+      "k": "composition",
+      "name": "IPS · 2026-04-02",
+      "date": "2026-04-02",
+      "tpl": "tpl:ips",
+      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']",
+      "invented": false,
+      "children": [
+        {
+          "id": "lars:ips/Problem List",
+          "k": "section",
+          "name": "Problem List",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e0",
+              "k": "entry",
+              "name": {
+                "sv": "Diabetes mellitus typ 2",
+                "en": "Type 2 diabetes mellitus"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e0/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Diabetes mellitus typ 2",
+                    "en": "Type 2 diabetes mellitus"
+                  },
+                  "codes": [
+                    "sct:44054006",
+                    "icd10:E11.9"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e0/v1",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2018-09-03",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e0/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e0/v2",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                },
+                {
+                  "id": "lars:ips/e0/v3",
+                  "k": "element",
+                  "name": "Diagnostic certainty",
+                  "value": {
+                    "sv": "Bekräftad (local::at0076)",
+                    "en": "Confirmed (local::at0076)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0073]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:ips/e1",
+              "k": "entry",
+              "name": {
+                "sv": "Essentiell hypertoni",
+                "en": "Essential hypertension"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e1/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Essentiell hypertoni",
+                    "en": "Essential hypertension"
+                  },
+                  "codes": [
+                    "sct:59621000",
+                    "icd10:I10"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e1/v1",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2012-02-20",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e1/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e1/v2",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/Allergies & Intolerances",
+          "k": "section",
+          "name": "Allergies & Intolerances",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e2",
+              "k": "entry",
+              "name": {
+                "sv": "Jordnötsallergi",
+                "en": "Peanut allergy"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']",
+              "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+              "arch": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e2/v0",
+                  "k": "element",
+                  "name": "Substance",
+                  "value": {
+                    "sv": "jordnöt",
+                    "en": "peanut"
+                  },
+                  "codes": [
+                    "sct:762952008"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e2/v1",
+                  "k": "element",
+                  "name": "Verification status",
+                  "value": {
+                    "sv": "Bekräftad (local::at0065)",
+                    "en": "Confirmed (local::at0065)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0063]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0063]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0063]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e2/v2",
+                  "k": "element",
+                  "name": "Criticality",
+                  "value": {
+                    "sv": "Hög (local::at0103)",
+                    "en": "High (local::at0103)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0101]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0101]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0101]",
+                  "vt": [
+                    "DV_CODED_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e2/v3",
+                  "k": "element",
+                  "name": "Type",
+                  "value": {
+                    "sv": "Allergi",
+                    "en": "Allergy"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0058]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0058]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0058]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e2/Reaction",
+                  "k": "cluster",
+                  "name": "Reaction",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]",
+                  "children": [
+                    {
+                      "id": "lars:ips/e2/v4",
+                      "k": "element",
+                      "name": "Manifestation",
+                      "value": {
+                        "sv": "anafylaxi",
+                        "en": "anaphylaxis"
+                      },
+                      "codes": [
+                        "sct:39579001"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0011]",
+                      "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                      "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]/items[at0011]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0011]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e2/v5",
+                      "k": "element",
+                      "name": "Severity",
+                      "value": {
+                        "sv": "Svår (local::at0090)",
+                        "en": "Severe (local::at0090)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0089]",
+                      "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                      "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]/items[at0089]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0089]",
+                      "vt": [
+                        "DV_CODED_TEXT",
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/Medication Summary",
+          "k": "section",
+          "name": "Medication Summary",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e3",
+              "k": "entry",
+              "name": "Metformin 1000 mg",
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e3/v0",
+                  "k": "element",
+                  "name": "Medication item",
+                  "value": {
+                    "sv": "Metformin 1000 mg tablett",
+                    "en": "Metformin 1000 mg tablet"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e3/Medication",
+                  "k": "archetype",
+                  "name": "Medication",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.medication.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e3/v1",
+                      "k": "element",
+                      "name": "Name",
+                      "value": "metformin",
+                      "codes": [
+                        "sct:109081006",
+                        "atc:A10BA02"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0132]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e3/v2",
+                      "k": "element",
+                      "name": "Form",
+                      "value": {
+                        "sv": "filmdragerad tablett",
+                        "en": "film-coated tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0071]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e3/Medication/Strength (presentation)",
+                      "k": "cluster",
+                      "name": "Strength (presentation)",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]",
+                      "children": [
+                        {
+                          "id": "lars:ips/e3/v3",
+                          "k": "element",
+                          "name": "Strength numerator",
+                          "value": "1000 mg",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]/items[at0153]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "vt": [
+                            "DV_QUANTITY"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.medication.v1"
+                },
+                {
+                  "id": "lars:ips/e3/Dosage",
+                  "k": "archetype",
+                  "name": "Dosage",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e3/v4",
+                      "k": "element",
+                      "name": "Dose amount",
+                      "value": "1",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0144]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "vt": [
+                        "DV_QUANTITY",
+                        "DV_INTERVAL<DV_QUANTITY>"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e3/v5",
+                      "k": "element",
+                      "name": "Dose unit",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0145]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e3/Dosage/Timing - daily",
+                      "k": "archetype",
+                      "name": "Timing - daily",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]",
+                      "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/",
+                      "children": [
+                        {
+                          "id": "lars:ips/e3/v6",
+                          "k": "element",
+                          "name": "Frequency",
+                          "value": "2 /d",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/items[at0003]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "vt": [
+                            "DV_QUANTITY",
+                            "DV_INTERVAL<DV_QUANTITY>"
+                          ]
+                        }
+                      ],
+                      "arch": "openEHR-EHR-CLUSTER.timing_daily.v1"
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.dosage.v1"
+                },
+                {
+                  "id": "lars:ips/e3/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "lars:ips/e3/v7",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "oralt",
+                        "en": "oral"
+                      },
+                      "codes": [
+                        "sct:26643006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:ips/e4",
+              "k": "entry",
+              "name": "Atenolol 50 mg",
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e4/v0",
+                  "k": "element",
+                  "name": "Medication item",
+                  "value": {
+                    "sv": "Atenolol 50 mg tablett",
+                    "en": "Atenolol 50 mg tablet"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e4/Medication",
+                  "k": "archetype",
+                  "name": "Medication",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.medication.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e4/v1",
+                      "k": "element",
+                      "name": "Name",
+                      "value": "atenolol",
+                      "codes": [
+                        "sct:387506000",
+                        "atc:C07AB03"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0132]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e4/Medication/Strength (presentation)",
+                      "k": "cluster",
+                      "name": "Strength (presentation)",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]",
+                      "children": [
+                        {
+                          "id": "lars:ips/e4/v2",
+                          "k": "element",
+                          "name": "Strength numerator",
+                          "value": "50 mg",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]/items[at0153]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "vt": [
+                            "DV_QUANTITY"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.medication.v1"
+                },
+                {
+                  "id": "lars:ips/e4/Dosage",
+                  "k": "archetype",
+                  "name": "Dosage",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e4/v3",
+                      "k": "element",
+                      "name": "Dose amount",
+                      "value": "1",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0144]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "vt": [
+                        "DV_QUANTITY",
+                        "DV_INTERVAL<DV_QUANTITY>"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e4/Dosage/Timing - daily",
+                      "k": "archetype",
+                      "name": "Timing - daily",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]",
+                      "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/",
+                      "children": [
+                        {
+                          "id": "lars:ips/e4/v4",
+                          "k": "element",
+                          "name": "Frequency",
+                          "value": "1 /d",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/items[at0003]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "vt": [
+                            "DV_QUANTITY",
+                            "DV_INTERVAL<DV_QUANTITY>"
+                          ]
+                        }
+                      ],
+                      "arch": "openEHR-EHR-CLUSTER.timing_daily.v1"
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.dosage.v1"
+                },
+                {
+                  "id": "lars:ips/e4/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "lars:ips/e4/v5",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "oralt",
+                        "en": "oral"
+                      },
+                      "codes": [
+                        "sct:26643006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/Immunizations",
+          "k": "section",
+          "name": "Immunizations",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e5",
+              "k": "entry",
+              "name": {
+                "sv": "Influensavaccin 2025",
+                "en": "Influenza vaccine 2025"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": "2025-10-14",
+              "children": [
+                {
+                  "id": "lars:ips/e5/v0",
+                  "k": "element",
+                  "name": "Immunisation item",
+                  "value": {
+                    "sv": "Influensavaccin (inaktiverat)",
+                    "en": "Influenza vaccine (inactivated)"
+                  },
+                  "codes": [
+                    "sct:1181000221105",
+                    "atc:J07BB"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e5/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "lars:ips/e5/v1",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "intramuskulärt",
+                        "en": "intramuscular"
+                      },
+                      "codes": [
+                        "sct:78421000"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "lars:ips/e5/v2",
+                  "k": "element",
+                  "name": "Sequence number",
+                  "value": "1",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0025]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0025]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0025]",
+                  "vt": [
+                    "DV_COUNT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/History of Procedures",
+          "k": "section",
+          "name": "History of Procedures",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e6",
+              "k": "entry",
+              "name": {
+                "sv": "Appendektomi",
+                "en": "Appendectomy"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]",
+              "aid": "openEHR-EHR-ACTION.procedure.v1",
+              "arch": "openEHR-EHR-ACTION.procedure.v1",
+              "time": "1998-06-11",
+              "children": [
+                {
+                  "id": "lars:ips/e6/v0",
+                  "k": "element",
+                  "name": "Procedure name",
+                  "value": {
+                    "sv": "Appendektomi",
+                    "en": "Appendectomy"
+                  },
+                  "codes": [
+                    "sct:80146002"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-ACTION.procedure.v1",
+                  "archEl": "openEHR-EHR-ACTION.procedure.v1|/description[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e6/v1",
+                  "k": "element",
+                  "name": "Body site",
+                  "value": "appendix",
+                  "codes": [
+                    "sct:66754008"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0063]",
+                  "aid": "openEHR-EHR-ACTION.procedure.v1",
+                  "archEl": "openEHR-EHR-ACTION.procedure.v1|/description[at0001]/items[at0063]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0063]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/Diagnostic Results",
+          "k": "section",
+          "name": "Diagnostic Results",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e7",
+              "k": "entry",
+              "name": "HbA1c",
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "arch": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "time": "2026-03-28",
+              "children": [
+                {
+                  "id": "lars:ips/e7/v0",
+                  "k": "element",
+                  "name": "Test name",
+                  "value": "HbA1c (IFCC)",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e7/Specimen",
+                  "k": "archetype",
+                  "name": "Specimen",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e7/v1",
+                      "k": "element",
+                      "name": "Specimen type",
+                      "value": {
+                        "sv": "venöst blod",
+                        "en": "venous blood"
+                      },
+                      "codes": [
+                        "sct:122555007"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/items[at0029]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.specimen.v1"
+                },
+                {
+                  "id": "lars:ips/e7/Laboratory analyte result",
+                  "k": "archetype",
+                  "name": "Laboratory analyte result",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:ips/e7/v2",
+                      "k": "element",
+                      "name": "Analyte name",
+                      "value": {
+                        "sv": "B-HbA1c (IFCC)",
+                        "en": "B—HbA1c (IFCC)"
+                      },
+                      "codes": [
+                        "npu:NPU27300"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0024]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:ips/e7/v3",
+                      "k": "element",
+                      "name": "Analyte result",
+                      "value": "58 mmol/mol",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0001]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "vt": null
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:ips/Vital Signs",
+          "k": "section",
+          "name": "Vital Signs",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:ips/e8",
+              "k": "entry",
+              "name": {
+                "sv": "Blodtryck",
+                "en": "Blood pressure"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "arch": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e8/v0",
+                  "k": "element",
+                  "name": "Systolic",
+                  "value": "142 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                },
+                {
+                  "id": "lars:ips/e8/v1",
+                  "k": "element",
+                  "name": "Diastolic",
+                  "value": "88 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:ips/e9",
+              "k": "entry",
+              "name": {
+                "sv": "Puls",
+                "en": "Pulse"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "arch": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e9/v0",
+                  "k": "element",
+                  "name": "Rate",
+                  "value": "68 /min",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:ips/e10",
+              "k": "entry",
+              "name": {
+                "sv": "Pulsoximetri",
+                "en": "Pulse oximetry"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "arch": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e10/v0",
+                  "k": "element",
+                  "name": "SpO₂",
+                  "value": "98 %",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "vt": [
+                    "DV_PROPORTION"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:ips/e11",
+              "k": "entry",
+              "name": {
+                "sv": "Kroppsvikt",
+                "en": "Body weight"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "arch": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:ips/e11/v0",
+                  "k": "element",
+                  "name": "Weight",
+                  "value": "92.1 kg",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.body_weight.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lars:dm",
+      "k": "composition",
+      "name": {
+        "sv": "Diabetesårskontroll* · 2025-10-10",
+        "en": "Annual diabetes review* · 2025-10-10"
+      },
+      "date": "2025-10-10",
+      "tpl": "tpl:dm",
+      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']",
+      "invented": true,
+      "children": [
+        {
+          "id": "lars:dm/Problem List",
+          "k": "section",
+          "name": "Problem List",
+          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:dm/e0",
+              "k": "entry",
+              "name": {
+                "sv": "Diabetes mellitus typ 2",
+                "en": "Type 2 diabetes mellitus"
+              },
+              "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:dm/e0/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Diabetes mellitus typ 2",
+                    "en": "Type 2 diabetes mellitus"
+                  },
+                  "codes": [
+                    "sct:44054006",
+                    "icd10:E11.9"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:dm/e0/v1",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2018-09-03",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "lars:dm/e0/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:dm/e0/v2",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                },
+                {
+                  "id": "lars:dm/e0/v3",
+                  "k": "element",
+                  "name": "Diagnostic certainty",
+                  "value": {
+                    "sv": "Bekräftad (local::at0076)",
+                    "en": "Confirmed (local::at0076)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0073]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:dm/Vital Signs",
+          "k": "section",
+          "name": "Vital Signs",
+          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:dm/e1",
+              "k": "entry",
+              "name": {
+                "sv": "Blodtryck",
+                "en": "Blood pressure"
+              },
+              "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "arch": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:dm/e1/v0",
+                  "k": "element",
+                  "name": "Systolic",
+                  "value": "138 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                },
+                {
+                  "id": "lars:dm/e1/v1",
+                  "k": "element",
+                  "name": "Diastolic",
+                  "value": "86 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lars:dm/e2",
+              "k": "entry",
+              "name": {
+                "sv": "Kroppsvikt",
+                "en": "Body weight"
+              },
+              "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "arch": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:dm/e2/v0",
+                  "k": "element",
+                  "name": "Weight",
+                  "value": "93.0 kg",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.body_weight.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:dm/Diagnostic Results",
+          "k": "section",
+          "name": "Diagnostic Results",
+          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:dm/e3",
+              "k": "entry",
+              "name": "HbA1c",
+              "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "arch": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "time": "2025-10-03",
+              "children": [
+                {
+                  "id": "lars:dm/e3/v0",
+                  "k": "element",
+                  "name": "Test name",
+                  "value": "HbA1c (IFCC)",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:dm/e3/Specimen",
+                  "k": "archetype",
+                  "name": "Specimen",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:dm/e3/v1",
+                      "k": "element",
+                      "name": "Specimen type",
+                      "value": {
+                        "sv": "venöst blod",
+                        "en": "venous blood"
+                      },
+                      "codes": [
+                        "sct:122555007"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/items[at0029]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.specimen.v1"
+                },
+                {
+                  "id": "lars:dm/e3/Laboratory analyte result",
+                  "k": "archetype",
+                  "name": "Laboratory analyte result",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:dm/e3/v2",
+                      "k": "element",
+                      "name": "Analyte name",
+                      "value": {
+                        "sv": "B-HbA1c (IFCC)",
+                        "en": "B—HbA1c (IFCC)"
+                      },
+                      "codes": [
+                        "npu:NPU27300"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0024]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:dm/e3/v3",
+                      "k": "element",
+                      "name": "Analyte result",
+                      "value": "61 mmol/mol",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0001]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "vt": null
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lars:dm/Medication Summary",
+          "k": "section",
+          "name": "Medication Summary",
+          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "lars:dm/e4",
+              "k": "entry",
+              "name": "Metformin 1000 mg",
+              "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "lars:dm/e4/v0",
+                  "k": "element",
+                  "name": "Medication item",
+                  "value": {
+                    "sv": "Metformin 1000 mg tablett",
+                    "en": "Metformin 1000 mg tablet"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "lars:dm/e4/Medication",
+                  "k": "archetype",
+                  "name": "Medication",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.medication.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:dm/e4/v1",
+                      "k": "element",
+                      "name": "Name",
+                      "value": "metformin",
+                      "codes": [
+                        "sct:109081006",
+                        "atc:A10BA02"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0132]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:dm/e4/v2",
+                      "k": "element",
+                      "name": "Form",
+                      "value": {
+                        "sv": "filmdragerad tablett",
+                        "en": "film-coated tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0071]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:dm/e4/Medication/Strength (presentation)",
+                      "k": "cluster",
+                      "name": "Strength (presentation)",
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]",
+                      "children": [
+                        {
+                          "id": "lars:dm/e4/v3",
+                          "k": "element",
+                          "name": "Strength numerator",
+                          "value": "1000 mg",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]/items[at0153]",
+                          "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "vt": [
+                            "DV_QUANTITY"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.medication.v1"
+                },
+                {
+                  "id": "lars:dm/e4/Dosage",
+                  "k": "archetype",
+                  "name": "Dosage",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/",
+                  "children": [
+                    {
+                      "id": "lars:dm/e4/v4",
+                      "k": "element",
+                      "name": "Dose amount",
+                      "value": "1",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0144]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "vt": [
+                        "DV_QUANTITY",
+                        "DV_INTERVAL<DV_QUANTITY>"
+                      ]
+                    },
+                    {
+                      "id": "lars:dm/e4/v5",
+                      "k": "element",
+                      "name": "Dose unit",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0145]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "lars:dm/e4/Dosage/Timing - daily",
+                      "k": "archetype",
+                      "name": "Timing - daily",
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]",
+                      "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/",
+                      "children": [
+                        {
+                          "id": "lars:dm/e4/v6",
+                          "k": "element",
+                          "name": "Frequency",
+                          "value": "2 /d",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/items[at0003]",
+                          "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "vt": [
+                            "DV_QUANTITY",
+                            "DV_INTERVAL<DV_QUANTITY>"
+                          ]
+                        }
+                      ],
+                      "arch": "openEHR-EHR-CLUSTER.timing_daily.v1"
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.dosage.v1"
+                },
+                {
+                  "id": "lars:dm/e4/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "lars:dm/e4/v7",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "oralt",
+                        "en": "oral"
+                      },
+                      "codes": [
+                        "sct:26643006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:dm|[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Diabetesårskontroll*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "v8Instance": true
+}

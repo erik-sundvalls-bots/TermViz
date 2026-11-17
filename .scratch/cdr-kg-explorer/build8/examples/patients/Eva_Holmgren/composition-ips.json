@@ -1,0 +1,1729 @@
+{
+  "id": "pat:eva",
+  "k": "patient",
+  "name": "Eva Holmgren",
+  "born": 1968,
+  "sex": "female",
+  "children": [
+    {
+      "id": "eva:ips",
+      "k": "composition",
+      "name": "IPS · 2026-03-15",
+      "date": "2026-03-15",
+      "tpl": "tpl:ips",
+      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']",
+      "invented": false,
+      "children": [
+        {
+          "id": "eva:ips/Problem List",
+          "k": "section",
+          "name": "Problem List",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e0",
+              "k": "entry",
+              "name": {
+                "sv": "Fraktur i övre delen av höger radius",
+                "en": "Fracture of upper end of right radius"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e0/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Fraktur, övre delen av höger radius",
+                    "en": "Fracture of upper end of right radius"
+                  },
+                  "codes": [
+                    "sct:72704001",
+                    "icd10:S52.1"
+                  ],
+                  "note": "SNOMED CT expression 72704001:363698007=62413002,272741003=24028007",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e0/v1",
+                  "k": "element",
+                  "name": "Body site",
+                  "value": {
+                    "sv": "övre delen av höger radius",
+                    "en": "upper end of right radius"
+                  },
+                  "codes": [
+                    "sct:62413002"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0012]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0012]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0012]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e0/v2",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2026-03-02",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e0/v3",
+                  "k": "element",
+                  "name": "Severity",
+                  "value": {
+                    "sv": "Måttlig (local::at0048)",
+                    "en": "Moderate (local::at0048)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0005]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0005]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e0/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e0/v4",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                },
+                {
+                  "id": "eva:ips/e0/v5",
+                  "k": "element",
+                  "name": "Diagnostic certainty",
+                  "value": {
+                    "sv": "Bekräftad (local::at0076)",
+                    "en": "Confirmed (local::at0076)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0073]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:ips/e1",
+              "k": "entry",
+              "name": {
+                "sv": "Essentiell hypertoni",
+                "en": "Essential hypertension"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e1/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Essentiell hypertoni",
+                    "en": "Essential hypertension"
+                  },
+                  "codes": [
+                    "sct:59621000",
+                    "icd10:I10"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e1/v1",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2019-05-14",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e1/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e1/v2",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                },
+                {
+                  "id": "eva:ips/e1/v3",
+                  "k": "element",
+                  "name": "Diagnostic certainty",
+                  "value": {
+                    "sv": "Bekräftad (local::at0076)",
+                    "en": "Confirmed (local::at0076)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0073]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/Allergies & Intolerances",
+          "k": "section",
+          "name": "Allergies & Intolerances",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e2",
+              "k": "entry",
+              "name": {
+                "sv": "Penicillinallergi",
+                "en": "Penicillin allergy"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']",
+              "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+              "arch": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e2/v0",
+                  "k": "element",
+                  "name": "Substance",
+                  "value": "penicillin",
+                  "codes": [
+                    "sct:764146007"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e2/v1",
+                  "k": "element",
+                  "name": "Verification status",
+                  "value": {
+                    "sv": "Bekräftad (local::at0065)",
+                    "en": "Confirmed (local::at0065)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0063]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0063]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0063]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e2/v2",
+                  "k": "element",
+                  "name": "Criticality",
+                  "value": {
+                    "sv": "Låg (local::at0102)",
+                    "en": "Low (local::at0102)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0101]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0101]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0101]",
+                  "vt": [
+                    "DV_CODED_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e2/v3",
+                  "k": "element",
+                  "name": "Type",
+                  "value": {
+                    "sv": "Allergi",
+                    "en": "Allergy"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0058]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0058]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0058]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e2/Reaction",
+                  "k": "cluster",
+                  "name": "Reaction",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]",
+                  "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]",
+                  "children": [
+                    {
+                      "id": "eva:ips/e2/v4",
+                      "k": "element",
+                      "name": "Manifestation",
+                      "value": {
+                        "sv": "urtikaria",
+                        "en": "urticaria"
+                      },
+                      "codes": [
+                        "sct:126485001"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0011]",
+                      "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                      "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]/items[at0011]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0011]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e2/v5",
+                      "k": "element",
+                      "name": "Severity",
+                      "value": {
+                        "sv": "Lindrig (local::at0093)",
+                        "en": "Mild (local::at0093)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0089]",
+                      "aid": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1",
+                      "archEl": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1|/data[at0001]/items[at0009]/items[at0089]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Allergies & Intolerances']/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1,'Allergy Intolerance']/data[at0001]/items[at0009]/items[at0089]",
+                      "vt": [
+                        "DV_CODED_TEXT",
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/Medication Summary",
+          "k": "section",
+          "name": "Medication Summary",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e3",
+              "k": "entry",
+              "name": "Atenolol 50 mg",
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e3/v0",
+                  "k": "element",
+                  "name": "Medication item",
+                  "value": {
+                    "sv": "Atenolol 50 mg tablett",
+                    "en": "Atenolol 50 mg tablet"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e3/Medication",
+                  "k": "archetype",
+                  "name": "Medication",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.medication.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e3/v1",
+                      "k": "element",
+                      "name": "Name",
+                      "value": "atenolol",
+                      "codes": [
+                        "sct:387506000",
+                        "atc:C07AB03"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0132]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e3/v2",
+                      "k": "element",
+                      "name": "Form",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0071]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e3/Medication/Strength (presentation)",
+                      "k": "cluster",
+                      "name": "Strength (presentation)",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]",
+                      "children": [
+                        {
+                          "id": "eva:ips/e3/v3",
+                          "k": "element",
+                          "name": "Strength numerator",
+                          "value": "50 mg",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]/items[at0153]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "vt": [
+                            "DV_QUANTITY"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.medication.v1"
+                },
+                {
+                  "id": "eva:ips/e3/Dosage",
+                  "k": "archetype",
+                  "name": "Dosage",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e3/v4",
+                      "k": "element",
+                      "name": "Dose amount",
+                      "value": "1",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0144]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "vt": [
+                        "DV_QUANTITY",
+                        "DV_INTERVAL<DV_QUANTITY>"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e3/v5",
+                      "k": "element",
+                      "name": "Dose unit",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0145]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e3/Dosage/Timing - daily",
+                      "k": "archetype",
+                      "name": "Timing - daily",
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]",
+                      "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/",
+                      "children": [
+                        {
+                          "id": "eva:ips/e3/v6",
+                          "k": "element",
+                          "name": "Frequency",
+                          "value": "1 /d",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/items[at0003]",
+                          "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "vt": [
+                            "DV_QUANTITY",
+                            "DV_INTERVAL<DV_QUANTITY>"
+                          ]
+                        }
+                      ],
+                      "arch": "openEHR-EHR-CLUSTER.timing_daily.v1"
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.dosage.v1"
+                },
+                {
+                  "id": "eva:ips/e3/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "eva:ips/e3/v7",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "oralt",
+                        "en": "oral"
+                      },
+                      "codes": [
+                        "sct:26643006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/Immunizations",
+          "k": "section",
+          "name": "Immunizations",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e4",
+              "k": "entry",
+              "name": {
+                "sv": "Influensavaccin 2025",
+                "en": "Influenza vaccine 2025"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": "2025-10-20",
+              "children": [
+                {
+                  "id": "eva:ips/e4/v0",
+                  "k": "element",
+                  "name": "Immunisation item",
+                  "value": {
+                    "sv": "Influensavaccin (inaktiverat)",
+                    "en": "Influenza vaccine (inactivated)"
+                  },
+                  "codes": [
+                    "sct:1181000221105",
+                    "atc:J07BB"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e4/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "eva:ips/e4/v1",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "intramuskulärt",
+                        "en": "intramuscular"
+                      },
+                      "codes": [
+                        "sct:78421000"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e4/v2",
+                      "k": "element",
+                      "name": "Target site",
+                      "value": {
+                        "sv": "vänster överarm",
+                        "en": "left upper arm"
+                      },
+                      "codes": [
+                        "sct:368208006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0141]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0141]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0140]/items[at0141]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "eva:ips/e4/v3",
+                  "k": "element",
+                  "name": "Sequence number",
+                  "value": "1",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0025]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0025]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Immunizations']/items[openEHR-EHR-ACTION.medication.v1,'Immunization statement']/description[at0017]/items[at0025]",
+                  "vt": [
+                    "DV_COUNT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/History of Procedures",
+          "k": "section",
+          "name": "History of Procedures",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e5",
+              "k": "entry",
+              "name": {
+                "sv": "Fixering av fraktur",
+                "en": "Fixation of fracture"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]",
+              "aid": "openEHR-EHR-ACTION.procedure.v1",
+              "arch": "openEHR-EHR-ACTION.procedure.v1",
+              "time": "2026-03-03",
+              "children": [
+                {
+                  "id": "eva:ips/e5/v0",
+                  "k": "element",
+                  "name": "Procedure name",
+                  "value": {
+                    "sv": "Fixering av fraktur",
+                    "en": "Fixation of fracture"
+                  },
+                  "codes": [
+                    "sct:239279000"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-ACTION.procedure.v1",
+                  "archEl": "openEHR-EHR-ACTION.procedure.v1|/description[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e5/v1",
+                  "k": "element",
+                  "name": "Body site",
+                  "value": {
+                    "sv": "höger radius",
+                    "en": "right radius"
+                  },
+                  "codes": [
+                    "sct:62413002"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0063]",
+                  "aid": "openEHR-EHR-ACTION.procedure.v1",
+                  "archEl": "openEHR-EHR-ACTION.procedure.v1|/description[at0001]/items[at0063]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'History of Procedures']/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0063]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/Diagnostic Results",
+          "k": "section",
+          "name": "Diagnostic Results",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e6",
+              "k": "entry",
+              "name": {
+                "sv": "Hemoglobin",
+                "en": "Haemoglobin"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "arch": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+              "time": "2026-03-14",
+              "children": [
+                {
+                  "id": "eva:ips/e6/v0",
+                  "k": "element",
+                  "name": "Test name",
+                  "value": {
+                    "sv": "Hemoglobin",
+                    "en": "Haemoglobin"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e6/Specimen",
+                  "k": "archetype",
+                  "name": "Specimen",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e6/v1",
+                      "k": "element",
+                      "name": "Specimen type",
+                      "value": {
+                        "sv": "venöst blod",
+                        "en": "venous blood"
+                      },
+                      "codes": [
+                        "sct:122555007"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "aid": "openEHR-EHR-CLUSTER.specimen.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.specimen.v1|/items[at0029]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.specimen.v1]/items[at0029]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.specimen.v1"
+                },
+                {
+                  "id": "eva:ips/e6/Laboratory analyte result",
+                  "k": "archetype",
+                  "name": "Laboratory analyte result",
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:ips/e6/v2",
+                      "k": "element",
+                      "name": "Analyte name",
+                      "value": {
+                        "sv": "B-Hemoglobin(Fe)",
+                        "en": "B—Haemoglobin(Fe)"
+                      },
+                      "codes": [
+                        "npu:NPU02319"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0024]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0024]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:ips/e6/v3",
+                      "k": "element",
+                      "name": "Analyte result",
+                      "value": "8.2 mmol/L",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "aid": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1|/items[at0001]",
+                      "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Diagnostic Results']/items[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]/data[at0001]/events[at0002]/data[at0003]/items[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]/items[at0001]",
+                      "vt": null
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.laboratory_test_analyte.v1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:ips/Vital Signs",
+          "k": "section",
+          "name": "Vital Signs",
+          "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:ips/e7",
+              "k": "entry",
+              "name": {
+                "sv": "Blodtryck",
+                "en": "Blood pressure"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "arch": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e7/v0",
+                  "k": "element",
+                  "name": "Systolic",
+                  "value": "128 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                },
+                {
+                  "id": "eva:ips/e7/v1",
+                  "k": "element",
+                  "name": "Diastolic",
+                  "value": "82 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:ips/e8",
+              "k": "entry",
+              "name": {
+                "sv": "Puls",
+                "en": "Pulse"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "arch": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e8/v0",
+                  "k": "element",
+                  "name": "Rate",
+                  "value": "72 /min",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:ips/e9",
+              "k": "entry",
+              "name": {
+                "sv": "Pulsoximetri",
+                "en": "Pulse oximetry"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "arch": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e9/v0",
+                  "k": "element",
+                  "name": "SpO₂",
+                  "value": "97 %",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "vt": [
+                    "DV_PROPORTION"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:ips/e10",
+              "k": "entry",
+              "name": {
+                "sv": "Kroppsvikt",
+                "en": "Body weight"
+              },
+              "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "arch": "openEHR-EHR-OBSERVATION.body_weight.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:ips/e10/v0",
+                  "k": "element",
+                  "name": "Weight",
+                  "value": "68.4 kg",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:ips|[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.body_weight.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.body_weight.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.health_summary.v1,'International Patient Summary']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_weight.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eva:akut",
+      "k": "composition",
+      "name": {
+        "sv": "Akutbesök* · 2026-03-02",
+        "en": "Emergency visit* · 2026-03-02"
+      },
+      "date": "2026-03-02",
+      "tpl": "tpl:akut",
+      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']",
+      "invented": true,
+      "children": [
+        {
+          "id": "eva:akut/Problem List",
+          "k": "section",
+          "name": "Problem List",
+          "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:akut/e0",
+              "k": "entry",
+              "name": {
+                "sv": "Fraktur i övre delen av höger radius",
+                "en": "Fracture of upper end of right radius"
+              },
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]",
+              "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "arch": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e0/v0",
+                  "k": "element",
+                  "name": "Problem/Diagnosis name",
+                  "value": {
+                    "sv": "Fraktur, övre delen av höger radius",
+                    "en": "Fracture of upper end of right radius"
+                  },
+                  "codes": [
+                    "sct:72704001",
+                    "icd10:S52.1"
+                  ],
+                  "note": "SNOMED CT expression 72704001:363698007=62413002,272741003=24028007",
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0002]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e0/v1",
+                  "k": "element",
+                  "name": "Body site",
+                  "value": {
+                    "sv": "övre delen av höger radius",
+                    "en": "upper end of right radius"
+                  },
+                  "codes": [
+                    "sct:62413002"
+                  ],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0012]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0012]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0012]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e0/v2",
+                  "k": "element",
+                  "name": "Date/time of onset",
+                  "value": "2026-03-02",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0077]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]",
+                  "vt": [
+                    "DV_DATE_TIME"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e0/v3",
+                  "k": "element",
+                  "name": "Severity",
+                  "value": {
+                    "sv": "Måttlig (local::at0048)",
+                    "en": "Moderate (local::at0048)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0005]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0005]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e0/Problem/Diagnosis qualifier",
+                  "k": "archetype",
+                  "name": "Problem/Diagnosis qualifier",
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:akut/e0/v4",
+                      "k": "element",
+                      "name": "Active/Inactive?",
+                      "value": {
+                        "sv": "Aktiv (local::at0026)",
+                        "en": "Active (local::at0026)"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "aid": "openEHR-EHR-CLUSTER.problem_qualifier.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.problem_qualifier.v1|/items[at0003]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[openEHR-EHR-CLUSTER.problem_qualifier.v1]/items[at0003]",
+                      "vt": [
+                        "DV_CODED_TEXT"
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.problem_qualifier.v1"
+                },
+                {
+                  "id": "eva:akut/e0/v5",
+                  "k": "element",
+                  "name": "Diagnostic certainty",
+                  "value": {
+                    "sv": "Bekräftad (local::at0076)",
+                    "en": "Confirmed (local::at0076)"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "aid": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                  "archEl": "openEHR-EHR-EVALUATION.problem_diagnosis.v1|/data[at0001]/items[at0073]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Problem List']/items[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0073]",
+                  "vt": [
+                    "DV_CODED_TEXT",
+                    "DV_TEXT"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:akut/Vital Signs",
+          "k": "section",
+          "name": "Vital Signs",
+          "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:akut/e1",
+              "k": "entry",
+              "name": {
+                "sv": "Blodtryck",
+                "en": "Blood pressure"
+              },
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "arch": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e1/v0",
+                  "k": "element",
+                  "name": "Systolic",
+                  "value": "141 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e1/v1",
+                  "k": "element",
+                  "name": "Diastolic",
+                  "value": "88 mm[Hg]",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "aid": "openEHR-EHR-OBSERVATION.blood_pressure.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.blood_pressure.v2|/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:akut/e2",
+              "k": "entry",
+              "name": {
+                "sv": "Puls",
+                "en": "Pulse"
+              },
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "arch": "openEHR-EHR-OBSERVATION.pulse.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e2/v0",
+                  "k": "element",
+                  "name": "Rate",
+                  "value": "96 /min",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:akut/e3",
+              "k": "entry",
+              "name": {
+                "sv": "Pulsoximetri",
+                "en": "Pulse oximetry"
+              },
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]",
+              "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "arch": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e3/v0",
+                  "k": "element",
+                  "name": "SpO₂",
+                  "value": "98 %",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "aid": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1",
+                  "archEl": "openEHR-EHR-OBSERVATION.pulse_oximetry.v1|/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.pulse_oximetry.v1]/data[at0001]/events[at0002]/data[at0003]/items[at0006]",
+                  "vt": [
+                    "DV_PROPORTION"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "eva:akut/e4",
+              "k": "entry",
+              "name": {
+                "sv": "Kroppstemperatur",
+                "en": "Body temperature"
+              },
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_temperature.v2]",
+              "aid": "openEHR-EHR-OBSERVATION.body_temperature.v2",
+              "arch": "openEHR-EHR-OBSERVATION.body_temperature.v2",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e4/v0",
+                  "k": "element",
+                  "name": "Temperature",
+                  "value": "36.9 °C",
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_temperature.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "aid": "openEHR-EHR-OBSERVATION.body_temperature.v2",
+                  "archEl": "openEHR-EHR-OBSERVATION.body_temperature.v2|/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Vital Signs']/items[openEHR-EHR-OBSERVATION.body_temperature.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]",
+                  "vt": [
+                    "DV_QUANTITY"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eva:akut/Medication Summary",
+          "k": "section",
+          "name": "Medication Summary",
+          "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']",
+          "aid": "openEHR-EHR-SECTION.adhoc.v1",
+          "children": [
+            {
+              "id": "eva:akut/e5",
+              "k": "entry",
+              "name": "Atenolol 50 mg",
+              "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']",
+              "aid": "openEHR-EHR-ACTION.medication.v1",
+              "arch": "openEHR-EHR-ACTION.medication.v1",
+              "time": null,
+              "children": [
+                {
+                  "id": "eva:akut/e5/v0",
+                  "k": "element",
+                  "name": "Medication item",
+                  "value": {
+                    "sv": "Atenolol 50 mg tablett",
+                    "en": "Atenolol 50 mg tablet"
+                  },
+                  "codes": [],
+                  "note": {
+                    "sv": "",
+                    "en": ""
+                  },
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0020]",
+                  "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0020]",
+                  "vt": [
+                    "DV_TEXT"
+                  ]
+                },
+                {
+                  "id": "eva:akut/e5/Medication",
+                  "k": "archetype",
+                  "name": "Medication",
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.medication.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:akut/e5/v1",
+                      "k": "element",
+                      "name": "Name",
+                      "value": "atenolol",
+                      "codes": [
+                        "sct:387506000",
+                        "atc:C07AB03"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0132]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0132]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:akut/e5/v2",
+                      "k": "element",
+                      "name": "Form",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0071]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0071]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:akut/e5/Medication/Strength (presentation)",
+                      "k": "cluster",
+                      "name": "Strength (presentation)",
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]",
+                      "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]",
+                      "children": [
+                        {
+                          "id": "eva:akut/e5/v3",
+                          "k": "element",
+                          "name": "Strength numerator",
+                          "value": "50 mg",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "aid": "openEHR-EHR-CLUSTER.medication.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.medication.v1|/items[at0152]/items[at0153]",
+                          "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.medication.v1]/items[at0152]/items[at0153]",
+                          "vt": [
+                            "DV_QUANTITY"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.medication.v1"
+                },
+                {
+                  "id": "eva:akut/e5/Dosage",
+                  "k": "archetype",
+                  "name": "Dosage",
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]",
+                  "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                  "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/",
+                  "children": [
+                    {
+                      "id": "eva:akut/e5/v4",
+                      "k": "element",
+                      "name": "Dose amount",
+                      "value": "1",
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0144]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0144]",
+                      "vt": [
+                        "DV_QUANTITY",
+                        "DV_INTERVAL<DV_QUANTITY>"
+                      ]
+                    },
+                    {
+                      "id": "eva:akut/e5/v5",
+                      "k": "element",
+                      "name": "Dose unit",
+                      "value": {
+                        "sv": "tablett",
+                        "en": "tablet"
+                      },
+                      "codes": [],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "aid": "openEHR-EHR-CLUSTER.dosage.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.dosage.v1|/items[at0145]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[at0145]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    },
+                    {
+                      "id": "eva:akut/e5/Dosage/Timing - daily",
+                      "k": "archetype",
+                      "name": "Timing - daily",
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]",
+                      "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                      "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/",
+                      "children": [
+                        {
+                          "id": "eva:akut/e5/v6",
+                          "k": "element",
+                          "name": "Frequency",
+                          "value": "1 /d",
+                          "codes": [],
+                          "note": {
+                            "sv": "",
+                            "en": ""
+                          },
+                          "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "aid": "openEHR-EHR-CLUSTER.timing_daily.v1",
+                          "archEl": "openEHR-EHR-CLUSTER.timing_daily.v1|/items[at0003]",
+                          "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[openEHR-EHR-CLUSTER.dosage.v1]/items[openEHR-EHR-CLUSTER.timing_daily.v1]/items[at0003]",
+                          "vt": [
+                            "DV_QUANTITY",
+                            "DV_INTERVAL<DV_QUANTITY>"
+                          ]
+                        }
+                      ],
+                      "arch": "openEHR-EHR-CLUSTER.timing_daily.v1"
+                    }
+                  ],
+                  "arch": "openEHR-EHR-CLUSTER.dosage.v1"
+                },
+                {
+                  "id": "eva:akut/e5/Administration details",
+                  "k": "cluster",
+                  "name": "Administration details",
+                  "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]",
+                  "aid": "openEHR-EHR-ACTION.medication.v1",
+                  "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]",
+                  "children": [
+                    {
+                      "id": "eva:akut/e5/v7",
+                      "k": "element",
+                      "name": "Route",
+                      "value": {
+                        "sv": "oralt",
+                        "en": "oral"
+                      },
+                      "codes": [
+                        "sct:26643006"
+                      ],
+                      "note": {
+                        "sv": "",
+                        "en": ""
+                      },
+                      "tnode": "tpl:akut|[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "aid": "openEHR-EHR-ACTION.medication.v1",
+                      "archEl": "openEHR-EHR-ACTION.medication.v1|/description[at0017]/items[at0140]/items[at0147]",
+                      "path": "[openEHR-EHR-COMPOSITION.encounter.v1,'Akutbesök*']/content[openEHR-EHR-SECTION.adhoc.v1,'Medication Summary']/items[openEHR-EHR-ACTION.medication.v1,'Medication statement']/description[at0017]/items[at0140]/items[at0147]",
+                      "vt": [
+                        "DV_TEXT"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "v8Instance": true
+}

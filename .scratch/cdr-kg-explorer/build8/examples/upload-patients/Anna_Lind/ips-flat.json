@@ -1,0 +1,23 @@
+{
+  "international_patient_summary/category|code": "433",
+  "international_patient_summary/category|value": "event",
+  "international_patient_summary/category|terminology": "openehr",
+  "international_patient_summary/context/start_time": "2026-11-16T10:00:00Z",
+  "international_patient_summary/context/setting|code": "225",
+  "international_patient_summary/context/setting|value": "home",
+  "international_patient_summary/context/setting|terminology": "openehr",
+  "international_patient_summary/dv_text": "International Patient Summary",
+  "international_patient_summary/problem_list/dv_text": "Problem List",
+  "international_patient_summary/problem_list/problem_diagnosis/problem_diagnosis_name|code": "22298006",
+  "international_patient_summary/problem_list/problem_diagnosis/problem_diagnosis_name|value": "Myocardial infarction",
+  "international_patient_summary/problem_list/problem_diagnosis/problem_diagnosis_name|terminology": "SNOMED-CT",
+  "international_patient_summary/problem_list/problem_diagnosis/language|code": "sv",
+  "international_patient_summary/problem_list/problem_diagnosis/language|terminology": "ISO_639-1",
+  "international_patient_summary/problem_list/problem_diagnosis/encoding|code": "UTF-8",
+  "international_patient_summary/problem_list/problem_diagnosis/encoding|terminology": "IANA_character-sets",
+  "international_patient_summary/composer|name": "V8 fixture",
+  "international_patient_summary/language|code": "sv",
+  "international_patient_summary/language|terminology": "ISO_639-1",
+  "international_patient_summary/territory|code": "SE",
+  "international_patient_summary/territory|terminology": "ISO_3166-1"
+}

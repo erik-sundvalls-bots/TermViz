@@ -1,0 +1,7 @@
+# V8 upload examples
+
+- `patients/Lars_Nystrom/` and `patients/Eva_Holmgren/`: one directory per patient (the folder name is the patient label). The JSON is the bilingual V8 instance tree (`v8Instance: true`) exported from the bundled demo data, for testing directory upload of the demo format.
+- `upload-patients/Anna_Lind/ips-flat.json`: a real openEHR FLAT composition for the IPS OPT, generated with ehrtslib `deserializeFromFlatWithIssues` + `serializeToFlat`. The problem/diagnosis name is SNOMED CT 22298006 (Myocardial infarction), which is not in the bundled cache, so a live `$lookup` is needed.
+- `upload-patients/Bo_Ek/ips-canonical.json` and `ips.xml`: the same IPS problem (SNOMED CT 254837009, Malignant neoplasm of breast) as canonical ITS-JSON and ITS-XML, produced with ehrtslib `JsonCanonicalSerializer` / `XmlSerializer` after `toTypedRm`.
+- `archetypes/openEHR-EHR-CLUSTER.organisation.v1.0.4.adls`: a copy of an ADL2 fixture from ehrtslib `test_data/adl2/ckm_roundtrip_127/` (do not edit the ehrtslib repo). Concept label should parse as “Organisation” from `ontology.term_definitions`.
+- The IPS operational template used in the demo is `ips.opt` (CKM 1013.26.376, same file as V7, symlink to `build7/ips.opt`). Use that to test template upload via ehrtslib (`parseTemplateInput` + `buildWebTemplate`). FLAT uploads need this OPT (or its stored web template JSON) to be loaded first.

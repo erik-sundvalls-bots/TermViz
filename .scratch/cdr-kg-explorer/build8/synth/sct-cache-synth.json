@@ -1,0 +1,7035 @@
+{
+"111088007": {
+"sv": "latex",
+"en": "Latex",
+"parents": [
+"43230003",
+"289941004"
+],
+"inactive": false
+},
+"1119349007": {
+"sv": "vaccin som endast innehåller mRNA från SARS-coronavirus 2",
+"en": "SARS-CoV-2 mRNA vaccine",
+"parents": [
+"763760008",
+"28531000087107"
+],
+"inactive": false
+},
+"11466000": {
+"sv": "kejsarsnitt",
+"en": "Cesarean section",
+"parents": [
+"386811000",
+"177118006",
+"62972009",
+"236991000",
+"84275009"
+],
+"inactive": false
+},
+"116571008": {
+"sv": "betametason",
+"en": "Betamethasone",
+"parents": [
+"126090008",
+"363733008",
+"419933005",
+"372558009"
+],
+"inactive": false
+},
+"13645005": {
+"sv": "kroniskt obstruktiv lungsjukdom",
+"en": "Chronic obstructive pulmonary disease",
+"parents": [
+"17097001",
+"233776003"
+],
+"inactive": false
+},
+"173422009": {
+"sv": "tonsillektomi",
+"en": "Tonsillectomy",
+"parents": [
+"363146006",
+"128993003",
+"385450002",
+"30226002",
+"107996003"
+],
+"inactive": false
+},
+"194828000": {
+"sv": "angina pectoris",
+"en": "Angina pectoris",
+"parents": [
+"414545008",
+"29857009",
+"301358001"
+],
+"inactive": false
+},
+"195967001": {
+"sv": "astma",
+"en": "Asthma",
+"parents": [
+"50043002"
+],
+"inactive": false
+},
+"2031000221103": {
+"sv": "vaccin som endast innehåller antigen från Clostridium tetani-toxoid och Corynebacterium diphtheriae-toxoid, för vuxna",
+"en": "Clostridium tetani and Corynebacterium diphtheriae toxoids only adult vaccine product",
+"parents": [
+"871830002",
+"1101000221104",
+"871826000"
+],
+"inactive": false
+},
+"21719001": {
+"sv": "allergisk rinit orsakad av pollen",
+"en": "Allergic rhinitis caused by pollen",
+"parents": [
+"367498001"
+],
+"inactive": false
+},
+"21897009": {
+"sv": "generaliserat ångestsyndrom",
+"en": "Generalized anxiety disorder",
+"parents": [
+"197480006"
+],
+"inactive": false
+},
+"233604007": {
+"sv": "pneumoni",
+"en": "Pneumonia",
+"parents": [
+"128601007",
+"205237003"
+],
+"inactive": false
+},
+"235595009": {
+"sv": "gastroesofageal refluxsjukdom",
+"en": "Gastroesophageal reflux disease",
+"parents": [
+"29384001",
+"37657006"
+],
+"inactive": false
+},
+"239873007": {
+"sv": "knäledsartros",
+"en": "Osteoarthritis of knee",
+"parents": [
+"396275006",
+"363056008",
+"371081002"
+],
+"inactive": false
+},
+"24079001": {
+"sv": "atopiskt eksem",
+"en": "Atopic dermatitis",
+"parents": [
+"43116000"
+],
+"inactive": false
+},
+"256262001": {
+"sv": "silverbjörkspollen",
+"en": "European white birch pollen",
+"parents": [
+"782576004"
+],
+"inactive": false
+},
+"260152009": {
+"sv": "kattmjäll",
+"en": "Cat dander",
+"parents": [
+"264287008"
+],
+"inactive": false
+},
+"266569009": {
+"sv": "benign prostatahyperplasi",
+"en": "Benign prostatic hyperplasia",
+"parents": [
+"433234005"
+],
+"inactive": false
+},
+"271807003": {
+"sv": "hudutslag",
+"en": "Eruption",
+"parents": [
+"95324001"
+],
+"inactive": false
+},
+"279039007": {
+"sv": "smärta i ländryggen",
+"en": "Low back pain",
+"parents": [
+"161891005",
+"822987005"
+],
+"inactive": false
+},
+"28231008": {
+"sv": "gallblåsan, struktur",
+"en": "Gallbladder structure",
+"parents": [
+"699602007",
+"1340085003"
+],
+"inactive": false
+},
+"325072002": {
+"sv": "insulin aspart",
+"en": "Insulin aspart",
+"parents": [
+"96367001"
+],
+"inactive": false
+},
+"33396006": {
+"sv": "nickel",
+"en": "Nickel",
+"parents": [
+"22907001",
+"87918000",
+"767305000"
+],
+"inactive": false
+},
+"34206005": {
+"sv": "under huden",
+"en": "Subcutaneous route",
+"parents": [
+"284009009"
+],
+"inactive": false
+},
+"35489007": {
+"sv": "depression",
+"en": "Depressive disorder",
+"parents": [
+"46206005"
+],
+"inactive": false
+},
+"362908009": {
+"sv": "höger höftled, struktur",
+"en": "Right hip joint structure",
+"parents": [
+"725436006",
+"287579007",
+"24136001"
+],
+"inactive": false
+},
+"368209003": {
+"sv": "höger överarm, struktur",
+"en": "Right upper arm structure",
+"parents": [
+"40983000",
+"762212003"
+],
+"inactive": false
+},
+"37117007": {
+"sv": "höger inguinalregion, struktur",
+"en": "Right inguinal region structure",
+"parents": [
+"26893007",
+"39132006"
+],
+"inactive": false
+},
+"372509005": {
+"sv": "tamsulosin",
+"en": "Tamsulosin",
+"parents": [
+"372787008",
+"372842000",
+"387406002"
+],
+"inactive": false
+},
+"372523007": {
+"sv": "cetirizin",
+"en": "Cetirizine",
+"parents": [
+"410942007",
+"771456001",
+"373228009"
+],
+"inactive": false
+},
+"372594008": {
+"sv": "sertralin",
+"en": "Sertraline",
+"parents": [
+"126068008",
+"372720008",
+"373225007"
+],
+"inactive": false
+},
+"372687004": {
+"sv": "amoxicillin",
+"en": "Amoxicillin",
+"parents": [
+"373298001"
+],
+"inactive": false
+},
+"372725003": {
+"sv": "fenoximetylpenicillin",
+"en": "Penicillin V",
+"parents": [
+"373291007",
+"372598006"
+],
+"inactive": false
+},
+"372826007": {
+"sv": "metoprolol",
+"en": "Metoprolol",
+"parents": [
+"441338003",
+"372661004"
+],
+"inactive": false
+},
+"372897005": {
+"sv": "salbutamol",
+"en": "Albuterol",
+"parents": [
+"373215002",
+"767617007"
+],
+"inactive": false
+},
+"373444002": {
+"sv": "atorvastatin",
+"en": "Atorvastatin",
+"parents": [
+"372912004",
+"115667008"
+],
+"inactive": false
+},
+"37796009": {
+"sv": "migrän",
+"en": "Migraine",
+"parents": [
+"128187005"
+],
+"inactive": false
+},
+"386864001": {
+"sv": "amlodipin",
+"en": "Amlodipine",
+"parents": [
+"372586001",
+"406769001"
+],
+"inactive": false
+},
+"386872004": {
+"sv": "ramipril",
+"en": "Ramipril",
+"parents": [
+"372733002",
+"414000001"
+],
+"inactive": false
+},
+"386952008": {
+"sv": "klopidogrel",
+"en": "Clopidogrel",
+"parents": [
+"89309003",
+"27430008",
+"1162905001"
+],
+"inactive": false
+},
+"387135004": {
+"sv": "allopurinol",
+"en": "Allopurinol",
+"parents": [
+"410942007",
+"769039004",
+"419262004"
+],
+"inactive": false
+},
+"387137007": {
+"sv": "omeprazol",
+"en": "Omeprazole",
+"parents": [
+"372525000",
+"372590004",
+"783815007",
+"420898009"
+],
+"inactive": false
+},
+"387207008": {
+"sv": "ibuprofen",
+"en": "Ibuprofen",
+"parents": [
+"782296006",
+"387050005",
+"767714007"
+],
+"inactive": false
+},
+"387402000": {
+"sv": "järn(II)sulfat",
+"en": "Ferrous sulfate",
+"parents": [
+"373742002"
+],
+"inactive": false
+},
+"387406002": {
+"sv": "sulfonamid",
+"en": "Sulfonamide",
+"parents": [
+"363549008",
+"31414002"
+],
+"inactive": false
+},
+"387458008": {
+"sv": "acetylsalicylsyra",
+"en": "Aspirin",
+"parents": [
+"372665008",
+"771452004",
+"255637000"
+],
+"inactive": false
+},
+"387475002": {
+"sv": "furosemid",
+"en": "Furosemide",
+"parents": [
+"372691009",
+"43585000",
+"372660003"
+],
+"inactive": false
+},
+"387517004": {
+"sv": "paracetamol",
+"en": "Acetaminophen",
+"parents": [
+"763836003",
+"766776008",
+"373216001",
+"417551008"
+],
+"inactive": false
+},
+"387542008": {
+"sv": "pivmecillinam",
+"en": "Amdinocillin pivoxil",
+"parents": [
+"373284009"
+],
+"inactive": false
+},
+"391730008": {
+"sv": "alendronsyra",
+"en": "Alendronic acid",
+"parents": [
+"96290008"
+],
+"inactive": false
+},
+"395726003": {
+"sv": "budesonid",
+"en": "Budesonide",
+"parents": [
+"126090008",
+"419933005"
+],
+"inactive": false
+},
+"395892000": {
+"sv": "sumatriptan",
+"en": "Sumatriptan",
+"parents": [
+"108405004",
+"387406002"
+],
+"inactive": false
+},
+"396331005": {
+"sv": "celiaki",
+"en": "Celiac disease",
+"parents": [
+"1269424006",
+"85919009",
+"32230006"
+],
+"inactive": false
+},
+"400447003": {
+"sv": "escitalopram",
+"en": "Escitalopram",
+"parents": [
+"373282008",
+"417695006",
+"373225007",
+"372720008"
+],
+"inactive": false
+},
+"409169006": {
+"sv": "tiotropium",
+"en": "Tiotropium",
+"parents": [
+"372679000",
+"108659006",
+"372580007"
+],
+"inactive": false
+},
+"40930008": {
+"sv": "hypotyreos",
+"en": "Hypothyroidism",
+"parents": [
+"14304000"
+],
+"inactive": false
+},
+"414289007": {
+"sv": "formoterol",
+"en": "Formoterol",
+"parents": [
+"373215002",
+"767617007"
+],
+"inactive": false
+},
+"415070008": {
+"sv": "perkutan kranskärlsintervention",
+"en": "Percutaneous coronary intervention",
+"parents": [
+"1381951005",
+"33367005",
+"31413008",
+"1351641001",
+"1230010003",
+"439531009",
+"4365001"
+],
+"inactive": false
+},
+"41801008": {
+"sv": "koronarartär, struktur",
+"en": "Coronary artery structure",
+"parents": [
+"119202000",
+"128259008",
+"846651007",
+"181319006"
+],
+"inactive": false
+},
+"432504007": {
+"sv": "cerebral infarkt",
+"en": "Cerebral infarction",
+"parents": [
+"389100007",
+"609410002"
+],
+"inactive": false
+},
+"447694001": {
+"sv": "via luftvägarna",
+"en": "Respiratory tract route",
+"parents": [
+"284009009"
+],
+"inactive": false
+},
+"448598008": {
+"sv": "på huden",
+"en": "Cutaneous route",
+"parents": [
+"6064005"
+],
+"inactive": false
+},
+"45595009": {
+"sv": "laparoskopisk kolecystektomi",
+"en": "Laparoscopic cholecystectomy",
+"parents": [
+"38102005",
+"73632009"
+],
+"inactive": false
+},
+"46635009": {
+"sv": "diabetes mellitus typ 1",
+"en": "Type 1 diabetes mellitus",
+"parents": [
+"73211009"
+],
+"inactive": false
+},
+"49436004": {
+"sv": "förmaksflimmer",
+"en": "Atrial fibrillation",
+"parents": [
+"40593004",
+"17366009",
+"6456007"
+],
+"inactive": false
+},
+"52734007": {
+"sv": "insättning av totalprotes i höftled",
+"en": "Total replacement of hip",
+"parents": [
+"398010007"
+],
+"inactive": false
+},
+"55822004": {
+"sv": "hyperlipidemi",
+"en": "Hyperlipidemia",
+"parents": [
+"124042003",
+"238037008"
+],
+"inactive": false
+},
+"609588000": {
+"sv": "insättning av totalprotes i knäled",
+"en": "Total knee replacement",
+"parents": [
+"392238003"
+],
+"inactive": false
+},
+"61582004": {
+"sv": "allergisk rinit",
+"en": "Allergic rhinitis",
+"parents": [
+"421871004",
+"62907002",
+"70076002",
+"735445000"
+],
+"inactive": false
+},
+"64859006": {
+"sv": "osteoporos",
+"en": "Osteoporosis",
+"parents": [
+"363054006"
+],
+"inactive": false
+},
+"68566005": {
+"sv": "urinvägsinfektion",
+"en": "Urinary tract infectious disease",
+"parents": [
+"189176002",
+"128606002"
+],
+"inactive": false
+},
+"698090000": {
+"sv": "apixaban",
+"en": "Apixaban",
+"parents": [
+"123682001",
+"385577009",
+"771577000"
+],
+"inactive": false
+},
+"709044004": {
+"sv": "kronisk njursjukdom",
+"en": "Chronic kidney disease",
+"parents": [
+"236423003",
+"128290005"
+],
+"inactive": false
+},
+"710809001": {
+"sv": "levotyroxin",
+"en": "Levothyroxine",
+"parents": [
+"18220004"
+],
+"inactive": false
+},
+"719265006": {
+"sv": "nätplastik av ljumskbråck",
+"en": "Inguinal hernioplasty",
+"parents": [
+"719283003",
+"44558001"
+],
+"inactive": false
+},
+"719442003": {
+"sv": "vänster knäled, struktur",
+"en": "Structure of left knee joint",
+"parents": [
+"82169009",
+"725435005",
+"49076000"
+],
+"inactive": false
+},
+"75573002": {
+"sv": "gomtonsill, struktur",
+"en": "Palatine tonsillar structure",
+"parents": [
+"1363232008",
+"303337002",
+"19120004"
+],
+"inactive": false
+},
+"78275009": {
+"sv": "obstruktivt sömnapnésyndrom",
+"en": "Obstructive sleep apnea syndrome",
+"parents": [
+"79688008",
+"73430006"
+],
+"inactive": false
+},
+"84114007": {
+"sv": "hjärtsvikt",
+"en": "Heart failure",
+"parents": [
+"105981003"
+],
+"inactive": false
+},
+"871719005": {
+"sv": "vaccin som endast innehåller antigen från fästingburet encefalitvirus",
+"en": "Tick-borne encephalitis virus antigen only vaccine product",
+"parents": [
+"836403007"
+],
+"inactive": false
+},
+"87522002": {
+"sv": "järnbristanemi",
+"en": "Iron deficiency anemia",
+"parents": [
+"165397008",
+"66612000",
+"363246002",
+"165423001"
+],
+"inactive": false
+},
+"9014002": {
+"sv": "psoriasis",
+"en": "Psoriasis",
+"parents": [
+"426871003",
+"95320005"
+],
+"inactive": false
+},
+"90560007": {
+"sv": "gikt",
+"en": "Gout",
+"parents": [
+"128139000",
+"32612005"
+],
+"inactive": false
+},
+"981000221107": {
+"sv": "vaccin som endast innehåller antigen från Streptococcus pneumoniae",
+"en": "Streptococcus pneumoniae antigen only vaccine product",
+"parents": [
+"836398006"
+],
+"inactive": false
+},
+"9826008": {
+"sv": "konjunktivit",
+"en": "Conjunctivitis",
+"parents": [
+"59698003",
+"128295000",
+"95361005"
+],
+"inactive": false
+},
+"105981003": {
+"sv": "rubbning i hjärtfunktion",
+"en": "Disorder of cardiac function",
+"parents": [
+"56265001",
+"118228005"
+],
+"inactive": false
+},
+"107996003": {
+"sv": "excision i lymfatiska systemet",
+"en": "Lymphatic system excision",
+"parents": [
+"65801008",
+"49509003"
+],
+"inactive": false
+},
+"108405004": {
+"sv": "5-HT-1-serotoninreceptoragonist",
+"en": "Serotonin 5-HT1 receptor agonist",
+"parents": [
+"410942007",
+"783923008"
+],
+"inactive": false
+},
+"108659006": {
+"sv": "kvartärt antikolinergikum",
+"en": "Quaternary ammonium anticholinergic",
+"parents": [
+"373246003",
+"301712000"
+],
+"inactive": false
+},
+"1101000221104": {
+"sv": "vaccin som innehåller antigen från Clostridium tetani-toxoid",
+"en": "Clostridium tetani toxoid antigen-containing vaccine product",
+"parents": [
+"863911006"
+],
+"inactive": false
+},
+"115667008": {
+"sv": "pyrrol",
+"en": "Pyrrole",
+"parents": [
+"300903003"
+],
+"inactive": false
+},
+"1162905001": {
+"sv": "P2Y12-receptorantagonist, G-proteinkopplad",
+"en": "P2Y12 G-protein-coupled platelet receptor antagonist",
+"parents": [
+"771452004",
+"771382006"
+],
+"inactive": false
+},
+"119202000": {
+"sv": "del av hjärta",
+"en": "Heart part",
+"parents": [
+"80891009",
+"119201007"
+],
+"inactive": false
+},
+"1230010003": {
+"sv": "perkutan transluminal åtgärd på blodkärl",
+"en": "Percutaneous transluminal procedure on blood vessel",
+"parents": [
+"30904006"
+],
+"inactive": false
+},
+"123682001": {
+"sv": "piperidin",
+"en": "Piperidine",
+"parents": [
+"300067003"
+],
+"inactive": false
+},
+"124042003": {
+"sv": "förhöjd lipidhalt",
+"en": "Lipid above reference range",
+"parents": [
+"166818002",
+"442756004"
+],
+"inactive": false
+},
+"126068008": {
+"sv": "kolväte-bensenderivat",
+"en": "Benzene derivative hydrocarbon",
+"parents": [
+"1157051009"
+],
+"inactive": false
+},
+"126090008": {
+"sv": "pregnaner",
+"en": "Pregnane",
+"parents": [
+"116566001"
+],
+"inactive": false
+},
+"1269424006": {
+"sv": "glutenintolerans",
+"en": "Gluten intolerance",
+"parents": [
+"235719002"
+],
+"inactive": false
+},
+"128139000": {
+"sv": "inflammatorisk sjukdom",
+"en": "Inflammatory disorder",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"128187005": {
+"sv": "vaskulär huvudvärk",
+"en": "Vascular headache",
+"parents": [
+"301358001",
+"230461009",
+"27550009"
+],
+"inactive": false
+},
+"128259008": {
+"sv": "artär i mediastinum",
+"en": "Artery of mediastinum",
+"parents": [
+"72410000",
+"118633002"
+],
+"inactive": false
+},
+"128290005": {
+"sv": "kronisk sjukdom i urin- och könsorgan",
+"en": "Chronic disease of genitourinary system",
+"parents": [
+"27624003",
+"42030000"
+],
+"inactive": false
+},
+"128295000": {
+"sv": "inflammatorisk ögonsjukdom",
+"en": "Inflammatory disorder of the eye",
+"parents": [
+"363171009",
+"363169009",
+"11131000119108",
+"363176004"
+],
+"inactive": false
+},
+"128601007": {
+"sv": "infektiös lungsjukdom",
+"en": "Infectious disease of lung",
+"parents": [
+"50417007",
+"19829001"
+],
+"inactive": false
+},
+"128606002": {
+"sv": "urinvägssjukdom",
+"en": "Disorder of urinary system",
+"parents": [
+"42030000",
+"106098005"
+],
+"inactive": false
+},
+"128993003": {
+"sv": "excision av huvudstruktur",
+"en": "Excision of head structure",
+"parents": [
+"89901005",
+"65801008"
+],
+"inactive": false
+},
+"1340085003": {
+"sv": "Extrahepatic biliary tract",
+"en": "Extrahepatic biliary tract",
+"parents": [
+"34707002"
+],
+"inactive": false
+},
+"1351641001": {
+"sv": "bilddiagnostik av hjärtat med kontrast",
+"en": "Imaging of heart with contrast",
+"parents": [
+"303792008",
+"441985002"
+],
+"inactive": false
+},
+"1363232008": {
+"sv": "Structure of fauces region",
+"en": "Structure of fauces region",
+"parents": [
+"31389004"
+],
+"inactive": false
+},
+"1381951005": {
+"sv": "Angiography of artery using contrast",
+"en": "Angiography of artery using contrast",
+"parents": [
+"129118002",
+"446030004"
+],
+"inactive": false
+},
+"14304000": {
+"sv": "sjukdom i sköldkörtel",
+"en": "Disorder of thyroid gland",
+"parents": [
+"118939000",
+"362969004",
+"302065000"
+],
+"inactive": false
+},
+"161891005": {
+"sv": "ryggsmärta",
+"en": "Backache",
+"parents": [
+"301366005",
+"414252009"
+],
+"inactive": false
+},
+"165397008": {
+"sv": "lågt hemoglobinvärde",
+"en": "Hemoglobin below reference range",
+"parents": [
+"441793007",
+"442686002"
+],
+"inactive": false
+},
+"165423001": {
+"sv": "lågt erytrocytantal",
+"en": "Red blood cell count below reference range",
+"parents": [
+"50820005",
+"165427000"
+],
+"inactive": false
+},
+"17097001": {
+"sv": "kronisk sjukdom i andningssystemet",
+"en": "Chronic disease of respiratory system",
+"parents": [
+"27624003",
+"50043002"
+],
+"inactive": false
+},
+"17366009": {
+"sv": "förmaksarytmi",
+"en": "Atrial arrhythmia",
+"parents": [
+"72654001",
+"870575001"
+],
+"inactive": false
+},
+"177118006": {
+"sv": "operation av gravid livmoder",
+"en": "Operation on gravid uterus",
+"parents": [
+"79876008",
+"386638009"
+],
+"inactive": false
+},
+"181319006": {
+"sv": "gren av bröstaorta",
+"en": "Branch of thoracic aorta",
+"parents": [
+"281159003"
+],
+"inactive": false
+},
+"18220004": {
+"sv": "sköldkörtelhormon",
+"en": "Thyroid hormone",
+"parents": [
+"87568004"
+],
+"inactive": false
+},
+"189176002": {
+"sv": "infektionssjukdom i urogenitalsystemet",
+"en": "Infectious disease of genitourinary system",
+"parents": [
+"40733004",
+"42030000"
+],
+"inactive": false
+},
+"19120004": {
+"sv": "sidovägg i orofarynx, struktur",
+"en": "Structure of lateral wall of oropharynx",
+"parents": [
+"1351430008",
+"314723006",
+"421371008"
+],
+"inactive": false
+},
+"197480006": {
+"sv": "ångestsyndrom",
+"en": "Anxiety disorder",
+"parents": [
+"74732009",
+"48694002"
+],
+"inactive": false
+},
+"205237003": {
+"sv": "pneumonit",
+"en": "Pneumonitis",
+"parents": [
+"128997002",
+"363169009",
+"19829001"
+],
+"inactive": false
+},
+"22907001": {
+"sv": "tungmetall",
+"en": "Heavy metal",
+"parents": [
+"1155940007"
+],
+"inactive": false
+},
+"233776003": {
+"sv": "trakeobronkial sjukdom",
+"en": "Tracheobronchial disorder",
+"parents": [
+"128272009",
+"301227004"
+],
+"inactive": false
+},
+"236423003": {
+"sv": "nedsatt njurfunktion",
+"en": "Renal impairment",
+"parents": [
+"1148582006",
+"1156448003",
+"90708001"
+],
+"inactive": false
+},
+"236991000": {
+"sv": "operation för att underlätta förlossning",
+"en": "Operation to facilitate delivery",
+"parents": [
+"236973005",
+"386638009"
+],
+"inactive": false
+},
+"238037008": {
+"sv": "rubbning i lagring och omsättning av lipoprotein",
+"en": "Disorder of lipoprotein storage and metabolism",
+"parents": [
+"48286001"
+],
+"inactive": false
+},
+"24136001": {
+"sv": "höftled, struktur",
+"en": "Hip joint structure",
+"parents": [
+"70581004",
+"29836001",
+"4527007"
+],
+"inactive": false
+},
+"255637000": {
+"sv": "salicylat",
+"en": "Salicylate",
+"parents": [
+"767716009",
+"373216001"
+],
+"inactive": false
+},
+"264287008": {
+"sv": "djurmjäll",
+"en": "Animal dander",
+"parents": [
+"256363008"
+],
+"inactive": false
+},
+"26893007": {
+"sv": "ljumske",
+"en": "Inguinal region structure",
+"parents": [
+"609617007",
+"816092008",
+"422697005"
+],
+"inactive": false
+},
+"27430008": {
+"sv": "klorobensen",
+"en": "Chlorobenzene",
+"parents": [
+"56181003"
+],
+"inactive": false
+},
+"28531000087107": {
+"sv": "covid-19-vaccin",
+"en": "COVID-19 vaccine",
+"parents": [
+"787859002"
+],
+"inactive": false
+},
+"287579007": {
+"sv": "höger höft, struktur",
+"en": "Right hip region structure",
+"parents": [
+"62175007",
+"29836001",
+"39132006"
+],
+"inactive": false
+},
+"289941004": {
+"sv": "växtextrakt",
+"en": "Plant extract",
+"parents": [
+"256248008"
+],
+"inactive": false
+},
+"29384001": {
+"sv": "sjukdom i magsäck",
+"en": "Disorder of stomach",
+"parents": [
+"118434000",
+"119291004",
+"76712006",
+"118948005"
+],
+"inactive": false
+},
+"29857009": {
+"sv": "bröstsmärta",
+"en": "Chest pain",
+"parents": [
+"298705000",
+"301366005"
+],
+"inactive": false
+},
+"301358001": {
+"sv": "smärta i kardiovaskulär struktur",
+"en": "Pain of cardiovascular structure",
+"parents": [
+"279001004",
+"106063007"
+],
+"inactive": false
+},
+"30226002": {
+"sv": "partiell faryngektomi",
+"en": "Partial pharyngectomy",
+"parents": [
+"51265002"
+],
+"inactive": false
+},
+"303337002": {
+"sv": "tonsill och adenoid, struktur",
+"en": "Tonsil and adenoid structure",
+"parents": [
+"17861009",
+"421371008"
+],
+"inactive": false
+},
+"31413008": {
+"sv": "operativ åtgärd på koronarartär",
+"en": "Operative procedure on coronary artery",
+"parents": [
+"38629001",
+"118806004",
+"64915003"
+],
+"inactive": false
+},
+"32230006": {
+"sv": "malabsorptionssyndrom",
+"en": "Malabsorption syndrome",
+"parents": [
+"119292006"
+],
+"inactive": false
+},
+"32612005": {
+"sv": "rubbning i purinomsättningen",
+"en": "Disorder of purine metabolism",
+"parents": [
+"238006008"
+],
+"inactive": false
+},
+"33367005": {
+"sv": "koronarangiografi",
+"en": "Angiography of coronary artery",
+"parents": [
+"118806004",
+"129118002",
+"303827001",
+"441985002"
+],
+"inactive": false
+},
+"363054006": {
+"sv": "degenerativ skelettbensjukdom",
+"en": "Degenerative disorder of bone",
+"parents": [
+"897444001",
+"363059001",
+"76069003"
+],
+"inactive": false
+},
+"363056008": {
+"sv": "degenerativ sjukdom i extremitet",
+"en": "Degenerative disorder of extremity",
+"parents": [
+"128605003",
+"362975008"
+],
+"inactive": false
+},
+"363146006": {
+"sv": "excision i immunsystemet",
+"en": "Immune system excision",
+"parents": [
+"363152007",
+"65801008"
+],
+"inactive": false
+},
+"363246002": {
+"sv": "tillstånd i samband med näringsbrist",
+"en": "Nutritional deficiency associated condition",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"363549008": {
+"sv": "sulfon",
+"en": "Sulfone",
+"parents": [
+"111064005"
+],
+"inactive": false
+},
+"363733008": {
+"sv": "fluorerad kortikosteroid",
+"en": "Fluorinated corticosteroid",
+"parents": [
+"112113009",
+"304275008"
+],
+"inactive": false
+},
+"367498001": {
+"sv": "säsongsbunden allergisk rinit",
+"en": "Seasonal allergic rhinitis",
+"parents": [
+"58184002",
+"61582004"
+],
+"inactive": false
+},
+"371081002": {
+"sv": "artrit i knä",
+"en": "Arthritis of knee",
+"parents": [
+"298170003",
+"428724006",
+"250131003"
+],
+"inactive": false
+},
+"372525000": {
+"sv": "protonpumpshämmare",
+"en": "Proton pump inhibitor",
+"parents": [
+"410942007",
+"427117001"
+],
+"inactive": false
+},
+"372558009": {
+"sv": "immunmodulator",
+"en": "Immunomodulator",
+"parents": [
+"766739005"
+],
+"inactive": false
+},
+"372580007": {
+"sv": "bronkdilaterare",
+"en": "Bronchodilator",
+"parents": [
+"373272007"
+],
+"inactive": false
+},
+"372590004": {
+"sv": "sårläkande medel",
+"en": "Ulcer healing agent",
+"parents": [
+"373258003"
+],
+"inactive": false
+},
+"372598006": {
+"sv": "penicillinaskänsliga penicilliner",
+"en": "Penicillinase-sensitive penicillin",
+"parents": [
+"764146007"
+],
+"inactive": false
+},
+"372660003": {
+"sv": "saluretikum",
+"en": "Saluretic agent",
+"parents": [
+"372695000"
+],
+"inactive": false
+},
+"372665008": {
+"sv": "icke-steroida antiinflammatoriska läkemedel",
+"en": "Non-steroidal anti-inflammatory agent",
+"parents": [
+"373216001"
+],
+"inactive": false
+},
+"372679000": {
+"sv": "antimuskarint medel",
+"en": "Muscarinic receptor antagonist",
+"parents": [
+"373246003"
+],
+"inactive": false
+},
+"372691009": {
+"sv": "loopdiuretikum",
+"en": "Loop diuretic",
+"parents": [
+"372695000"
+],
+"inactive": false
+},
+"372720008": {
+"sv": "antidepressivt läkemedel",
+"en": "Antidepressant",
+"parents": [
+"418183005"
+],
+"inactive": false
+},
+"372733002": {
+"sv": "ACE-hämmare",
+"en": "Angiotensin-converting enzyme inhibitor",
+"parents": [
+"866173006",
+"412127001"
+],
+"inactive": false
+},
+"372787008": {
+"sv": "kärlvidgande medel",
+"en": "Vasodilator",
+"parents": [
+"372586001"
+],
+"inactive": false
+},
+"372842000": {
+"sv": "alfa-1-receptorblockerare",
+"en": "Alpha-1 adrenergic receptor antagonist",
+"parents": [
+"373275009"
+],
+"inactive": false
+},
+"372912004": {
+"sv": "HMG-CoA-reduktashämmare",
+"en": "HMG-CoA reductase inhibitor",
+"parents": [
+"407312007",
+"373267003"
+],
+"inactive": false
+},
+"373215002": {
+"sv": "selektivt beta-2-adrenoceptorstimulerande medel",
+"en": "Selective beta-2 agonist",
+"parents": [
+"373227004",
+"372580007"
+],
+"inactive": false
+},
+"373216001": {
+"sv": "icke-opioida analgetika",
+"en": "Non-opioid analgesic",
+"parents": [
+"373265006"
+],
+"inactive": false
+},
+"373225007": {
+"sv": "selektiv serotoninåterupptagshämmare",
+"en": "Selective serotonin re-uptake inhibitor",
+"parents": [
+"418183005",
+"771357006"
+],
+"inactive": false
+},
+"373228009": {
+"sv": "H1-antihistamin",
+"en": "Histamine H1 receptor antagonist",
+"parents": [
+"372806008"
+],
+"inactive": false
+},
+"373282008": {
+"sv": "anxiolytikum",
+"en": "Anxiolytic agent",
+"parents": [
+"373209002"
+],
+"inactive": false
+},
+"373284009": {
+"sv": "penicillin med utvidgat spektrum",
+"en": "Extended spectrum penicillin",
+"parents": [
+"764146007"
+],
+"inactive": false
+},
+"373291007": {
+"sv": "naturligt penicillin",
+"en": "Natural penicillin",
+"parents": [
+"764146007"
+],
+"inactive": false
+},
+"373298001": {
+"sv": "aminopenicillin",
+"en": "Aminopenicillin",
+"parents": [
+"373217005"
+],
+"inactive": false
+},
+"373742002": {
+"sv": "preparat innehållande järn(II)salt",
+"en": "Ferrous salt",
+"parents": [
+"6808006",
+"43024007"
+],
+"inactive": false
+},
+"37657006": {
+"sv": "sjukdom i esofagus",
+"en": "Disorder of esophagus",
+"parents": [
+"119291004",
+"76712006",
+"300284004"
+],
+"inactive": false
+},
+"38102005": {
+"sv": "kolecystektomi",
+"en": "Cholecystectomy",
+"parents": [
+"119916001",
+"19744006"
+],
+"inactive": false
+},
+"385450002": {
+"sv": "tonsilloperation",
+"en": "Operation on tonsils",
+"parents": [
+"5282006",
+"385449002",
+"232522007"
+],
+"inactive": false
+},
+"385577009": {
+"sv": "selektiv faktor Xa-hämmare",
+"en": "Coagulation factor Xa inhibitor",
+"parents": [
+"372636002",
+"1091008"
+],
+"inactive": false
+},
+"386811000": {
+"sv": "åtgärd som rör foster",
+"en": "Fetal procedure",
+"parents": [
+"386637004"
+],
+"inactive": false
+},
+"387050005": {
+"sv": "cox 2-hämmare",
+"en": "Cyclooxygenase-2 inhibitor",
+"parents": [
+"372665008",
+"782376000"
+],
+"inactive": false
+},
+"389100007": {
+"sv": "ischemisk encefalopati",
+"en": "Ischemic encephalopathy",
+"parents": [
+"127294003",
+"301766008"
+],
+"inactive": false
+},
+"39132006": {
+"sv": "höger sida av bål, struktur",
+"en": "Structure of right side of trunk",
+"parents": [
+"422697005",
+"85421007"
+],
+"inactive": false
+},
+"392238003": {
+"sv": "implantation av ledprotes i knäled",
+"en": "Prosthetic arthroplasty of knee joint",
+"parents": [
+"1288025000",
+"19063003"
+],
+"inactive": false
+},
+"396275006": {
+"sv": "artros",
+"en": "Osteoarthritis",
+"parents": [
+"363059001",
+"3723001"
+],
+"inactive": false
+},
+"398010007": {
+"sv": "insättning av höftledsprotes",
+"en": "Prosthetic arthroplasty of hip",
+"parents": [
+"1288025000",
+"47458005"
+],
+"inactive": false
+},
+"40593004": {
+"sv": "flimmer",
+"en": "Fibrillation",
+"parents": [
+"698247007"
+],
+"inactive": false
+},
+"406769001": {
+"sv": "kalciumkanalblockerare innehållande dihydropyridinderivat",
+"en": "Dihydropyridine derivative calcium channel blocker",
+"parents": [
+"766988001",
+"373304005"
+],
+"inactive": false
+},
+"414000001": {
+"sv": "dipeptid",
+"en": "Dipeptide",
+"parents": [
+"52642002"
+],
+"inactive": false
+},
+"414545008": {
+"sv": "ischemisk hjärtsjukdom",
+"en": "Ischemic heart disease",
+"parents": [
+"128599005",
+"86175003"
+],
+"inactive": false
+},
+"417551008": {
+"sv": "acetamid",
+"en": "Acetamide",
+"parents": [
+"772778005"
+],
+"inactive": false
+},
+"417695006": {
+"sv": "bensofuran",
+"en": "Benzofuran",
+"parents": [
+"116280007"
+],
+"inactive": false
+},
+"419262004": {
+"sv": "xantinoxidashämmare",
+"en": "Xanthine oxidase inhibitor",
+"parents": [
+"407312007"
+],
+"inactive": false
+},
+"419933005": {
+"sv": "glukokortikoid",
+"en": "Glucocorticoid",
+"parents": [
+"112113009",
+"304275008"
+],
+"inactive": false
+},
+"420898009": {
+"sv": "bensimidazol",
+"en": "Benzimidazole",
+"parents": [
+"116280007"
+],
+"inactive": false
+},
+"421871004": {
+"sv": "atopisk IgE-medierad allergi",
+"en": "Atopic IgE-mediated allergic disorder",
+"parents": [
+"422076005"
+],
+"inactive": false
+},
+"426871003": {
+"sv": "cellmedierad cytotoxisk sjukdom",
+"en": "Cell-mediated cytotoxic disorder",
+"parents": [
+"427439005"
+],
+"inactive": false
+},
+"43116000": {
+"sv": "eksem",
+"en": "Eczema",
+"parents": [
+"703938007"
+],
+"inactive": false
+},
+"43230003": {
+"sv": "gummi",
+"en": "Rubber",
+"parents": [
+"426077003",
+"79007002"
+],
+"inactive": false
+},
+"433234005": {
+"sv": "prostatahyperplasi",
+"en": "Hyperplasia of prostate",
+"parents": [
+"30281009"
+],
+"inactive": false
+},
+"43585000": {
+"sv": "sulfonamiddiuretika",
+"en": "Sulfonamide diuretic",
+"parents": [
+"372695000",
+"387406002"
+],
+"inactive": false
+},
+"4365001": {
+"sv": "kirurgisk rekonstruktion",
+"en": "Surgical repair",
+"parents": [
+"387713003",
+"128927009"
+],
+"inactive": false
+},
+"439531009": {
+"sv": "åtgärd på artär med hjälp av avbildning",
+"en": "Procedure on artery using imaging guidance",
+"parents": [
+"129118002",
+"258174001"
+],
+"inactive": false
+},
+"44558001": {
+"sv": "operation av ljumskbråck",
+"en": "Repair of inguinal hernia",
+"parents": [
+"238192002",
+"120205009"
+],
+"inactive": false
+},
+"46206005": {
+"sv": "affektivt syndrom",
+"en": "Mood disorder",
+"parents": [
+"74732009",
+"106131003"
+],
+"inactive": false
+},
+"49076000": {
+"sv": "knäled, struktur",
+"en": "Knee joint structure",
+"parents": [
+"72696002",
+"897026004"
+],
+"inactive": false
+},
+"50043002": {
+"sv": "sjukdom i andningssystemet",
+"en": "Disorder of respiratory system",
+"parents": [
+"362965005",
+"106048009"
+],
+"inactive": false
+},
+"59698003": {
+"sv": "sjukdom i bindhinna",
+"en": "Disorder of conjunctiva",
+"parents": [
+"118941004",
+"95351003",
+"246875002",
+"118930001",
+"128535002",
+"280131007"
+],
+"inactive": false
+},
+"6064005": {
+"sv": "topikalt",
+"en": "Topical route",
+"parents": [
+"284009009"
+],
+"inactive": false
+},
+"609410002": {
+"sv": "nekros, indelning efter anatomisk lokalisation",
+"en": "Necrosis of anatomical site",
+"parents": [
+"417163006"
+],
+"inactive": false
+},
+"62907002": {
+"sv": "respiratorisk komplikation",
+"en": "Respiratory complication",
+"parents": [
+"50043002"
+],
+"inactive": false
+},
+"62972009": {
+"sv": "extraktion",
+"en": "Extraction",
+"parents": [
+"118292001"
+],
+"inactive": false
+},
+"6456007": {
+"sv": "supraventrikulär takykardi",
+"en": "Supraventricular tachycardia",
+"parents": [
+"72654001",
+"6285003"
+],
+"inactive": false
+},
+"66612000": {
+"sv": "näringsbetingad anemi",
+"en": "Nutritional anemia",
+"parents": [
+"271737000"
+],
+"inactive": false
+},
+"699602007": {
+"sv": "inre organ i själva buken, struktur",
+"en": "Structure of organ within abdomen proper cavity",
+"parents": [
+"818981001",
+"818993005",
+"818988007"
+],
+"inactive": false
+},
+"70076002": {
+"sv": "rinit",
+"en": "Rhinitis",
+"parents": [
+"129134004",
+"1137307002",
+"363169009",
+"95361005",
+"363176004"
+],
+"inactive": false
+},
+"719283003": {
+"sv": "nätplastik av främre bukväggsbråck",
+"en": "Ventral hernioplasty",
+"parents": [
+"238192002",
+"1173011006"
+],
+"inactive": false
+},
+"725435005": {
+"sv": "led i vänster ben, struktur",
+"en": "Structure of joint of left lower limb",
+"parents": [
+"32153003",
+"4527007"
+],
+"inactive": false
+},
+"725436006": {
+"sv": "led i höger ben, struktur",
+"en": "Structure of joint of right lower limb",
+"parents": [
+"62175007",
+"4527007"
+],
+"inactive": false
+},
+"73430006": {
+"sv": "sömnapné",
+"en": "Sleep apnea",
+"parents": [
+"1023001",
+"50043002",
+"111489007"
+],
+"inactive": false
+},
+"735445000": {
+"sv": "allergisjukdom i andningsvägarna",
+"en": "Allergic disorder of respiratory tract",
+"parents": [
+"421092003"
+],
+"inactive": false
+},
+"73632009": {
+"sv": "laparoskopi",
+"en": "Laparoscopy",
+"parents": [
+"108191006",
+"112978005"
+],
+"inactive": false
+},
+"762212003": {
+"sv": "del av höger arm, struktur",
+"en": "Structure of part of right upper limb",
+"parents": [
+"6921000",
+"120574008"
+],
+"inactive": false
+},
+"763836003": {
+"sv": "para-aminofenolderivat",
+"en": "Para-aminophenol derivative",
+"parents": [
+"17047000"
+],
+"inactive": false
+},
+"766776008": {
+"sv": "fenolstruktur",
+"en": "Substance with phenol structure",
+"parents": [
+"767844004"
+],
+"inactive": false
+},
+"767305000": {
+"sv": "nickel och/eller nickelförening",
+"en": "Nickel and/or nickel compound",
+"parents": [
+"1155940007"
+],
+"inactive": false
+},
+"767617007": {
+"sv": "etanolamin och etanolaminderivat",
+"en": "Ethanolamine and/or ethanolamine derivative",
+"parents": [
+"301457005"
+],
+"inactive": false
+},
+"767714007": {
+"sv": "propionsyra och propionsyraderivat",
+"en": "Propionic acid and/or propionic acid derivative",
+"parents": [
+"765174005"
+],
+"inactive": false
+},
+"769039004": {
+"sv": "bicyklisk förening",
+"en": "Bicyclic compound",
+"parents": [
+"767844004"
+],
+"inactive": false
+},
+"771452004": {
+"sv": "trombocytaggregationshämmare",
+"en": "Platelet aggregation inhibitor",
+"parents": [
+"410942007",
+"766739005"
+],
+"inactive": false
+},
+"771456001": {
+"sv": "piperazin och piperazinderivat",
+"en": "Piperazine and/or piperazine derivative",
+"parents": [
+"116280007"
+],
+"inactive": false
+},
+"782296006": {
+"sv": "cox 1-hämmare",
+"en": "Cyclooxygenase-1 inhibitor",
+"parents": [
+"372665008",
+"782376000"
+],
+"inactive": false
+},
+"782576004": {
+"sv": "trädpollen",
+"en": "Tree pollen",
+"parents": [
+"256260009"
+],
+"inactive": false
+},
+"783815007": {
+"sv": "cytokrom P450-hämmare",
+"en": "Cytochrome P450 inhibitor",
+"parents": [
+"407312007"
+],
+"inactive": false
+},
+"79688008": {
+"sv": "andningshinder",
+"en": "Respiratory obstruction",
+"parents": [
+"50043002"
+],
+"inactive": false
+},
+"82169009": {
+"sv": "vänster knä, struktur",
+"en": "Structure of left knee region",
+"parents": [
+"72696002",
+"32153003"
+],
+"inactive": false
+},
+"822987005": {
+"sv": "fynd som rör bålens buk-bäckenregion",
+"en": "Finding of abdominopelvic segment of trunk",
+"parents": [
+"302292003"
+],
+"inactive": false
+},
+"836398006": {
+"sv": "vaccin som innehåller antigen från Streptococcus pneumoniae",
+"en": "Streptococcus pneumoniae antigen-containing vaccine product",
+"parents": [
+"836368004"
+],
+"inactive": false
+},
+"836403007": {
+"sv": "vaccin som innehåller antigen från fästingburet encefalitvirus",
+"en": "Tick-borne encephalitis virus antigen-containing vaccine product",
+"parents": [
+"836369007"
+],
+"inactive": false
+},
+"84275009": {
+"sv": "obstetrisk hysterotomi",
+"en": "Obstetrical hysterotomy",
+"parents": [
+"42253005",
+"386638009"
+],
+"inactive": false
+},
+"846651007": {
+"sv": "artär i tvärsnitt av bröstkorgsregion, struktur",
+"en": "Structure of artery of thoracic cross-sectional segment of trunk",
+"parents": [
+"846601002",
+"308734009"
+],
+"inactive": false
+},
+"85919009": {
+"sv": "sjukdom i tarm",
+"en": "Disorder of intestine",
+"parents": [
+"249562008",
+"119292006",
+"76712006",
+"118948005"
+],
+"inactive": false
+},
+"871826000": {
+"sv": "vaccin som endast innehåller antigen från Clostridium tetani och Corynebacterium diphtheriae",
+"en": "Clostridium tetani and Corynebacterium diphtheriae antigens only vaccine product",
+"parents": [
+"863911006",
+"836381006"
+],
+"inactive": false
+},
+"871830002": {
+"sv": "vaccin som innehåller antigen från Corynebacterium diphtheriae-toxoid",
+"en": "Corynebacterium diphtheriae toxoid antigen-containing vaccine product",
+"parents": [
+"836381006"
+],
+"inactive": false
+},
+"87918000": {
+"sv": "mineral",
+"en": "Mineral",
+"parents": [
+"441900009",
+"289915005"
+],
+"inactive": false
+},
+"89309003": {
+"sv": "organisk svavelförening",
+"en": "Organic sulfur compound",
+"parents": [
+"41175001",
+"111064005"
+],
+"inactive": false
+},
+"95324001": {
+"sv": "hudlesion",
+"en": "Skin lesion",
+"parents": [
+"714974000",
+"239953001",
+"95320005"
+],
+"inactive": false
+},
+"95361005": {
+"sv": "inflammatorisk sjukdom i slemhinna",
+"en": "Inflammatory disease of mucous membrane",
+"parents": [
+"363171009",
+"95351003"
+],
+"inactive": false
+},
+"96290008": {
+"sv": "alendronat",
+"en": "Alendronate",
+"parents": [
+"372907000"
+],
+"inactive": false
+},
+"96367001": {
+"sv": "humaninsulin",
+"en": "Human insulin",
+"parents": [
+"67866001"
+],
+"inactive": false
+},
+"1023001": {
+"sv": "andningsuppehåll",
+"en": "Apnea",
+"parents": [
+"301282008"
+],
+"inactive": false
+},
+"106048009": {
+"sv": "fynd som rör andningssystemet",
+"en": "Respiratory finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"106098005": {
+"sv": "fynd som rör urinsystemet",
+"en": "Urinary system finding",
+"parents": [
+"118238000"
+],
+"inactive": false
+},
+"106131003": {
+"sv": "fynd som rör stämningsläge",
+"en": "Mood finding",
+"parents": [
+"106126000"
+],
+"inactive": false
+},
+"108191006": {
+"sv": "endoskopi av buken",
+"en": "Endoscopy of abdomen",
+"parents": [
+"423827005",
+"225162003"
+],
+"inactive": false
+},
+"1091008": {
+"sv": "koagulationsfaktorinhibitor",
+"en": "Coagulation factor inhibitor",
+"parents": [
+"443017007",
+"766739005"
+],
+"inactive": false
+},
+"111064005": {
+"sv": "svavelförening",
+"en": "Sulfur compound",
+"parents": [
+"767407009"
+],
+"inactive": false
+},
+"11131000119108": {
+"sv": "anomali i öga",
+"en": "Anomaly of eye",
+"parents": [
+"371405004"
+],
+"inactive": false
+},
+"111489007": {
+"sv": "andningsrelaterad sömnstörning",
+"en": "Breathing-related sleep disorder",
+"parents": [
+"39898005"
+],
+"inactive": false
+},
+"112113009": {
+"sv": "steroidhormon",
+"en": "Steroid hormone",
+"parents": [
+"87568004",
+"116566001"
+],
+"inactive": false
+},
+"112978005": {
+"sv": "incision i bukväggen",
+"en": "Incision of abdominal wall",
+"parents": [
+"108188006",
+"177853001"
+],
+"inactive": false
+},
+"1137307002": {
+"sv": "Structural abnormality of mucous membrane of nose",
+"en": "Structural abnormality of mucous membrane of nose",
+"parents": [
+"89488007",
+"95351003",
+"249353005",
+"201060008",
+"280131007"
+],
+"inactive": false
+},
+"1148582006": {
+"sv": "fynd som rör njurfunktion",
+"en": "Finding of renal function",
+"parents": [
+"118228005"
+],
+"inactive": false
+},
+"1155940007": {
+"sv": "tungmetall och/eller tungmetallförening",
+"en": "Heavy metal and/or heavy metal compound",
+"parents": [
+"767098004"
+],
+"inactive": false
+},
+"1156448003": {
+"sv": "nedsatt funktion i urinvägarna",
+"en": "Impaired urinary system function",
+"parents": [
+"106098005",
+"118228005"
+],
+"inactive": false
+},
+"1157051009": {
+"sv": "substans med bensenstruktur",
+"en": "Substance with benzene structure",
+"parents": [
+"34862004"
+],
+"inactive": false
+},
+"116566001": {
+"sv": "steroid",
+"en": "Steroid",
+"parents": [
+"417174002"
+],
+"inactive": false
+},
+"1173011006": {
+"sv": "nätplastik av bråck",
+"en": "Repair of hernia using surgical mesh",
+"parents": [
+"1380110002"
+],
+"inactive": false
+},
+"118228005": {
+"sv": "fynd som rör funktion",
+"en": "Functional finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"118434000": {
+"sv": "fynd som rör magsäcken",
+"en": "Stomach finding",
+"parents": [
+"249561001",
+"386618008"
+],
+"inactive": false
+},
+"118633002": {
+"sv": "artär i torax",
+"en": "Artery of thorax",
+"parents": [
+"51185008",
+"39499005"
+],
+"inactive": false
+},
+"118806004": {
+"sv": "åtgärd på koronarartärer",
+"en": "Procedure on coronary arteries",
+"parents": [
+"118810001",
+"118797008"
+],
+"inactive": false
+},
+"118930001": {
+"sv": "sjukdom i ansikte",
+"en": "Disorder of face",
+"parents": [
+"118934005",
+"301310005"
+],
+"inactive": false
+},
+"118939000": {
+"sv": "sjukdom i halsregion",
+"en": "Disorder of neck",
+"parents": [
+"298378000",
+"64572001"
+],
+"inactive": false
+},
+"118941004": {
+"sv": "sjukdom i ögats adnexa",
+"en": "Disorder of ocular adnexa",
+"parents": [
+"371409005"
+],
+"inactive": false
+},
+"118948005": {
+"sv": "sjukdom i buk",
+"en": "Disorder of abdomen",
+"parents": [
+"822988000",
+"609624008"
+],
+"inactive": false
+},
+"119201007": {
+"sv": "del av kardiovaskulärt organ",
+"en": "Cardiovascular organ part",
+"parents": [
+"91717005",
+"118970008"
+],
+"inactive": false
+},
+"119291004": {
+"sv": "sjukdom i övre mag-tarmkanalen",
+"en": "Disorder of upper gastrointestinal tract",
+"parents": [
+"119292006",
+"50410009"
+],
+"inactive": false
+},
+"119292006": {
+"sv": "sjukdom i mag-tarmkanal",
+"en": "Disorder of gastrointestinal tract",
+"parents": [
+"84410009",
+"386618008"
+],
+"inactive": false
+},
+"119916001": {
+"sv": "excision i gallvägarna",
+"en": "Biliary tract excision",
+"parents": [
+"108189003",
+"42560003"
+],
+"inactive": false
+},
+"120205009": {
+"sv": "operation av inguinalregion",
+"en": "Inguinal region repair",
+"parents": [
+"609638001",
+"119593002"
+],
+"inactive": false
+},
+"127294003": {
+"sv": "traumatisk eller icke-traumatisk hjärnskada",
+"en": "Traumatic or nontraumatic brain injury",
+"parents": [
+"127296001",
+"128126004",
+"81308009"
+],
+"inactive": false
+},
+"128272009": {
+"sv": "sjukdom i det nedre andningssystemet",
+"en": "Disorder of lower respiratory system",
+"parents": [
+"50043002"
+],
+"inactive": false
+},
+"128535002": {
+"sv": "sjukdom i ögats främre segment",
+"en": "Disorder of anterior segment of eye",
+"parents": [
+"418727003",
+"371405004"
+],
+"inactive": false
+},
+"128599005": {
+"sv": "strukturell hjärtsjukdom",
+"en": "Structural disorder of heart",
+"parents": [
+"56265001"
+],
+"inactive": false
+},
+"128605003": {
+"sv": "sjukdom i extremitet",
+"en": "Disorder of limb",
+"parents": [
+"64572001",
+"302293008"
+],
+"inactive": false
+},
+"1288025000": {
+"sv": "insättning av protes i led",
+"en": "Prosthetic arthroplasty of joint",
+"parents": [
+"442095009",
+"1371557008"
+],
+"inactive": false
+},
+"128997002": {
+"sv": "inflammatorisk sjukdom i nedre luftvägar",
+"en": "Inflammatory disorder of lower respiratory tract",
+"parents": [
+"128272009",
+"363180009",
+"301226008"
+],
+"inactive": false
+},
+"129118002": {
+"sv": "arteriografi",
+"en": "Angiography of artery",
+"parents": [
+"77343006",
+"118805000"
+],
+"inactive": false
+},
+"129134004": {
+"sv": "inflammatorisk sjukdom i övre luftvägar",
+"en": "Inflammatory disorder of upper respiratory tract",
+"parents": [
+"1370980003",
+"363180009",
+"201060008"
+],
+"inactive": false
+},
+"1351430008": {
+"sv": "velofarynx, struktur",
+"en": "Structure of velopharynx",
+"parents": [
+"119195004"
+],
+"inactive": false
+},
+"165427000": {
+"sv": "onormalt erytrocytantal",
+"en": "Red blood cell count outside reference range",
+"parents": [
+"762656009",
+"365625004"
+],
+"inactive": false
+},
+"166818002": {
+"sv": "onormal lipidhalt",
+"en": "Lipids outside reference range",
+"parents": [
+"365791005",
+"442096005"
+],
+"inactive": false
+},
+"17047000": {
+"sv": "anilin",
+"en": "Aniline",
+"parents": [
+"43201005"
+],
+"inactive": false
+},
+"17861009": {
+"sv": "Waldeyers ring, struktur",
+"en": "Structure of pharyngeal lymphoid ring",
+"parents": [
+"7362006",
+"91688001",
+"119195004"
+],
+"inactive": false
+},
+"19063003": {
+"sv": "artroplastik i knä",
+"en": "Arthroplasty of knee",
+"parents": [
+"442095009",
+"188383006",
+"179342005"
+],
+"inactive": false
+},
+"19744006": {
+"sv": "operation av gallblåsan",
+"en": "Operation on gallbladder",
+"parents": [
+"118823008",
+"42560003"
+],
+"inactive": false
+},
+"19829001": {
+"sv": "lungsjukdom",
+"en": "Disorder of lung",
+"parents": [
+"128272009",
+"301230006",
+"118946009"
+],
+"inactive": false
+},
+"230461009": {
+"sv": "huvudvärkssjukdom",
+"en": "Headache disorder",
+"parents": [
+"118934005",
+"25064002"
+],
+"inactive": false
+},
+"232522007": {
+"sv": "operationer på tonsill och adenoid",
+"en": "Operations on tonsil and adenoid",
+"parents": [
+"129253000",
+"89901005",
+"49509003",
+"107994000",
+"23136006"
+],
+"inactive": false
+},
+"235719002": {
+"sv": "födoämnesintolerans",
+"en": "Intolerance to food",
+"parents": [
+"418471000",
+"782197009"
+],
+"inactive": false
+},
+"236973005": {
+"sv": "förlossningsåtgärder",
+"en": "Delivery procedure",
+"parents": [
+"386637004",
+"128927009"
+],
+"inactive": false
+},
+"238006008": {
+"sv": "rubbning i purin- och pyrimidinomsättningen",
+"en": "Disorder of purine and pyrimidine metabolism",
+"parents": [
+"75934005"
+],
+"inactive": false
+},
+"238192002": {
+"sv": "operation av främre bukväggsbråck",
+"en": "Repair of hernia of anterior abdominal wall",
+"parents": [
+"120173009",
+"50465008",
+"238165008"
+],
+"inactive": false
+},
+"239953001": {
+"sv": "mjukdelslesion",
+"en": "Lesion of soft tissue",
+"parents": [
+"19660004"
+],
+"inactive": false
+},
+"246875002": {
+"sv": "fynd som rör bindhinna",
+"en": "Conjunctival finding",
+"parents": [
+"246869006",
+"128145008",
+"301310005",
+"248402002"
+],
+"inactive": false
+},
+"249562008": {
+"sv": "fynd som rör tarm",
+"en": "Bowel finding",
+"parents": [
+"249561001",
+"386618008"
+],
+"inactive": false
+},
+"250131003": {
+"sv": "artrit i led i nedre extremitet",
+"en": "Lower limb joint arthritis",
+"parents": [
+"118937003",
+"3723001",
+"363175000"
+],
+"inactive": false
+},
+"256248008": {
+"sv": "växtmaterial",
+"en": "Plant material",
+"parents": [
+"289958009"
+],
+"inactive": false
+},
+"256260009": {
+"sv": "träd- och buskpollen",
+"en": "Tree and shrub pollen",
+"parents": [
+"406474005"
+],
+"inactive": false
+},
+"256363008": {
+"sv": "animaliskt material",
+"en": "Animal material",
+"parents": [
+"289958009"
+],
+"inactive": false
+},
+"258174001": {
+"sv": "bilddiagnostisk vägledning",
+"en": "Imaging guidance",
+"parents": [
+"362961001",
+"363679005"
+],
+"inactive": false
+},
+"271737000": {
+"sv": "anemi",
+"en": "Anemia",
+"parents": [
+"414022008"
+],
+"inactive": false
+},
+"27550009": {
+"sv": "kärlsjukdom",
+"en": "Vascular disorder",
+"parents": [
+"21829004",
+"49601007",
+"19660004"
+],
+"inactive": false
+},
+"27624003": {
+"sv": "kronisk sjukdom",
+"en": "Chronic disease",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"279001004": {
+"sv": "fynd av smärta på anatomisk lokalisation",
+"en": "Pain finding at anatomical site",
+"parents": [
+"699697007",
+"22253000"
+],
+"inactive": false
+},
+"280131007": {
+"sv": "mjukdelssjukdom i huvud",
+"en": "Disorder of soft tissue of head",
+"parents": [
+"118934005",
+"19660004"
+],
+"inactive": false
+},
+"281159003": {
+"sv": "systemisk artär, struktur",
+"en": "Systemic arterial structure",
+"parents": [
+"281157001",
+"51114001"
+],
+"inactive": false
+},
+"289915005": {
+"sv": "mineraler och malmer",
+"en": "Minerals and ores",
+"parents": [
+"78910004"
+],
+"inactive": false
+},
+"298170003": {
+"sv": "inflammation i knäled",
+"en": "Inflammation of knee joint",
+"parents": [
+"299321000",
+"298160000"
+],
+"inactive": false
+},
+"29836001": {
+"sv": "höft",
+"en": "Hip region structure",
+"parents": [
+"699639008",
+"816092008",
+"787050004",
+"422697005"
+],
+"inactive": false
+},
+"298705000": {
+"sv": "fynd som rör bröstkorgsregionen",
+"en": "Finding of region of thorax",
+"parents": [
+"609623002"
+],
+"inactive": false
+},
+"300067003": {
+"sv": "pyridin och pyridinderivat",
+"en": "Pyridine and/or pyridine derivative",
+"parents": [
+"116280007",
+"299979007"
+],
+"inactive": false
+},
+"300284004": {
+"sv": "fynd som rör esofagus",
+"en": "Finding of esophagus",
+"parents": [
+"406123005",
+"386618008"
+],
+"inactive": false
+},
+"300903003": {
+"sv": "azol",
+"en": "Azole",
+"parents": [
+"116280007",
+"299979007"
+],
+"inactive": false
+},
+"301227004": {
+"sv": "trakeobronkiala fynd",
+"en": "Tracheobronchial finding",
+"parents": [
+"301226008"
+],
+"inactive": false
+},
+"301366005": {
+"sv": "smärta i bålen, struktur",
+"en": "Pain of truncal structure",
+"parents": [
+"279001004",
+"302292003"
+],
+"inactive": false
+},
+"301712000": {
+"sv": "kvartär ammoniumförening",
+"en": "Quaternary ammonium compound",
+"parents": [
+"299979007"
+],
+"inactive": false
+},
+"301766008": {
+"sv": "lesion i hjärnan",
+"en": "Lesion of brain",
+"parents": [
+"81308009",
+"299735001"
+],
+"inactive": false
+},
+"302065000": {
+"sv": "fynd som rör sköldkörteln",
+"en": "Finding of thyroid gland",
+"parents": [
+"298378000"
+],
+"inactive": false
+},
+"302292003": {
+"sv": "fynd som rör bålens struktur",
+"en": "Finding of trunk structure",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"30281009": {
+"sv": "prostatasjukdom",
+"en": "Disorder of prostate",
+"parents": [
+"609620004",
+"118948005",
+"64557000",
+"249604002"
+],
+"inactive": false
+},
+"303792008": {
+"sv": "undersökning av torax med kontrast",
+"en": "Imaging of thorax with contrast",
+"parents": [
+"413815006"
+],
+"inactive": false
+},
+"303827001": {
+"sv": "bålangiografi",
+"en": "Angiography of blood vessel of trunk",
+"parents": [
+"77343006",
+"118694006"
+],
+"inactive": false
+},
+"304275008": {
+"sv": "kortikosteroid och kortikosteroidderivat",
+"en": "Corticosteroid and/or corticosteroid derivative",
+"parents": [
+"410942007",
+"116566001"
+],
+"inactive": false
+},
+"308734009": {
+"sv": "artär i bålen",
+"en": "Artery of trunk",
+"parents": [
+"306955007",
+"51114001"
+],
+"inactive": false
+},
+"30904006": {
+"sv": "kärlkirurgisk åtgärd",
+"en": "Vascular surgery procedure",
+"parents": [
+"112802009",
+"118804001",
+"373351007"
+],
+"inactive": false
+},
+"31389004": {
+"sv": "orofarynx, struktur",
+"en": "Oropharyngeal structure",
+"parents": [
+"127868003",
+"123850002",
+"89187006",
+"119195004"
+],
+"inactive": false
+},
+"314723006": {
+"sv": "vägg i orofarynx",
+"en": "Wall of oropharynx",
+"parents": [
+"55609009",
+"31389004"
+],
+"inactive": false
+},
+"32153003": {
+"sv": "vänster ben, struktur",
+"en": "Structure of left lower limb",
+"parents": [
+"31156008",
+"61685007"
+],
+"inactive": false
+},
+"34707002": {
+"sv": "gallväg, struktur",
+"en": "Biliary tract structure",
+"parents": [
+"303270005"
+],
+"inactive": false
+},
+"362975008": {
+"sv": "degenerativ sjukdom",
+"en": "Degenerative disorder",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"363059001": {
+"sv": "degenerativ sjukdom i rörelseapparaten",
+"en": "Degenerative disorder of musculoskeletal system",
+"parents": [
+"362975008",
+"928000"
+],
+"inactive": false
+},
+"363152007": {
+"sv": "kirurgisk åtgärd på immunsystemet",
+"en": "Immune system surgical procedure",
+"parents": [
+"387713003",
+"118686004",
+"128927009"
+],
+"inactive": false
+},
+"363169009": {
+"sv": "inflammation i specifika organ",
+"en": "Inflammation of specific body organs",
+"parents": [
+"363170005"
+],
+"inactive": false
+},
+"363171009": {
+"sv": "inflammation i specifikt system i kroppen",
+"en": "Inflammation of specific body systems",
+"parents": [
+"363170005",
+"362965005"
+],
+"inactive": false
+},
+"363176004": {
+"sv": "inflammatorisk sjukdom i huvudet",
+"en": "Inflammatory disorder of head",
+"parents": [
+"363170005",
+"118934005"
+],
+"inactive": false
+},
+"3723001": {
+"sv": "artrit",
+"en": "Arthritis",
+"parents": [
+"897444001",
+"363169009",
+"298160000",
+"363179006",
+"399269003"
+],
+"inactive": false
+},
+"372636002": {
+"sv": "direktverkande antikoagulans",
+"en": "Direct acting anticoagulant",
+"parents": [
+"443017007",
+"372862008"
+],
+"inactive": false
+},
+"372695000": {
+"sv": "diuretika",
+"en": "Diuretic",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"372806008": {
+"sv": "antihistamin",
+"en": "Histamine receptor antagonist",
+"parents": [
+"771382006"
+],
+"inactive": false
+},
+"372907000": {
+"sv": "bisfosfonat",
+"en": "Bisphosphonate",
+"parents": [
+"50352000",
+"373301002"
+],
+"inactive": false
+},
+"373209002": {
+"sv": "anxiolytika, sedativa och/eller hypnotika",
+"en": "Anxiolytic, sedative AND/OR hypnotic",
+"parents": [
+"418183005"
+],
+"inactive": false
+},
+"373217005": {
+"sv": "bredspektrumpenicillin",
+"en": "Broad spectrum penicillin",
+"parents": [
+"764146007"
+],
+"inactive": false
+},
+"373227004": {
+"sv": "betaadrenoceptoragonist",
+"en": "Beta adrenergic receptor agonist",
+"parents": [
+"712886002"
+],
+"inactive": false
+},
+"373246003": {
+"sv": "antikolinergikum",
+"en": "Acetylcholine receptor antagonist",
+"parents": [
+"373289004",
+"771382006"
+],
+"inactive": false
+},
+"373258003": {
+"sv": "mag-tarmmedel",
+"en": "Gastrointestinal agent",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"373265006": {
+"sv": "analgetikum",
+"en": "Analgesic",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"373267003": {
+"sv": "lipidsänkande medel",
+"en": "Antilipemic agent",
+"parents": [
+"373247007"
+],
+"inactive": false
+},
+"373272007": {
+"sv": "medel för andningssystemet",
+"en": "Respiratory system agent",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"373275009": {
+"sv": "alfareceptorblockerare",
+"en": "Alpha adrenergic receptor antagonist",
+"parents": [
+"373289004",
+"771351007"
+],
+"inactive": false
+},
+"373304005": {
+"sv": "kalciumkanalblockerare",
+"en": "Calcium channel blocker",
+"parents": [
+"771357006",
+"373247007"
+],
+"inactive": false
+},
+"385449002": {
+"sv": "åtgärd på tonsiller",
+"en": "Procedure on tonsils",
+"parents": [
+"118688003",
+"118786008",
+"129253000"
+],
+"inactive": false
+},
+"38629001": {
+"sv": "operativ åtgärd på artärer i bröstkorg och buk",
+"en": "Operative procedure on the arteries of the thorax and abdomen",
+"parents": [
+"74943008",
+"118808003",
+"30904006"
+],
+"inactive": false
+},
+"386637004": {
+"sv": "obstetrisk åtgärd",
+"en": "Obstetric procedure",
+"parents": [
+"71388002"
+],
+"inactive": false
+},
+"386638009": {
+"sv": "kirurgisk obstetrisk åtgärd",
+"en": "Obstetric operation",
+"parents": [
+"387713003",
+"386637004",
+"128927009"
+],
+"inactive": false
+},
+"407312007": {
+"sv": "enzymhämmare",
+"en": "Enzyme inhibitor",
+"parents": [
+"771387000"
+],
+"inactive": false
+},
+"40733004": {
+"sv": "infektion",
+"en": "Infectious disease",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"412127001": {
+"sv": "peptidhydrolashämmare",
+"en": "Peptide hydrolase inhibitor",
+"parents": [
+"427117001"
+],
+"inactive": false
+},
+"414252009": {
+"sv": "fynd som rör ryggen",
+"en": "Finding of back",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"417163006": {
+"sv": "skada",
+"en": "Traumatic or non-traumatic injury",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"418183005": {
+"sv": "psykofarmaka",
+"en": "Psychotropic agent",
+"parents": [
+"418149003"
+],
+"inactive": false
+},
+"42030000": {
+"sv": "sjukdom i urin- och könsorgan",
+"en": "Disorder of the genitourinary system",
+"parents": [
+"822988000",
+"362965005",
+"118238000"
+],
+"inactive": false
+},
+"421092003": {
+"sv": "allergisjukdom i andningssystemet",
+"en": "Allergic disorder of respiratory system",
+"parents": [
+"781474001",
+"50043002"
+],
+"inactive": false
+},
+"421371008": {
+"sv": "huvudhalva lateralt om medianplanet, struktur",
+"en": "Structure of half of head lateral to midsagittal plane",
+"parents": [
+"406121007",
+"423857001"
+],
+"inactive": false
+},
+"422076005": {
+"sv": "IgE-medierad allergi",
+"en": "IgE-mediated allergic disorder",
+"parents": [
+"781474001",
+"427439005"
+],
+"inactive": false
+},
+"42253005": {
+"sv": "incision i livmodern",
+"en": "Incision of uterus",
+"parents": [
+"79876008",
+"108188006",
+"363134007",
+"119608007"
+],
+"inactive": false
+},
+"422697005": {
+"sv": "halva bålen lateralt om midsagittalplanet, struktur",
+"en": "Structure of half of trunk lateral to midsagittal plane",
+"parents": [
+"420473002",
+"423857001"
+],
+"inactive": false
+},
+"426077003": {
+"sv": "biopolymer",
+"en": "Biopolymer",
+"parents": [
+"412155002"
+],
+"inactive": false
+},
+"427117001": {
+"sv": "hydrolashämmare",
+"en": "Hydrolase inhibitor",
+"parents": [
+"407312007"
+],
+"inactive": false
+},
+"427439005": {
+"sv": "överkänslighet, indelning efter mekanism",
+"en": "Immune hypersensitivity disorder by mechanism",
+"parents": [
+"473010000",
+"64572001"
+],
+"inactive": false
+},
+"428724006": {
+"sv": "artropati i knäled",
+"en": "Arthropathy of knee joint",
+"parents": [
+"299321000",
+"128136007",
+"399269003"
+],
+"inactive": false
+},
+"43024007": {
+"sv": "järnsalt",
+"en": "Iron salt",
+"parents": [
+"71482002"
+],
+"inactive": false
+},
+"441793007": {
+"sv": "hemoglobinhalt utanför referensområdet",
+"en": "Hemoglobin level outside reference range",
+"parents": [
+"442096005",
+"250220000",
+"34641000087106"
+],
+"inactive": false
+},
+"441985002": {
+"sv": "bilddiagnostik av hjärtat",
+"en": "Imaging of heart",
+"parents": [
+"1337998006",
+"413815006",
+"118797008"
+],
+"inactive": false
+},
+"442686002": {
+"sv": "mätfynd under referensintervallet",
+"en": "Measurement finding below reference range",
+"parents": [
+"442096005"
+],
+"inactive": false
+},
+"442756004": {
+"sv": "mätfynd över referensintervallet",
+"en": "Measurement finding above reference range",
+"parents": [
+"442096005"
+],
+"inactive": false
+},
+"446030004": {
+"sv": "angiografi med kontrast",
+"en": "Angiography using contrast",
+"parents": [
+"77343006"
+],
+"inactive": false
+},
+"4527007": {
+"sv": "led i nedre extremitet, struktur",
+"en": "Structure of joint of lower limb",
+"parents": [
+"312683002",
+"281244004",
+"787050004"
+],
+"inactive": false
+},
+"47458005": {
+"sv": "rekonstruktion av höft",
+"en": "Repair of hip",
+"parents": [
+"442095009",
+"28181007",
+"188383006",
+"119593002"
+],
+"inactive": false
+},
+"48286001": {
+"sv": "rubbning i lipoprotein- och/eller lipidomsättningen",
+"en": "Disorder of lipoprotein AND/OR lipid metabolism",
+"parents": [
+"75934005"
+],
+"inactive": false
+},
+"48694002": {
+"sv": "ångest",
+"en": "Anxiety",
+"parents": [
+"106126000"
+],
+"inactive": false
+},
+"49509003": {
+"sv": "operation av lymfatisk struktur",
+"en": "Operation on lymphatic structure",
+"parents": [
+"118688003",
+"387713003",
+"128927009"
+],
+"inactive": false
+},
+"50417007": {
+"sv": "infektion i de nedre luftvägarna",
+"en": "Lower respiratory tract infection",
+"parents": [
+"128272009",
+"275498002",
+"301226008"
+],
+"inactive": false
+},
+"50820005": {
+"sv": "cytopeni",
+"en": "Cytopenia",
+"parents": [
+"762656009",
+"442686002"
+],
+"inactive": false
+},
+"51265002": {
+"sv": "faryngektomi",
+"en": "Pharyngectomy",
+"parents": [
+"65801008",
+"23136006"
+],
+"inactive": false
+},
+"52642002": {
+"sv": "peptid",
+"en": "Peptide",
+"parents": [
+"415664003"
+],
+"inactive": false
+},
+"5282006": {
+"sv": "operation av orofarynx",
+"en": "Operation on oropharynx",
+"parents": [
+"118786008",
+"89901005",
+"359718007",
+"23136006"
+],
+"inactive": false
+},
+"56181003": {
+"sv": "klorerat kolväte",
+"en": "Chlorinated hydrocarbon",
+"parents": [
+"41105002",
+"95989003"
+],
+"inactive": false
+},
+"56265001": {
+"sv": "hjärtsjukdom",
+"en": "Heart disease",
+"parents": [
+"49483002",
+"49601007",
+"301095005"
+],
+"inactive": false
+},
+"58184002": {
+"sv": "recidiverande sjukdom",
+"en": "Recurrent disease",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"609617007": {
+"sv": "bålens bäckenregion, struktur",
+"en": "Structure of pelvic segment of trunk",
+"parents": [
+"63337009"
+],
+"inactive": false
+},
+"62175007": {
+"sv": "höger ben, struktur",
+"en": "Structure of right lower limb",
+"parents": [
+"61685007",
+"85421007"
+],
+"inactive": false
+},
+"6285003": {
+"sv": "takyarytmi",
+"en": "Tachyarrhythmia",
+"parents": [
+"3424008",
+"698247007"
+],
+"inactive": false
+},
+"64915003": {
+"sv": "hjärtoperation",
+"en": "Operation on heart",
+"parents": [
+"386765006",
+"112802009",
+"118797008"
+],
+"inactive": false
+},
+"67866001": {
+"sv": "insulin",
+"en": "Insulin",
+"parents": [
+"37276002",
+"39933002"
+],
+"inactive": false
+},
+"6808006": {
+"sv": "järn(II)förening",
+"en": "Ferrous iron compound",
+"parents": [
+"71482002"
+],
+"inactive": false
+},
+"6921000": {
+"sv": "höger arm, struktur",
+"en": "Structure of right upper limb",
+"parents": [
+"53120007",
+"85421007"
+],
+"inactive": false
+},
+"698247007": {
+"sv": "hjärtarytmi",
+"en": "Cardiac arrhythmia",
+"parents": [
+"56265001"
+],
+"inactive": false
+},
+"703938007": {
+"sv": "inflammatorisk dermatos",
+"en": "Inflammatory dermatosis",
+"parents": [
+"363168001",
+"363169009",
+"95320005"
+],
+"inactive": false
+},
+"70581004": {
+"sv": "kulled, struktur",
+"en": "Structure of spheroidal joint",
+"parents": [
+"334886004"
+],
+"inactive": false
+},
+"714974000": {
+"sv": "blåsa eller sår på huden",
+"en": "Lesion of skin and/or skin-associated mucous membrane",
+"parents": [
+"247440002"
+],
+"inactive": false
+},
+"72410000": {
+"sv": "mediastinum, struktur",
+"en": "Mediastinal structure",
+"parents": [
+"699593001",
+"310787001"
+],
+"inactive": false
+},
+"72654001": {
+"sv": "supraventrikulär arytmi",
+"en": "Supraventricular arrhythmia",
+"parents": [
+"698247007"
+],
+"inactive": false
+},
+"72696002": {
+"sv": "knä",
+"en": "Knee region structure",
+"parents": [
+"699617006",
+"787050004"
+],
+"inactive": false
+},
+"74732009": {
+"sv": "psykisk störning",
+"en": "Mental disorder",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"76069003": {
+"sv": "sjukdom i benvävnad",
+"en": "Disorder of bone",
+"parents": [
+"88230002",
+"118953000"
+],
+"inactive": false
+},
+"765174005": {
+"sv": "organisk syra och organisk syraderivat",
+"en": "Organic acid and/or organic acid derivative",
+"parents": [
+"41175001"
+],
+"inactive": false
+},
+"766988001": {
+"sv": "dihydropyridinderivat",
+"en": "Dihydropyridine derivative",
+"parents": [
+"300067003"
+],
+"inactive": false
+},
+"76712006": {
+"sv": "sjukdom i matspjälkningsorgan",
+"en": "Disorder of digestive organ",
+"parents": [
+"53619000"
+],
+"inactive": false
+},
+"767716009": {
+"sv": "bensoesyra och bensoesyrederivat",
+"en": "Benzoic acid and/or benzoic acid derivative",
+"parents": [
+"42907009"
+],
+"inactive": false
+},
+"771357006": {
+"sv": "celltransporthämmare",
+"en": "Cellular transport inhibitor",
+"parents": [
+"766739005"
+],
+"inactive": false
+},
+"772778005": {
+"sv": "acetamid och acetamidderivat",
+"en": "Acetamide and/or acetamide derivative",
+"parents": [
+"31414002"
+],
+"inactive": false
+},
+"782376000": {
+"sv": "cyklooxigenashämmare",
+"en": "Cyclooxygenase inhibitor",
+"parents": [
+"410942007",
+"407312007"
+],
+"inactive": false
+},
+"783923008": {
+"sv": "serotoninreceptoragonist",
+"en": "Serotonin receptor agonist",
+"parents": [
+"771380003"
+],
+"inactive": false
+},
+"79007002": {
+"sv": "industriprodukt",
+"en": "Industrial product",
+"parents": [
+"312435005"
+],
+"inactive": false
+},
+"79876008": {
+"sv": "livmoderoperation",
+"en": "Operation on uterus",
+"parents": [
+"12658000",
+"118864003",
+"21371007"
+],
+"inactive": false
+},
+"80891009": {
+"sv": "hjärta, struktur",
+"en": "Heart structure",
+"parents": [
+"27832009",
+"409708007"
+],
+"inactive": false
+},
+"816092008": {
+"sv": "tvärsnitt av bäckenregion, struktur",
+"en": "Cross-sectional pelvis",
+"parents": [
+"63337009",
+"1231522001",
+"818982008"
+],
+"inactive": false
+},
+"818981001": {
+"sv": "tvärsnitt av bukregion, struktur",
+"en": "Cross-sectional abdomen",
+"parents": [
+"818982008"
+],
+"inactive": false
+},
+"818988007": {
+"sv": "inom själva bukhålan, struktur",
+"en": "Intra-abdominal proper structure",
+"parents": [
+"818984009",
+"818986006"
+],
+"inactive": false
+},
+"836368004": {
+"sv": "vaccin som innehåller bakteriellt antigen",
+"en": "Bacteria antigen-containing vaccine product",
+"parents": [
+"787859002"
+],
+"inactive": false
+},
+"836381006": {
+"sv": "vaccin som innehåller antigen från Corynebacterium diphtheriae",
+"en": "Corynebacterium diphtheriae antigen-containing vaccine product",
+"parents": [
+"836368004"
+],
+"inactive": false
+},
+"846601002": {
+"sv": "blodkärl i tvärsnitt av bröstkorgsregion, struktur",
+"en": "Structure of blood vessel of thoracic cross-sectional segment of trunk",
+"parents": [
+"306955007",
+"816094009"
+],
+"inactive": false
+},
+"85421007": {
+"sv": "höger kroppshalva, struktur",
+"en": "Structure of right half of body",
+"parents": [
+"423857001"
+],
+"inactive": false
+},
+"86175003": {
+"sv": "skada på hjärtat",
+"en": "Injury of heart",
+"parents": [
+"56265001",
+"733217006",
+"282728007"
+],
+"inactive": false
+},
+"863911006": {
+"sv": "vaccin som innehåller antigen från Clostridium tetani",
+"en": "Clostridium tetani antigen-containing vaccine product",
+"parents": [
+"836368004"
+],
+"inactive": false
+},
+"866173006": {
+"sv": "hämmare av renin-angiotensinsystemet",
+"en": "Renin-angiotensin system inhibitor",
+"parents": [
+"372586001",
+"407312007"
+],
+"inactive": false
+},
+"870575001": {
+"sv": "förmakssjukdom",
+"en": "Atrial cardiopathy",
+"parents": [
+"56265001"
+],
+"inactive": false
+},
+"87568004": {
+"sv": "hormon",
+"en": "Hormone",
+"parents": [
+"410942007",
+"771388005"
+],
+"inactive": false
+},
+"897026004": {
+"sv": "led i fritt rörlig nedre extremitet, struktur",
+"en": "Joint structure of free lower limb",
+"parents": [
+"699617006",
+"4527007"
+],
+"inactive": false
+},
+"897444001": {
+"sv": "Structural abnormality of skeleton",
+"en": "Structural abnormality of skeleton",
+"parents": [
+"88230002"
+],
+"inactive": false
+},
+"89901005": {
+"sv": "operativ åtgärd på huvudet",
+"en": "Operative procedure on head",
+"parents": [
+"118690002",
+"387713003",
+"128927009"
+],
+"inactive": false
+},
+"90708001": {
+"sv": "njursjukdom",
+"en": "Kidney disease",
+"parents": [
+"249578005",
+"443820000",
+"734045002"
+],
+"inactive": false
+},
+"95351003": {
+"sv": "sjukdom i slemhinna",
+"en": "Disorder of mucous membrane",
+"parents": [
+"362965005",
+"128145008"
+],
+"inactive": false
+},
+"106126000": {
+"sv": "fynd som rör emotionellt tillstånd",
+"en": "Emotional state finding",
+"parents": [
+"36456004"
+],
+"inactive": false
+},
+"107994000": {
+"sv": "operativ åtgärd avseende hematopoetiska systemet",
+"en": "Operative procedure on hematopoietic system",
+"parents": [
+"387713003",
+"118685000",
+"128927009"
+],
+"inactive": false
+},
+"108188006": {
+"sv": "bukincision",
+"en": "Abdomen incision",
+"parents": [
+"119580007",
+"21371007"
+],
+"inactive": false
+},
+"112802009": {
+"sv": "kirurgisk åtgärd avseende hjärt-kärlsystemet",
+"en": "Cardiovascular surgical procedure",
+"parents": [
+"387713003",
+"118672003",
+"128927009"
+],
+"inactive": false
+},
+"118238000": {
+"sv": "underlivsbesvär",
+"en": "Urogenital finding",
+"parents": [
+"822987005"
+],
+"inactive": false
+},
+"118686004": {
+"sv": "åtgärd avseende immunsystemet",
+"en": "Procedure on immune system",
+"parents": [
+"118664000"
+],
+"inactive": false
+},
+"118688003": {
+"sv": "åtgärd avseende lymfatiska systemet",
+"en": "Procedure on lymphatic system",
+"parents": [
+"118664000"
+],
+"inactive": false
+},
+"118690002": {
+"sv": "åtgärd avseende huvudet",
+"en": "Procedure on head",
+"parents": [
+"771329004"
+],
+"inactive": false
+},
+"118786008": {
+"sv": "åtgärd på orofarynx",
+"en": "Procedure on oropharynx",
+"parents": [
+"232663008",
+"118690002",
+"118826000",
+"118784006"
+],
+"inactive": false
+},
+"118797008": {
+"sv": "åtgärd på hjärtat",
+"en": "Procedure on heart",
+"parents": [
+"118717007",
+"118672003",
+"118696008"
+],
+"inactive": false
+},
+"118804001": {
+"sv": "åtgärd på blodkärl",
+"en": "Procedure on blood vessel",
+"parents": [
+"118672003",
+"118738001"
+],
+"inactive": false
+},
+"118805000": {
+"sv": "åtgärd på artär",
+"en": "Procedure on artery",
+"parents": [
+"118804001"
+],
+"inactive": false
+},
+"118808003": {
+"sv": "åtgärd på artär i torax och buk",
+"en": "Procedure on artery of thorax and abdomen",
+"parents": [
+"118805000",
+"118694006"
+],
+"inactive": false
+},
+"118810001": {
+"sv": "åtgärd på artär i torax",
+"en": "Procedure on artery of thorax",
+"parents": [
+"118808003",
+"118695007"
+],
+"inactive": false
+},
+"118823008": {
+"sv": "åtgärd på gallblåsan",
+"en": "Procedure on gallbladder",
+"parents": [
+"118824002"
+],
+"inactive": false
+},
+"118864003": {
+"sv": "åtgärd på livmodern",
+"en": "Procedure on uterus",
+"parents": [
+"128312004",
+"118698009"
+],
+"inactive": false
+},
+"118934005": {
+"sv": "sjukdom i huvudet",
+"en": "Disorder of head",
+"parents": [
+"64572001",
+"406122000"
+],
+"inactive": false
+},
+"118937003": {
+"sv": "sjukdom i nedre extremitet",
+"en": "Disorder of lower limb",
+"parents": [
+"116312005",
+"128605003"
+],
+"inactive": false
+},
+"118946009": {
+"sv": "sjukdom i bröstkorg",
+"en": "Disorder of thorax",
+"parents": [
+"298705000",
+"609622007"
+],
+"inactive": false
+},
+"118953000": {
+"sv": "fynd som rör skelettben",
+"en": "Bone finding",
+"parents": [
+"106028002"
+],
+"inactive": false
+},
+"118970008": {
+"sv": "hjärt-kärlsystemet, underindelning",
+"en": "Cardiovascular system subdivision",
+"parents": [
+"113257007",
+"91690000"
+],
+"inactive": false
+},
+"119195004": {
+"sv": "del av svalg",
+"en": "Pharyngeal part",
+"parents": [
+"54066008",
+"119210004"
+],
+"inactive": false
+},
+"119593002": {
+"sv": "operation av bålen",
+"en": "Repair of trunk",
+"parents": [
+"74943008",
+"4365001"
+],
+"inactive": false
+},
+"119608007": {
+"sv": "incision i bäckenet",
+"en": "Pelvis incision",
+"parents": [
+"119580007",
+"609638001"
+],
+"inactive": false
+},
+"120173009": {
+"sv": "rekonstruerande bukoperation",
+"en": "Repair of abdomen",
+"parents": [
+"21371007",
+"119593002"
+],
+"inactive": false
+},
+"1231522001": {
+"sv": "Cross-sectional pelvis and/or lower limb",
+"en": "Cross-sectional pelvis and/or lower limb",
+"parents": [
+"69548008"
+],
+"inactive": false
+},
+"123850002": {
+"sv": "del av huvud",
+"en": "Head part",
+"parents": [
+"69536005"
+],
+"inactive": false
+},
+"12658000": {
+"sv": "operation av kvinnliga könsorgan",
+"en": "Operation on female genital organs",
+"parents": [
+"118675001",
+"609638001"
+],
+"inactive": false
+},
+"127296001": {
+"sv": "intrakraniell skada",
+"en": "Intracranial injury",
+"parents": [
+"82271004"
+],
+"inactive": false
+},
+"127868003": {
+"sv": "övre matspjälkningsorgan, struktur",
+"en": "Upper digestive tract structure",
+"parents": [
+"709519000"
+],
+"inactive": false
+},
+"128126004": {
+"sv": "skada på centrala nervsystemet",
+"en": "Injury of central nervous system",
+"parents": [
+"128239009",
+"23853001"
+],
+"inactive": false
+},
+"128136007": {
+"sv": "knäsjukdom",
+"en": "Disorder of knee",
+"parents": [
+"700012005",
+"116314006",
+"785875003"
+],
+"inactive": false
+},
+"128145008": {
+"sv": "fynd som rör slemhinna",
+"en": "Mucosal finding",
+"parents": [
+"415531008"
+],
+"inactive": false
+},
+"129253000": {
+"sv": "åtgärd på lymfatiskt organ",
+"en": "Procedure on lymphoid organ",
+"parents": [
+"118717007",
+"118687008"
+],
+"inactive": false
+},
+"1337998006": {
+"sv": "bilddiagnostik av hjärt-kärlsystemet",
+"en": "Imaging of cardiovascular system",
+"parents": [
+"363679005",
+"276341003"
+],
+"inactive": false
+},
+"1370980003": {
+"sv": "inflammatorisk sjukdom i öra, näsa och/eller svalg",
+"en": "Inflammatory disorder of ear, nose and/or throat",
+"parents": [
+"363170005",
+"232208008"
+],
+"inactive": false
+},
+"1371557008": {
+"sv": "Implantation of device",
+"en": "Implantation of device",
+"parents": [
+"782902008"
+],
+"inactive": false
+},
+"1380110002": {
+"sv": "Hernioplasty",
+"en": "Hernioplasty",
+"parents": [
+"50465008"
+],
+"inactive": false
+},
+"177853001": {
+"sv": "åtgärd i bukväggen",
+"en": "Abdominal wall procedure",
+"parents": [
+"118698009"
+],
+"inactive": false
+},
+"179342005": {
+"sv": "knäledsoperation",
+"en": "Knee joint operation",
+"parents": [
+"112698002",
+"118750007",
+"6240004"
+],
+"inactive": false
+},
+"188383006": {
+"sv": "kirurgisk rekonstruktion av nedre extremitet",
+"en": "Surgical repair of lower extremity",
+"parents": [
+"107784002",
+"4365001"
+],
+"inactive": false
+},
+"201060008": {
+"sv": "sjukdom i det övre andningssystemet",
+"en": "Disorder of upper respiratory system",
+"parents": [
+"50043002",
+"232208008",
+"301186004"
+],
+"inactive": false
+},
+"21829004": {
+"sv": "fynd som rör blodkärl",
+"en": "Blood vessel finding",
+"parents": [
+"106063007",
+"248402002"
+],
+"inactive": false
+},
+"22253000": {
+"sv": "smärta",
+"en": "Pain",
+"parents": [
+"276435006"
+],
+"inactive": false
+},
+"225162003": {
+"sv": "undersöka buk",
+"en": "Examination of abdomen",
+"parents": [
+"118698009",
+"5880005"
+],
+"inactive": false
+},
+"23136006": {
+"sv": "svalgoperation",
+"en": "Operation on pharynx",
+"parents": [
+"107957009",
+"118784006",
+"14354006"
+],
+"inactive": false
+},
+"238165008": {
+"sv": "åtgärd vid bukväggsbråck",
+"en": "Abdominal wall hernia procedure",
+"parents": [
+"238223007"
+],
+"inactive": false
+},
+"246869006": {
+"sv": "fynd som rör ögats yta",
+"en": "Ocular surface finding",
+"parents": [
+"418727003"
+],
+"inactive": false
+},
+"247440002": {
+"sv": "lesion på hud eller slemhinna",
+"en": "Skin or mucosa lesion",
+"parents": [
+"362965005",
+"415531008"
+],
+"inactive": false
+},
+"249353005": {
+"sv": "fynd som rör nässlemhinna",
+"en": "Nasal mucosa finding",
+"parents": [
+"249342004",
+"128145008",
+"248402002"
+],
+"inactive": false
+},
+"249561001": {
+"sv": "fynd som rör organ i buken",
+"en": "Abdominal organ finding",
+"parents": [
+"609624008",
+"406123005"
+],
+"inactive": false
+},
+"249578005": {
+"sv": "fynd som rör njure",
+"en": "Kidney finding",
+"parents": [
+"106098005",
+"249561001"
+],
+"inactive": false
+},
+"249604002": {
+"sv": "fynd som rör prostata",
+"en": "Prostate finding",
+"parents": [
+"249230006",
+"700006000"
+],
+"inactive": false
+},
+"250220000": {
+"sv": "fynd som rör hemoglobin",
+"en": "Hemoglobin finding",
+"parents": [
+"365799007",
+"106200001"
+],
+"inactive": false
+},
+"25064002": {
+"sv": "huvudvärk",
+"en": "Headache",
+"parents": [
+"279001004",
+"406122000"
+],
+"inactive": false
+},
+"275498002": {
+"sv": "luftvägsinfektion",
+"en": "Respiratory tract infection",
+"parents": [
+"40733004",
+"50043002"
+],
+"inactive": false
+},
+"27832009": {
+"sv": "torakalt organ, struktur",
+"en": "Structure of thoracic viscus",
+"parents": [
+"699593001",
+"362937008"
+],
+"inactive": false
+},
+"281157001": {
+"sv": "systemisk kärlstruktur",
+"en": "Systemic blood vessel structure",
+"parents": [
+"59820001",
+"51840005"
+],
+"inactive": false
+},
+"281244004": {
+"sv": "muskler och skelett i nedre extremitet, struktur",
+"en": "Musculoskeletal structure of lower limb",
+"parents": [
+"120575009",
+"281242000"
+],
+"inactive": false
+},
+"28181007": {
+"sv": "operation av höftled",
+"en": "Operation on hip joint",
+"parents": [
+"112698002",
+"118749007",
+"429772001"
+],
+"inactive": false
+},
+"282728007": {
+"sv": "kardiovaskulär skada",
+"en": "Cardiovascular injury",
+"parents": [
+"49601007",
+"417163006"
+],
+"inactive": false
+},
+"289958009": {
+"sv": "organiskt naturmaterial",
+"en": "Organic natural material",
+"parents": [
+"115668003",
+"260786008"
+],
+"inactive": false
+},
+"298160000": {
+"sv": "inflammation i led",
+"en": "Inflammation of joint",
+"parents": [
+"118952005"
+],
+"inactive": false
+},
+"298378000": {
+"sv": "fynd som rör halsregionen",
+"en": "Finding of neck region",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"299321000": {
+"sv": "fynd som rör knäled",
+"en": "Knee joint finding",
+"parents": [
+"118952005",
+"116314006"
+],
+"inactive": false
+},
+"299735001": {
+"sv": "neurologisk lesion",
+"en": "Neurological lesion",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"301095005": {
+"sv": "hjärtfynd",
+"en": "Cardiac finding",
+"parents": [
+"406123005",
+"106063007",
+"301296002"
+],
+"inactive": false
+},
+"301226008": {
+"sv": "fynd som rör de nedre luftvägarna",
+"en": "Lower respiratory tract finding",
+"parents": [
+"106048009"
+],
+"inactive": false
+},
+"301230006": {
+"sv": "fynd som rör lunga",
+"en": "Lung finding",
+"parents": [
+"298705000",
+"406123005",
+"301226008"
+],
+"inactive": false
+},
+"301282008": {
+"sv": "fynd som rör andning",
+"en": "Finding of respiration",
+"parents": [
+"106048009"
+],
+"inactive": false
+},
+"301310005": {
+"sv": "fynd som rör ansiktet",
+"en": "Finding of face",
+"parents": [
+"298364001"
+],
+"inactive": false
+},
+"302293008": {
+"sv": "fynd som rör extremitets struktur",
+"en": "Finding of limb structure",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"303270005": {
+"sv": "lever och/eller gallvägar, struktur",
+"en": "Liver and/or biliary structure",
+"parents": [
+"818981001",
+"281501002"
+],
+"inactive": false
+},
+"306955007": {
+"sv": "kärlstruktur i bål",
+"en": "Vascular structure of trunk",
+"parents": [
+"306954006",
+"281233007"
+],
+"inactive": false
+},
+"310787001": {
+"sv": "lunga och/eller mediastinum, struktur",
+"en": "Structure of lung and/or mediastinum",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"312435005": {
+"sv": "ämne för industriell användning och hushållsanvändning",
+"en": "Industrial and household substance",
+"parents": [
+"312412007"
+],
+"inactive": false
+},
+"312683002": {
+"sv": "led i extremitet, struktur",
+"en": "Joint structure of limb",
+"parents": [
+"312564004",
+"39352004",
+"281242000"
+],
+"inactive": false
+},
+"334886004": {
+"sv": "synovialled, struktur",
+"en": "Synovial joint structure",
+"parents": [
+"39352004"
+],
+"inactive": false
+},
+"3424008": {
+"sv": "takykardi",
+"en": "Tachycardia",
+"parents": [
+"301113001"
+],
+"inactive": false
+},
+"34641000087106": {
+"sv": "hematologiskt test utanför referensintervallet",
+"en": "Hematology test outside reference range",
+"parents": [
+"106200001"
+],
+"inactive": false
+},
+"34862004": {
+"sv": "aromatiskt kolväte",
+"en": "Aromatic hydrocarbon",
+"parents": [
+"80382003"
+],
+"inactive": false
+},
+"359718007": {
+"sv": "operation på övre matspjälkningsorgan",
+"en": "Upper digestive tract operation",
+"parents": [
+"37661000"
+],
+"inactive": false
+},
+"362961001": {
+"sv": "åtgärd, indelning efter avsikt",
+"en": "Procedure by intent",
+"parents": [
+"71388002"
+],
+"inactive": false
+},
+"363134007": {
+"sv": "incision i urin- och könsorgan",
+"en": "Genitourinary system incision",
+"parents": [
+"119580007",
+"118674002"
+],
+"inactive": false
+},
+"363168001": {
+"sv": "inflammation i hud och/eller subkutan vävnad",
+"en": "Inflammation of skin and/or subcutaneous tissue",
+"parents": [
+"363171009",
+"80659006"
+],
+"inactive": false
+},
+"363170005": {
+"sv": "inflammation i specifika kroppsstrukturer eller vävnad",
+"en": "Inflammation of specific body structures or tissue",
+"parents": [
+"128139000"
+],
+"inactive": false
+},
+"363175000": {
+"sv": "inflammatorisk sjukdom i extremitet",
+"en": "Inflammatory disorder of extremity",
+"parents": [
+"363170005",
+"128605003"
+],
+"inactive": false
+},
+"363179006": {
+"sv": "inflammatorisk sjukdom i rörelseapparaten",
+"en": "Inflammatory disorder of musculoskeletal system",
+"parents": [
+"363171009",
+"928000"
+],
+"inactive": false
+},
+"363180009": {
+"sv": "inflammatorisk sjukdom i luftvägar",
+"en": "Inflammatory disorder of the respiratory tract",
+"parents": [
+"373405005"
+],
+"inactive": false
+},
+"363679005": {
+"sv": "bilddiagnostik",
+"en": "Imaging",
+"parents": [
+"386053000"
+],
+"inactive": false
+},
+"365625004": {
+"sv": "fynd som rör erytrocytantal",
+"en": "Red blood cell count - finding",
+"parents": [
+"118245000"
+],
+"inactive": false
+},
+"365791005": {
+"sv": "fynd som rör koncentration av lipid",
+"en": "Lipid level - finding",
+"parents": [
+"785671009"
+],
+"inactive": false
+},
+"371405004": {
+"sv": "ögonsjukdom",
+"en": "Disorder of eye",
+"parents": [
+"246915008",
+"371409005",
+"1279550006"
+],
+"inactive": false
+},
+"371409005": {
+"sv": "sjukdom i ögonregion",
+"en": "Disorder of eye region",
+"parents": [
+"128127008",
+"298364001",
+"118934005"
+],
+"inactive": false
+},
+"37276002": {
+"sv": "polypeptidhormon",
+"en": "Polypeptide hormone",
+"parents": [
+"87568004",
+"70354003"
+],
+"inactive": false
+},
+"372862008": {
+"sv": "antikoagulans",
+"en": "Anticoagulant",
+"parents": [
+"373708006"
+],
+"inactive": false
+},
+"373301002": {
+"sv": "benresorptionshämmare",
+"en": "Bone resorption inhibitor",
+"parents": [
+"418540006"
+],
+"inactive": false
+},
+"373351007": {
+"sv": "kirurgisk åtgärd på mjukdelar",
+"en": "Surgical procedure on soft tissue",
+"parents": [
+"387713003",
+"128927009",
+"118738001"
+],
+"inactive": false
+},
+"386618008": {
+"sv": "fynd som rör mag-tarmkanalen",
+"en": "Gastrointestinal tract finding",
+"parents": [
+"386617003"
+],
+"inactive": false
+},
+"386765006": {
+"sv": "operation av mediastinum",
+"en": "Operation on mediastinum",
+"parents": [
+"385487005",
+"118696008"
+],
+"inactive": false
+},
+"39499005": {
+"sv": "artär i torax och/eller buk, struktur",
+"en": "Structure of artery of thorax AND/OR abdomen",
+"parents": [
+"308734009"
+],
+"inactive": false
+},
+"39898005": {
+"sv": "sömnstörning",
+"en": "Sleep disorder",
+"parents": [
+"106168000",
+"64572001"
+],
+"inactive": false
+},
+"399269003": {
+"sv": "artropati",
+"en": "Arthropathy",
+"parents": [
+"118952005",
+"88230002",
+"785875003"
+],
+"inactive": false
+},
+"39933002": {
+"sv": "pankreashormon",
+"en": "Pancreatic hormone",
+"parents": [
+"87568004",
+"415664003"
+],
+"inactive": false
+},
+"406121007": {
+"sv": "huvudregion, struktur",
+"en": "Structure of subregion of head",
+"parents": [
+"123850002"
+],
+"inactive": false
+},
+"406123005": {
+"sv": "fynd som rör organstruktur",
+"en": "Viscus structure finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"406474005": {
+"sv": "hela pollen",
+"en": "Entire pollen",
+"parents": [
+"256259004"
+],
+"inactive": false
+},
+"409708007": {
+"sv": "hjärta och/eller perikardium, struktur",
+"en": "Heart and/or pericardium structure",
+"parents": [
+"281467004",
+"69608005"
+],
+"inactive": false
+},
+"41105002": {
+"sv": "halogenerat kolväte",
+"en": "Halogenated hydrocarbon",
+"parents": [
+"767523007",
+"80382003"
+],
+"inactive": false
+},
+"412155002": {
+"sv": "polymer",
+"en": "Polymer",
+"parents": [
+"312415009"
+],
+"inactive": false
+},
+"413815006": {
+"sv": "bilddiagnostik av torax",
+"en": "Chest imaging",
+"parents": [
+"363679005",
+"118695007"
+],
+"inactive": false
+},
+"414022008": {
+"sv": "sjukdom hos cellulär blodkomponent",
+"en": "Disorder of cellular component of blood",
+"parents": [
+"299691001",
+"64572001"
+],
+"inactive": false
+},
+"415664003": {
+"sv": "substituerad amid",
+"en": "Substituted amide",
+"parents": [
+"299987008"
+],
+"inactive": false
+},
+"417174002": {
+"sv": "polycyklisk förening",
+"en": "Polycyclic compound",
+"parents": [
+"767844004"
+],
+"inactive": false
+},
+"418149003": {
+"sv": "psykoaktiv substans",
+"en": "Psychoactive substance",
+"parents": [
+"372752008"
+],
+"inactive": false
+},
+"418471000": {
+"sv": "benägenhet för reaktion mot födoämne",
+"en": "Propensity to adverse reactions to food",
+"parents": [
+"420134006"
+],
+"inactive": false
+},
+"418727003": {
+"sv": "fynd som rör främre segment",
+"en": "Anterior segment finding",
+"parents": [
+"246915008"
+],
+"inactive": false
+},
+"423827005": {
+"sv": "endoskopi",
+"en": "Endoscopy",
+"parents": [
+"32750006"
+],
+"inactive": false
+},
+"42560003": {
+"sv": "operation av gallvägarna",
+"en": "Operation on biliary tract",
+"parents": [
+"107957009",
+"118824002",
+"21371007"
+],
+"inactive": false
+},
+"42907009": {
+"sv": "karboxylsyra",
+"en": "Carboxylic acid",
+"parents": [
+"767530001"
+],
+"inactive": false
+},
+"442095009": {
+"sv": "artroplastik",
+"en": "Arthroplasty",
+"parents": [
+"112698002",
+"119574004"
+],
+"inactive": false
+},
+"442096005": {
+"sv": "mätfynd utanför referensintervallet",
+"en": "Measurement finding outside reference range",
+"parents": [
+"118245000"
+],
+"inactive": false
+},
+"443017007": {
+"sv": "koagulationsrelaterad substans",
+"en": "Coagulation related substance",
+"parents": [
+"106205006",
+"420220000"
+],
+"inactive": false
+},
+"443820000": {
+"sv": "sjukdom i njure och/eller uretär",
+"en": "Disorder of kidney and/or ureter",
+"parents": [
+"128606002",
+"118948005"
+],
+"inactive": false
+},
+"49483002": {
+"sv": "sjukdom i mediastinum",
+"en": "Disorder of mediastinum",
+"parents": [
+"362965005",
+"118946009",
+"301296002"
+],
+"inactive": false
+},
+"50352000": {
+"sv": "organisk fosforförening",
+"en": "Organic phosphorus compound",
+"parents": [
+"41175001",
+"63793008"
+],
+"inactive": false
+},
+"50410009": {
+"sv": "sjukdom i övre matspjälkningsorgan",
+"en": "Disorder of upper digestive tract",
+"parents": [
+"84410009"
+],
+"inactive": false
+},
+"50465008": {
+"sv": "bråckoperation",
+"en": "Hernia repair",
+"parents": [
+"4365001"
+],
+"inactive": false
+},
+"51114001": {
+"sv": "artär, struktur",
+"en": "Arterial structure",
+"parents": [
+"59820001",
+"11527006"
+],
+"inactive": false
+},
+"51185008": {
+"sv": "torax, struktur",
+"en": "Thoracic structure",
+"parents": [
+"417437006",
+"67734004",
+"416550000"
+],
+"inactive": false
+},
+"53619000": {
+"sv": "sjukdom i matspjälkningssystemet",
+"en": "Disorder of digestive system",
+"parents": [
+"362965005",
+"386617003"
+],
+"inactive": false
+},
+"55609009": {
+"sv": "svalgvägg, struktur",
+"en": "Pharyngeal wall structure",
+"parents": [
+"119195004"
+],
+"inactive": false
+},
+"609620004": {
+"sv": "sjukdom i bäckenet",
+"en": "Disorder of pelvis",
+"parents": [
+"609626005",
+"609619005"
+],
+"inactive": false
+},
+"609623002": {
+"sv": "fynd som rör övre delen av bålen",
+"en": "Finding of upper trunk",
+"parents": [
+"302292003"
+],
+"inactive": false
+},
+"609624008": {
+"sv": "fynd som rör buken",
+"en": "Finding of abdomen",
+"parents": [
+"822987005"
+],
+"inactive": false
+},
+"609638001": {
+"sv": "operation av bålens bäckenregion",
+"en": "Operation on pelvic region of trunk",
+"parents": [
+"74943008",
+"609637006"
+],
+"inactive": false
+},
+"61685007": {
+"sv": "nedre extremitet, struktur",
+"en": "Lower limb structure",
+"parents": [
+"66019005",
+"1231522001"
+],
+"inactive": false
+},
+"64557000": {
+"sv": "sjukdom i manliga könsorgan",
+"en": "Disorder of male genital organ",
+"parents": [
+"363194005"
+],
+"inactive": false
+},
+"699593001": {
+"sv": "kompartment i torax, struktur",
+"en": "Structure of thoracic cavity and/or content",
+"parents": [
+"91829005",
+"51185008"
+],
+"inactive": false
+},
+"699617006": {
+"sv": "fri rörlig nedre extremitet, struktur",
+"en": "Structure of free lower limb",
+"parents": [
+"127951001"
+],
+"inactive": false
+},
+"699639008": {
+"sv": "lateral del av nedre extremitet, struktur",
+"en": "Structure of lateral part of lower limb",
+"parents": [
+"127951001"
+],
+"inactive": false
+},
+"699697007": {
+"sv": "fynd som rör förnimmelse, indelning efter lokalisation",
+"en": "Finding of sensation by site",
+"parents": [
+"106147001"
+],
+"inactive": false
+},
+"712886002": {
+"sv": "adrenerg receptoragonist",
+"en": "Adrenergic receptor agonist",
+"parents": [
+"771380003",
+"372884008"
+],
+"inactive": false
+},
+"71482002": {
+"sv": "järnförening",
+"en": "Iron compound",
+"parents": [
+"767270007"
+],
+"inactive": false
+},
+"733217006": {
+"sv": "skada på intratorakalt organ",
+"en": "Injury of intrathoracic organ",
+"parents": [
+"262525000",
+"105612003"
+],
+"inactive": false
+},
+"734045002": {
+"sv": "retroperitoneal sjukdom",
+"en": "Disorder of retroperitoneum",
+"parents": [
+"118948005"
+],
+"inactive": false
+},
+"7362006": {
+"sv": "lymfatiska systemet i huvud, struktur",
+"en": "Structure of lymphatic system of head",
+"parents": [
+"123850002",
+"281345001"
+],
+"inactive": false
+},
+"762656009": {
+"sv": "onormalt antal blodkroppar",
+"en": "Blood cell count outside reference range",
+"parents": [
+"442096005"
+],
+"inactive": false
+},
+"767098004": {
+"sv": "metall och/eller metallförening",
+"en": "Metal and/or metal compound",
+"parents": [
+"312415009"
+],
+"inactive": false
+},
+"767407009": {
+"sv": "svavel och/eller svavelförening",
+"en": "Sulfur and/or sulfur compound",
+"parents": [
+"312415009"
+],
+"inactive": false
+},
+"771380003": {
+"sv": "receptoragonist",
+"en": "Receptor agonist",
+"parents": [
+"766739005"
+],
+"inactive": false
+},
+"771387000": {
+"sv": "effektor",
+"en": "Effector",
+"parents": [
+"766739005"
+],
+"inactive": false
+},
+"771388005": {
+"sv": "molekylär budbärare",
+"en": "Molecular messenger",
+"parents": [
+"766739005"
+],
+"inactive": false
+},
+"77343006": {
+"sv": "angiografi",
+"en": "Angiography",
+"parents": [
+"1337998006",
+"118804001",
+"414457001"
+],
+"inactive": false
+},
+"781474001": {
+"sv": "allergisk sjukdom",
+"en": "Allergic disorder",
+"parents": [
+"473011001",
+"414029004"
+],
+"inactive": false
+},
+"782197009": {
+"sv": "substansintolerans",
+"en": "Intolerance to substance",
+"parents": [
+"420134006"
+],
+"inactive": false
+},
+"787050004": {
+"sv": "ledregion i nedre extremitet, struktur",
+"en": "Structure of joint region of lower limb",
+"parents": [
+"785818007"
+],
+"inactive": false
+},
+"78910004": {
+"sv": "fast substans",
+"en": "Solid substance",
+"parents": [
+"115669006"
+],
+"inactive": false
+},
+"81308009": {
+"sv": "sjukdom i hjärna",
+"en": "Disorder of brain",
+"parents": [
+"23853001",
+"118934005",
+"299718000"
+],
+"inactive": false
+},
+"816094009": {
+"sv": "tvärsnitt av bröstkorgsregion, struktur",
+"en": "Cross-sectional thorax",
+"parents": [
+"420473002"
+],
+"inactive": false
+},
+"818984009": {
+"sv": "själva buken, struktur",
+"en": "Abdomen proper",
+"parents": [
+"818983003",
+"818985005"
+],
+"inactive": false
+},
+"822988000": {
+"sv": "sjukdom i bålens buk-bäckenregion",
+"en": "Disorder of abdominopelvic segment of trunk",
+"parents": [
+"128121009",
+"822987005"
+],
+"inactive": false
+},
+"84410009": {
+"sv": "sjukdom i matspjälkningsorgan",
+"en": "Disorder of digestive tract",
+"parents": [
+"53619000"
+],
+"inactive": false
+},
+"88230002": {
+"sv": "sjukdom i skelettsystemet",
+"en": "Disorder of skeletal system",
+"parents": [
+"928000"
+],
+"inactive": false
+},
+"89187006": {
+"sv": "luftvägar, struktur",
+"en": "Airway structure",
+"parents": [
+"321667001",
+"91830000"
+],
+"inactive": false
+},
+"89488007": {
+"sv": "sjukdom i näsa",
+"en": "Disorder of the nose",
+"parents": [
+"232339008",
+"118930001",
+"232208008",
+"118237005"
+],
+"inactive": false
+},
+"91688001": {
+"sv": "lymfatiskt organ, struktur",
+"en": "Lymphoid organ structure",
+"parents": [
+"113343008",
+"122490001"
+],
+"inactive": false
+},
+"928000": {
+"sv": "sjukdom i rörelseapparaten",
+"en": "Disorder of musculoskeletal system",
+"parents": [
+"362965005",
+"106028002"
+],
+"inactive": false
+},
+"95989003": {
+"sv": "organisk kloridförening",
+"en": "Organic chloride compound",
+"parents": [
+"41175001",
+"68356001"
+],
+"inactive": false
+},
+"105612003": {
+"sv": "skada på inre organ",
+"en": "Injury of internal organ",
+"parents": [
+"417163006",
+"406123005"
+],
+"inactive": false
+},
+"106028002": {
+"sv": "fynd som rör rörelseapparaten",
+"en": "Musculoskeletal finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"106147001": {
+"sv": "fynd som rör sensoriska nervsystemet",
+"en": "Sensory nervous system finding",
+"parents": [
+"102957003"
+],
+"inactive": false
+},
+"106168000": {
+"sv": "fynd relaterat till sömn",
+"en": "Finding related to sleep",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"106200001": {
+"sv": "fynd som rör hematopoetiska systemet",
+"en": "Hematopoietic system finding",
+"parents": [
+"441742003"
+],
+"inactive": false
+},
+"106205006": {
+"sv": "hemostasrelaterad substans",
+"en": "Hemostasis related substance",
+"parents": [
+"115668003"
+],
+"inactive": false
+},
+"107784002": {
+"sv": "kirurgisk åtgärd på nedre extremitet",
+"en": "Surgical procedure on lower extremity",
+"parents": [
+"118710009",
+"363187007"
+],
+"inactive": false
+},
+"112698002": {
+"sv": "operation på led",
+"en": "Operation on joint",
+"parents": [
+"118745001",
+"1163360005"
+],
+"inactive": false
+},
+"113257007": {
+"sv": "kardiovaskulära systemet, struktur",
+"en": "Structure of cardiovascular system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"11527006": {
+"sv": "arteriella systemet, struktur",
+"en": "Arterial system structure",
+"parents": [
+"118970008"
+],
+"inactive": false
+},
+"115668003": {
+"sv": "biologisk substans",
+"en": "Biological substance",
+"parents": [
+"105590001"
+],
+"inactive": false
+},
+"115669006": {
+"sv": "substans, indelning efter fysikaliskt tillstånd",
+"en": "Substance categorized by physical state",
+"parents": [
+"105590001"
+],
+"inactive": false
+},
+"116312005": {
+"sv": "fynd som rör nedre extremitet",
+"en": "Finding of lower limb",
+"parents": [
+"302293008"
+],
+"inactive": false
+},
+"116314006": {
+"sv": "fynd som rör knäregion",
+"en": "Finding of knee region",
+"parents": [
+"116312005"
+],
+"inactive": false
+},
+"118237005": {
+"sv": "fynd som rör näsan",
+"en": "Nose finding",
+"parents": [
+"301310005",
+"297268004"
+],
+"inactive": false
+},
+"118245000": {
+"sv": "fynd vid mätning",
+"en": "Measurement finding",
+"parents": [
+"441742003"
+],
+"inactive": false
+},
+"118672003": {
+"sv": "åtgärd avseende hjärt-kärlsystemet",
+"en": "Procedure on cardiovascular system",
+"parents": [
+"118664000"
+],
+"inactive": false
+},
+"118674002": {
+"sv": "åtgärd avseende urin- och könsorgan",
+"en": "Procedure on genitourinary system",
+"parents": [
+"118664000",
+"118694006"
+],
+"inactive": false
+},
+"118675001": {
+"sv": "åtgärd på kvinnliga könsorgan",
+"en": "Procedure on female genital system",
+"parents": [
+"118674002"
+],
+"inactive": false
+},
+"118685000": {
+"sv": "åtgärd avseende hematopoetiska systemet",
+"en": "Procedure on hematopoietic system",
+"parents": [
+"118664000"
+],
+"inactive": false
+},
+"118687008": {
+"sv": "åtgärd avseende lymfatiska systemet",
+"en": "Procedure on lymphoid system",
+"parents": [
+"118685000",
+"118686004"
+],
+"inactive": false
+},
+"118695007": {
+"sv": "åtgärd på torax",
+"en": "Procedure on thorax",
+"parents": [
+"118694006"
+],
+"inactive": false
+},
+"118696008": {
+"sv": "åtgärd på mediastinum",
+"en": "Procedure on mediastinum",
+"parents": [
+"118664000",
+"118695007"
+],
+"inactive": false
+},
+"118738001": {
+"sv": "åtgärd avseende mjukdel",
+"en": "Procedure on soft tissue",
+"parents": [
+"362958002"
+],
+"inactive": false
+},
+"118749007": {
+"sv": "åtgärd på höftled",
+"en": "Procedure on hip joint",
+"parents": [
+"129182005",
+"118711008"
+],
+"inactive": false
+},
+"118750007": {
+"sv": "åtgärd på knäled",
+"en": "Procedure on knee joint",
+"parents": [
+"118713006",
+"129182005"
+],
+"inactive": false
+},
+"118784006": {
+"sv": "åtgärd avseende svalget",
+"en": "Procedure on pharynx",
+"parents": [
+"118821005",
+"118670006"
+],
+"inactive": false
+},
+"118824002": {
+"sv": "åtgärd på gallvägarna",
+"en": "Procedure on biliary tract",
+"parents": [
+"118821005",
+"118698009"
+],
+"inactive": false
+},
+"118952005": {
+"sv": "fynd som rör led",
+"en": "Joint finding",
+"parents": [
+"106028002"
+],
+"inactive": false
+},
+"119574004": {
+"sv": "operation av muskuloskeletala systemet",
+"en": "Musculoskeletal system repair",
+"parents": [
+"112697007",
+"4365001"
+],
+"inactive": false
+},
+"119580007": {
+"sv": "incision i bålen",
+"en": "Trunk incision",
+"parents": [
+"74943008",
+"34896006"
+],
+"inactive": false
+},
+"120575009": {
+"sv": "del av nedre extremitet",
+"en": "Lower limb part",
+"parents": [
+"61685007",
+"120573002"
+],
+"inactive": false
+},
+"122490001": {
+"sv": "lymfoida systemet, struktur",
+"en": "Lymphoid system structure",
+"parents": [
+"245255009",
+"116003000",
+"57171008"
+],
+"inactive": false
+},
+"127951001": {
+"sv": "region i nedre extremitet, struktur",
+"en": "Structure of subregion of lower limb",
+"parents": [
+"120575009"
+],
+"inactive": false
+},
+"1279550006": {
+"sv": "sjukdom i sensoriskt organ",
+"en": "Disorder of sensory organ",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"128121009": {
+"sv": "sjukdom i bål",
+"en": "Disorder of trunk",
+"parents": [
+"302292003",
+"64572001"
+],
+"inactive": false
+},
+"128127008": {
+"sv": "sjukdom i synsystemet",
+"en": "Visual system disorder",
+"parents": [
+"362965005",
+"118235002"
+],
+"inactive": false
+},
+"128239009": {
+"sv": "skada på nervsystemet",
+"en": "Injury of nervous system",
+"parents": [
+"118940003",
+"417163006"
+],
+"inactive": false
+},
+"128312004": {
+"sv": "åtgärd på kvinnliga könsorgan",
+"en": "Procedure on female genital organ",
+"parents": [
+"118675001",
+"609637006",
+"118717007"
+],
+"inactive": false
+},
+"14354006": {
+"sv": "operation av övre andningsvägar",
+"en": "Operation on upper respiratory tract",
+"parents": [
+"387661001",
+"64451000052102",
+"118670006"
+],
+"inactive": false
+},
+"232208008": {
+"sv": "öron-, näs- och halssjukdom",
+"en": "Ear, nose and throat disorder",
+"parents": [
+"297268004",
+"64572001"
+],
+"inactive": false
+},
+"232339008": {
+"sv": "sjukdom i näsa och/eller nasofarynx",
+"en": "Disorder of nose and nasopharynx",
+"parents": [
+"298364001",
+"118934005"
+],
+"inactive": false
+},
+"232663008": {
+"sv": "luftvägsåtgärd",
+"en": "Airway procedure",
+"parents": [
+"387662008"
+],
+"inactive": false
+},
+"238223007": {
+"sv": "åtgärd vid lesion i bukväggen",
+"en": "Procedure for abdominal wall lesion",
+"parents": [
+"177853001"
+],
+"inactive": false
+},
+"23853001": {
+"sv": "sjukdom i centrala nervsystemet",
+"en": "Disorder of the central nervous system",
+"parents": [
+"246556002",
+"118940003"
+],
+"inactive": false
+},
+"246915008": {
+"sv": "fynd som rör ögonglob",
+"en": "Globe finding",
+"parents": [
+"298364001",
+"118235002"
+],
+"inactive": false
+},
+"249230006": {
+"sv": "fynd som rör manliga könsorgan",
+"en": "Male genitalia finding",
+"parents": [
+"609625009",
+"300479008"
+],
+"inactive": false
+},
+"249342004": {
+"sv": "fynd som rör nasal luftväg",
+"en": "Nasal airway finding",
+"parents": [
+"118237005",
+"301186004"
+],
+"inactive": false
+},
+"256259004": {
+"sv": "pollen",
+"en": "Pollen",
+"parents": [
+"228656006"
+],
+"inactive": false
+},
+"260786008": {
+"sv": "naturmaterial",
+"en": "Natural material",
+"parents": [
+"260769002"
+],
+"inactive": false
+},
+"262525000": {
+"sv": "bröstkorgsskada",
+"en": "Chest injury",
+"parents": [
+"48125009",
+"118946009"
+],
+"inactive": false
+},
+"276341003": {
+"sv": "hjärt-kärlundersökning",
+"en": "Cardiovascular investigation",
+"parents": [
+"118672003",
+"386053000"
+],
+"inactive": false
+},
+"276435006": {
+"sv": "fynd som rör smärta/förnimmelse",
+"en": "Pain / sensation finding",
+"parents": [
+"106147001"
+],
+"inactive": false
+},
+"281233007": {
+"sv": "bålens kardiovaskulära struktur",
+"en": "Cardiovascular structure of trunk",
+"parents": [
+"22943007",
+"281827007"
+],
+"inactive": false
+},
+"281345001": {
+"sv": "lymfatiska systemet i huvud och hals, struktur",
+"en": "Structure of lymphatic system of head and neck",
+"parents": [
+"281344002",
+"774007"
+],
+"inactive": false
+},
+"281467004": {
+"sv": "intratorakal kardiovaskulär struktur",
+"en": "Intrathoracic cardiovascular structure",
+"parents": [
+"699593001",
+"281233007"
+],
+"inactive": false
+},
+"298364001": {
+"sv": "fynd som rör huvudregionen",
+"en": "Finding of head region",
+"parents": [
+"406122000"
+],
+"inactive": false
+},
+"299691001": {
+"sv": "fynd som rör blod, lymf- och immunsystem",
+"en": "Finding of blood, lymphatics and immune system",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"299718000": {
+"sv": "fynd som rör hjärnan",
+"en": "Finding of brain",
+"parents": [
+"246556002",
+"406122000"
+],
+"inactive": false
+},
+"301113001": {
+"sv": "fynd som rör hjärtfrekvens",
+"en": "Finding of heart rate",
+"parents": [
+"366157005",
+"106066004"
+],
+"inactive": false
+},
+"301186004": {
+"sv": "fynd som rör övre luftvägarna",
+"en": "Upper respiratory tract finding",
+"parents": [
+"297268004",
+"106048009"
+],
+"inactive": false
+},
+"301296002": {
+"sv": "fynd som rör mediastinum",
+"en": "Mediastinal finding",
+"parents": [
+"298705000"
+],
+"inactive": false
+},
+"306954006": {
+"sv": "regional kärlstruktur",
+"en": "Regional blood vessel structure",
+"parents": [
+"52530000",
+"59820001",
+"281827007"
+],
+"inactive": false
+},
+"312412007": {
+"sv": "substans, indelning efter funktion",
+"en": "Substance categorized functionally",
+"parents": [
+"105590001"
+],
+"inactive": false
+},
+"321667001": {
+"sv": "andningsvägar, struktur",
+"en": "Respiratory tract structure",
+"parents": [
+"20139000"
+],
+"inactive": false
+},
+"32750006": {
+"sv": "inspektion",
+"en": "Inspection",
+"parents": [
+"315306007"
+],
+"inactive": false
+},
+"363194005": {
+"sv": "sjukdom i fortplantningssystemet hos man",
+"en": "Disorder of male reproductive system",
+"parents": [
+"249230006",
+"609619005",
+"362968007"
+],
+"inactive": false
+},
+"36456004": {
+"sv": "fynd som rör psykiskt tillstånd",
+"en": "Mental state finding",
+"parents": [
+"384821006"
+],
+"inactive": false
+},
+"365799007": {
+"sv": "fynd som rör proteinhalt",
+"en": "Protein level - finding",
+"parents": [
+"785671009"
+],
+"inactive": false
+},
+"372752008": {
+"sv": "läkemedel för centrala nervsystemet",
+"en": "Central nervous system agent",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"372884008": {
+"sv": "sympatomimetikum",
+"en": "Sympathomimetic agent",
+"parents": [
+"373289004"
+],
+"inactive": false
+},
+"373405005": {
+"sv": "inflammatorisk sjukdom i andningssystemet",
+"en": "Inflammatory disorder of the respiratory system",
+"parents": [
+"363171009",
+"50043002"
+],
+"inactive": false
+},
+"373708006": {
+"sv": "hematologiskt medel",
+"en": "Hematologic agent",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"385487005": {
+"sv": "kirurgisk åtgärd på torax",
+"en": "Surgical procedure on thorax",
+"parents": [
+"74943008",
+"118695007"
+],
+"inactive": false
+},
+"386053000": {
+"sv": "utvärdering",
+"en": "Evaluation procedure",
+"parents": [
+"128927009"
+],
+"inactive": false
+},
+"386617003": {
+"sv": "fynd som rör matspjälkningssystemet",
+"en": "Digestive system finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"39352004": {
+"sv": "led, struktur",
+"en": "Joint structure",
+"parents": [
+"113343008",
+"785818007",
+"81087007",
+"306721000"
+],
+"inactive": false
+},
+"406122000": {
+"sv": "fynd som rör huvudet",
+"en": "Head finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"414457001": {
+"sv": "bilddiagnostik av mjukdel",
+"en": "Imaging of soft tissue",
+"parents": [
+"363679005",
+"118738001"
+],
+"inactive": false
+},
+"417437006": {
+"sv": "hals och/eller bröstkorg, struktur",
+"en": "Neck and chest",
+"parents": [
+"416152001"
+],
+"inactive": false
+},
+"418540006": {
+"sv": "kalciumreglerande medel",
+"en": "Calcium regulating agent",
+"parents": [
+"410942007"
+],
+"inactive": false
+},
+"420134006": {
+"sv": "benägenhet för biverkningar",
+"en": "Propensity to adverse reaction",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"420220000": {
+"sv": "blodderivat",
+"en": "Blood derivative",
+"parents": [
+"115668003",
+"373708006"
+],
+"inactive": false
+},
+"429772001": {
+"sv": "operativ åtgärd på höft",
+"en": "Operative procedure on hip",
+"parents": [
+"74943008",
+"107784002",
+"118711008"
+],
+"inactive": false
+},
+"51840005": {
+"sv": "stora kretsloppet, struktur",
+"en": "Systemic circulatory system structure",
+"parents": [
+"118970008"
+],
+"inactive": false
+},
+"54066008": {
+"sv": "svalg, struktur",
+"en": "Pharyngeal structure",
+"parents": [
+"714323000",
+"312533001",
+"49596003",
+"312535008"
+],
+"inactive": false
+},
+"5880005": {
+"sv": "fysisk undersökning",
+"en": "Physical examination",
+"parents": [
+"362958002",
+"315306007"
+],
+"inactive": false
+},
+"59820001": {
+"sv": "blodkärl, struktur",
+"en": "Blood vessel structure",
+"parents": [
+"1340119002",
+"118970008"
+],
+"inactive": false
+},
+"609619005": {
+"sv": "sjukdom i bålens bäckensregion",
+"en": "Disorder of pelvic region of trunk",
+"parents": [
+"822988000",
+"609625009"
+],
+"inactive": false
+},
+"609622007": {
+"sv": "sjukdom i bålens bröstkorgsregion",
+"en": "Disorder of thoracic segment of trunk",
+"parents": [
+"609623002",
+"128121009"
+],
+"inactive": false
+},
+"609626005": {
+"sv": "fynd som rör bäckenet",
+"en": "Finding of pelvis",
+"parents": [
+"609625009"
+],
+"inactive": false
+},
+"609637006": {
+"sv": "åtgärd på bålens bäckenregion",
+"en": "Procedure on pelvic region of trunk",
+"parents": [
+"118694006"
+],
+"inactive": false
+},
+"6240004": {
+"sv": "operativ åtgärd på knä",
+"en": "Operative procedure on knee",
+"parents": [
+"118713006",
+"107784002"
+],
+"inactive": false
+},
+"63793008": {
+"sv": "fosforförening",
+"en": "Phosphorus compound",
+"parents": [
+"767361006"
+],
+"inactive": false
+},
+"67734004": {
+"sv": "övre delen av bålen, struktur",
+"en": "Thoracic segment of trunk",
+"parents": [
+"70104002",
+"816094009"
+],
+"inactive": false
+},
+"68356001": {
+"sv": "klorförening",
+"en": "Chlorine compound",
+"parents": [
+"767205003"
+],
+"inactive": false
+},
+"69536005": {
+"sv": "huvud, struktur",
+"en": "Head structure",
+"parents": [
+"774007"
+],
+"inactive": false
+},
+"69608005": {
+"sv": "mellersta mediastinum, struktur",
+"en": "Middle mediastinum structure",
+"parents": [
+"243951005"
+],
+"inactive": false
+},
+"700006000": {
+"sv": "fynd som rör bäckenorgan",
+"en": "Pelvic organ finding",
+"parents": [
+"609626005",
+"249561001"
+],
+"inactive": false
+},
+"700012005": {
+"sv": "sjukdom i fritt rörlig nedre extremitet",
+"en": "Disorder of free lower limb",
+"parents": [
+"118937003"
+],
+"inactive": false
+},
+"70354003": {
+"sv": "polypeptid",
+"en": "Polypeptide",
+"parents": [
+"115668003",
+"415664003"
+],
+"inactive": false
+},
+"767270007": {
+"sv": "järn och/eller järnförening",
+"en": "Iron and/or iron compound",
+"parents": [
+"1155940007"
+],
+"inactive": false
+},
+"767523007": {
+"sv": "halogen och/eller halogenförening",
+"en": "Halogen and/or halogen compound",
+"parents": [
+"312415009"
+],
+"inactive": false
+},
+"767530001": {
+"sv": "karboxylsyra och karboxylsyraderivat",
+"en": "Carboxylic acid and/or carboxylic acid derivative",
+"parents": [
+"765174005"
+],
+"inactive": false
+},
+"782902008": {
+"sv": "implantation",
+"en": "Implantation procedure",
+"parents": [
+"107733003"
+],
+"inactive": false
+},
+"785671009": {
+"sv": "fynd som rör koncentration av substans",
+"en": "Finding of substance level",
+"parents": [
+"118245000"
+],
+"inactive": false
+},
+"785818007": {
+"sv": "ledregion, struktur",
+"en": "Structure of joint region",
+"parents": [
+"52530000"
+],
+"inactive": false
+},
+"785875003": {
+"sv": "sjukdom i ledregion",
+"en": "Disorder of joint region",
+"parents": [
+"64572001"
+],
+"inactive": false
+},
+"80382003": {
+"sv": "kolväte",
+"en": "Hydrocarbon",
+"parents": [
+"41175001"
+],
+"inactive": false
+},
+"818985005": {
+"sv": "själva bukregionen i bålen, struktur",
+"en": "Abdomen proper segment of trunk",
+"parents": [
+"63337009",
+"818982008"
+],
+"inactive": false
+},
+"82271004": {
+"sv": "huvudskada",
+"en": "Injury of head",
+"parents": [
+"118934005",
+"897601009"
+],
+"inactive": false
+},
+"91690000": {
+"sv": "underindelning av organsystem, som helhet",
+"en": "Entire subdivision of organ system",
+"parents": [
+"714488006"
+],
+"inactive": false
+},
+"91830000": {
+"sv": "ihålig förbindelse mellan, till eller från organ, struktur",
+"en": "Structure of body conduit",
+"parents": [
+"2969000"
+],
+"inactive": false
+},
+"102957003": {
+"sv": "neurologiskt fynd",
+"en": "Neurological finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"106066004": {
+"sv": "fynd som rör hjärtrytm och/eller frekvens",
+"en": "Cardiac rhythm AND/OR rate finding",
+"parents": [
+"301095005"
+],
+"inactive": false
+},
+"107733003": {
+"sv": "införande",
+"en": "Introduction procedure",
+"parents": [
+"128927009"
+],
+"inactive": false
+},
+"116003000": {
+"sv": "immunsystemet, struktur",
+"en": "Structure of immune system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"118235002": {
+"sv": "fynd som rör synförmåga eller ögon",
+"en": "Eye / vision finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"118670006": {
+"sv": "åtgärd avseende de övre luftvägarna",
+"en": "Procedure on upper respiratory tract",
+"parents": [
+"771329004",
+"387662008"
+],
+"inactive": false
+},
+"118710009": {
+"sv": "åtgärd på nedre extremitet",
+"en": "Procedure on lower extremity",
+"parents": [
+"118949002"
+],
+"inactive": false
+},
+"118711008": {
+"sv": "åtgärd på höft",
+"en": "Procedure on hip",
+"parents": [
+"118710009",
+"118694006"
+],
+"inactive": false
+},
+"118713006": {
+"sv": "åtgärd på knä",
+"en": "Procedure on knee",
+"parents": [
+"118710009"
+],
+"inactive": false
+},
+"118745001": {
+"sv": "åtgärd på led",
+"en": "Procedure on joint",
+"parents": [
+"771329004",
+"118717007",
+"118668002"
+],
+"inactive": false
+},
+"118940003": {
+"sv": "neurologisk sjukdom",
+"en": "Disorder of nervous system",
+"parents": [
+"362965005"
+],
+"inactive": false
+},
+"129182005": {
+"sv": "åtgärd på led i nedre extremitet",
+"en": "Procedure on joint of lower extremity",
+"parents": [
+"118710009",
+"118745001"
+],
+"inactive": false
+},
+"1340119002": {
+"sv": "lymfkärl och/eller blodkärl, struktur",
+"en": "Structure of lymphatic vessel and/or blood vessel",
+"parents": [
+"87784001"
+],
+"inactive": false
+},
+"20139000": {
+"sv": "andningssystemet, struktur",
+"en": "Structure of respiratory system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"228656006": {
+"sv": "växtstruktur",
+"en": "Plant structure",
+"parents": [
+"256248008"
+],
+"inactive": false
+},
+"243951005": {
+"sv": "nedre mediastinum, underindelning",
+"en": "Subdivision of inferior mediastinum",
+"parents": [
+"1187376008"
+],
+"inactive": false
+},
+"245255009": {
+"sv": "lymforetikulära systemet, struktur",
+"en": "Structure of lymphoreticular system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"246556002": {
+"sv": "CNS-fynd",
+"en": "Central nervous system finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"260769002": {
+"sv": "material",
+"en": "Material",
+"parents": [
+"105590001"
+],
+"inactive": false
+},
+"281344002": {
+"sv": "regionalt lymfsystem, struktur",
+"en": "Structure of regional lymphatic system",
+"parents": [
+"89890002"
+],
+"inactive": false
+},
+"281827007": {
+"sv": "regional kardiovaskulär struktur",
+"en": "Regional cardiovascular structure",
+"parents": [
+"118970008"
+],
+"inactive": false
+},
+"2969000": {
+"sv": "kroppshålighet, struktur",
+"en": "Anatomical space structure",
+"parents": [
+"91723000"
+],
+"inactive": false
+},
+"297268004": {
+"sv": "fynd som rör öron-, näs- och halsområdet",
+"en": "Ear, nose and throat finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"300479008": {
+"sv": "fynd som rör könsorgan",
+"en": "Genital finding",
+"parents": [
+"118238000"
+],
+"inactive": false
+},
+"312533001": {
+"sv": "mun och/eller svalg, struktur",
+"en": "Structure of mouth and/or pharynx",
+"parents": [
+"774007"
+],
+"inactive": false
+},
+"312535008": {
+"sv": "farynx och/eller larynx, struktur",
+"en": "Structure of pharynx and/or larynx",
+"parents": [
+"1162925002"
+],
+"inactive": false
+},
+"315306007": {
+"sv": "undersökning, indelning efter metod",
+"en": "Examination by method",
+"parents": [
+"108217004",
+"386053000"
+],
+"inactive": false
+},
+"34896006": {
+"sv": "incision",
+"en": "Incision",
+"parents": [
+"387713003",
+"128927009"
+],
+"inactive": false
+},
+"362968007": {
+"sv": "sjukdom i fortplantningssystemet",
+"en": "Disorder of reproductive system",
+"parents": [
+"42030000"
+],
+"inactive": false
+},
+"363187007": {
+"sv": "operation av extremitet",
+"en": "Limb operation",
+"parents": [
+"387713003",
+"118949002",
+"128927009"
+],
+"inactive": false
+},
+"384821006": {
+"sv": "fynd som rör psykiskt tillstånd, beteende och/eller psykosocial funktion",
+"en": "Mental state, behavior and/or psychosocial function finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"387661001": {
+"sv": "operation av andningsvägarna",
+"en": "Operation on respiratory tract",
+"parents": [
+"387713003",
+"387662008",
+"128927009"
+],
+"inactive": false
+},
+"387662008": {
+"sv": "åtgärd avseende andningsvägarna",
+"en": "Respiratory tract procedure",
+"parents": [
+"118669005"
+],
+"inactive": false
+},
+"441742003": {
+"sv": "fynd som rör bedömning",
+"en": "Evaluation finding",
+"parents": [
+"127325009"
+],
+"inactive": false
+},
+"48125009": {
+"sv": "skada på bålen",
+"en": "Injury of trunk",
+"parents": [
+"128121009",
+"417163006"
+],
+"inactive": false
+},
+"57171008": {
+"sv": "hematopoetiska systemet, struktur",
+"en": "Hematopoietic system structure",
+"parents": [
+"414387006"
+],
+"inactive": false
+},
+"609625009": {
+"sv": "fynd som rör bålens bäckenregion",
+"en": "Finding of pelvic region of trunk",
+"parents": [
+"822987005"
+],
+"inactive": false
+},
+"64451000052102": {
+"sv": "kirurgisk åtgärd på öron, näsa och/eller hals",
+"en": "Ear, nose and throat surgery",
+"parents": [
+"771329004",
+"387713003",
+"128927009"
+],
+"inactive": false
+},
+"714323000": {
+"sv": "organ i andningssystem, struktur",
+"en": "Structure of organ in respiratory system",
+"parents": [
+"118969007",
+"113343008"
+],
+"inactive": false
+},
+"714488006": {
+"sv": "underindelning av organsystem, struktur",
+"en": "Structure of subdivision of organ system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"767205003": {
+"sv": "klor och/eller klorförening",
+"en": "Chlorine and/or chlorine compound",
+"parents": [
+"767523007"
+],
+"inactive": false
+},
+"767361006": {
+"sv": "fosfor och/eller fosforförening",
+"en": "Phosphorus and/or phosphorus compound",
+"parents": [
+"312415009"
+],
+"inactive": false
+},
+"774007": {
+"sv": "huvud och/eller hals, struktur",
+"en": "Structure of head and/or neck",
+"parents": [
+"70104002"
+],
+"inactive": false
+},
+"81087007": {
+"sv": "ledsystemet, struktur",
+"en": "Articular system structure",
+"parents": [
+"113192009"
+],
+"inactive": false
+},
+"897601009": {
+"sv": "skada på huvud och/eller hals",
+"en": "Injury of head and/or neck",
+"parents": [
+"417163006"
+],
+"inactive": false
+},
+"108217004": {
+"sv": "intervju, anamnes och/eller klinisk undersökning",
+"en": "Interview, history AND/OR physical examination",
+"parents": [
+"128927009"
+],
+"inactive": false
+},
+"1162925002": {
+"sv": "näskavitet och/eller farynx och/eller larynx, struktur",
+"en": "Structure of internal nose and/or pharynx and/or larynx",
+"parents": [
+"58675001"
+],
+"inactive": false
+},
+"118668002": {
+"sv": "åtgärd avseende ledsystemet",
+"en": "Procedure on articular system",
+"parents": [
+"122945004"
+],
+"inactive": false
+},
+"118669005": {
+"sv": "åtgärd avseende andningssystemet",
+"en": "Procedure on respiratory system",
+"parents": [
+"118664000"
+],
+"inactive": false
+},
+"1187376008": {
+"sv": "nedre mediastinum, struktur",
+"en": "Structure of inferior mediastinum",
+"parents": [
+"280432007"
+],
+"inactive": false
+},
+"118949002": {
+"sv": "åtgärd avseende extremitet",
+"en": "Procedure on extremity",
+"parents": [
+"771329004"
+],
+"inactive": false
+},
+"118969007": {
+"sv": "andningssystemet, underindelning",
+"en": "Respiratory system subdivision",
+"parents": [
+"91690000",
+"20139000"
+],
+"inactive": false
+},
+"127325009": {
+"sv": "fynd som rör åtgärd",
+"en": "Procedure related finding",
+"parents": [
+"404684003"
+],
+"inactive": false
+},
+"414387006": {
+"sv": "hematologiska systemet, struktur",
+"en": "Structure of hematological system",
+"parents": [
+"91689009"
+],
+"inactive": false
+},
+"87784001": {
+"sv": "mjukdelar",
+"en": "Soft tissue",
+"parents": [
+"85756007"
+],
+"inactive": false
+},
+"89890002": {
+"sv": "lymfatiska systemet, struktur",
+"en": "Structure of lymphatic system",
+"parents": [
+"245255009"
+],
+"inactive": false
+},
+"280432007": {
+"sv": "mediastinalregion",
+"en": "Region of mediastinum",
+"parents": [
+"72410000"
+],
+"inactive": false
+},
+"58675001": {
+"sv": "övre andningsvägar, struktur",
+"en": "Upper respiratory tract structure",
+"parents": [
+"119253004",
+"385383008",
+"321667001"
+],
+"inactive": false
+},
+"85756007": {
+"sv": "kroppsvävnad, struktur",
+"en": "Body tissue structure",
+"parents": [
+"91723000"
+],
+"inactive": false
+},
+"119253004": {
+"sv": "matspjälkningsorganens och luftvägarnas övre delar, struktur",
+"en": "Upper aerodigestive tract structure",
+"parents": [
+"774007"
+],
+"inactive": false
+},
+"385383008": {
+"sv": "öra, näsa och hals, struktur",
+"en": "Structure of ear, nose, and/or throat",
+"parents": [
+"774007"
+],
+"inactive": false
+},
+"373543005": {
+"sv": "nitrofurantoin",
+"en": "Nitrofurantoin",
+"parents": [
+"419241000",
+"360201004"
+],
+"inactive": false
+},
+"41291007": {
+"sv": "angioödem",
+"en": "Angioedema",
+"parents": [
+"404177007"
+],
+"inactive": false
+},
+"71854001": {
+"sv": "kolon, struktur",
+"en": "Colon structure",
+"parents": [
+"1285733009"
+],
+"inactive": false
+},
+"735029006": {
+"sv": "skaldjur",
+"en": "Shellfish",
+"parents": [
+"44027008"
+],
+"inactive": false
+},
+"73761001": {
+"sv": "koloskopi",
+"en": "Colonoscopy",
+"parents": [
+"6019008",
+"118839001"
+],
+"inactive": false
+},
+"118839001": {
+"sv": "åtgärd på kolon",
+"en": "Procedure on colon",
+"parents": [
+"118838009"
+],
+"inactive": false
+},
+"1285733009": {
+"sv": "cekum och/eller kolon och/eller rektum, struktur",
+"en": "Colorectal structure",
+"parents": [
+"245424001"
+],
+"inactive": false
+},
+"360201004": {
+"sv": "nitrofuranderivat",
+"en": "Nitrofuran derivative",
+"parents": [
+"116280007",
+"373249005",
+"11257001"
+],
+"inactive": false
+},
+"44027008": {
+"sv": "fisk och skaldjur",
+"en": "Seafood",
+"parents": [
+"255620007"
+],
+"inactive": false
+},
+"6019008": {
+"sv": "endoskopi av tjocktarmen",
+"en": "Endoscopy of large intestine",
+"parents": [
+"108191006",
+"1174027007",
+"118838009"
+],
+"inactive": false
+},
+"1174027007": {
+"sv": "endoskopi av nedre mag-tarmkanalen",
+"en": "Endoscopy of lower gastrointestinal tract",
+"parents": [
+"174035000",
+"118155006",
+"284366008"
+],
+"inactive": false
+},
+"118155006": {
+"sv": "endoskopi av mag-tarmkanalen",
+"en": "Gastrointestinal tract endoscopy",
+"parents": [
+"423827005",
+"5880005",
+"443466001"
+],
+"inactive": false
+},
+"284366008": {
+"sv": "undersökning av system i kroppen",
+"en": "Examination of body system",
+"parents": [
+"118664000",
+"5880005"
+],
+"inactive": false
+},
+"443466001": {
+"sv": "utvärdera magtarmstatus",
+"en": "Evaluation of gastrointestinal tract",
+"parents": [
+"384719006",
+"386053000"
+],
+"inactive": false
+}
+}
