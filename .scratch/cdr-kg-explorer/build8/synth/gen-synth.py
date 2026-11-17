@@ -129,7 +129,7 @@ for idx, P in enumerate(pats, 1):
     for lk_, rngv in labs.items():
         code, tsv, ten, an, unit, normal, dec = LAB[lk_]
         lo, hi = rngv or normal
-        if lk_ == "hb" and rngv is None and sex == "M": lo, hi = 8.4, 9.8
+        if lk_ == "hb" and rngv is None and sex == "M": lo, hi = 135, 158
         val = num(lo, hi, dec)
         ent.append({"t": "eva:ips/e6", "n": V(tsv, ten), "s": {"Test name": {"v": V(tsv, ten)}, "Analyte name": {"v": V(an), "c": ["npu:" + code]}, "Analyte result": {"v": V(f"{val} {unit}")}}})
     # vital signs, coherent with the problems

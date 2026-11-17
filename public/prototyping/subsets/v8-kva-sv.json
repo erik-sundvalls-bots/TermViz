@@ -1,0 +1,136 @@
+{
+  "source": "Socialstyrelsen KVÅ API + EHM KVÅ 2026 xlsx (subset)",
+  "oids": {
+    "KKÅ": "1.2.752.116.1.3.2.3.6",
+    "KMÅ": "1.2.752.116.1.3.2.3.5"
+  },
+  "version": "2026-01-01",
+  "licence": "KVÅ/KKÅ/KMÅ — EHM/Socialstyrelsen; subset only, not full redistribution.",
+  "xlsx": "ehalsomyndigheten.se KVÅ 2026 xlsx (5-char level)",
+  "procedureMap": {
+    "appendektomi": "JEA",
+    "kolecystektomi": "JKA21",
+    "tonsillektomi": "EMB10",
+    "koloskopi": "UJF32",
+    "kejsarsnitt": "MCA",
+    "hoftprotes": "NFB29"
+  },
+  "codes": {
+    "E": {
+      "title": "Operationer på läppar, tänder, käkar, munnen och svalget",
+      "parents": []
+    },
+    "EM": {
+      "title": "Operationer på tonsiller och adenoider",
+      "parents": [
+        "E"
+      ]
+    },
+    "EMB": {
+      "title": "Resektioner och exstirpationer av tonsiller och adenoider",
+      "parents": [
+        "EM"
+      ]
+    },
+    "EMB10": {
+      "title": "Tonsillektomi",
+      "parents": [
+        "EMB"
+      ]
+    },
+    "J": {
+      "title": "Operationer på mag-tarmkanalen och därtill hörande organ",
+      "parents": []
+    },
+    "JE": {
+      "title": "Operationer på appendix",
+      "parents": [
+        "J"
+      ]
+    },
+    "JEA": {
+      "title": "Appendektomi",
+      "parents": [
+        "JE"
+      ]
+    },
+    "JK": {
+      "title": "Operationer på gallvägarna",
+      "parents": [
+        "J"
+      ]
+    },
+    "JKA": {
+      "title": "Operationer på gallblåsan",
+      "parents": [
+        "JK"
+      ]
+    },
+    "JKA21": {
+      "title": "Laparoskopisk kolecystektomi",
+      "parents": [
+        "JKA"
+      ]
+    },
+    "M": {
+      "title": "Obstetriska ingrepp",
+      "parents": []
+    },
+    "MC": {
+      "title": "Kejsarsnitt och obstetrisk laparotomi",
+      "parents": [
+        "M"
+      ]
+    },
+    "MCA": {
+      "title": "Kejsarsnitt",
+      "parents": [
+        "MC"
+      ]
+    },
+    "N": {
+      "title": "Operationer på rörelseapparaten",
+      "parents": []
+    },
+    "NF": {
+      "title": "Operationer på höftleder och lår",
+      "parents": [
+        "N"
+      ]
+    },
+    "NFB": {
+      "title": "Primära ledprotesoperationer i höftleder",
+      "parents": [
+        "NF"
+      ]
+    },
+    "NFB29": {
+      "title": "Primär total höftledsplastik utan cement",
+      "parents": [
+        "NFB"
+      ]
+    },
+    "U": {
+      "title": "Transluminal endoskopi",
+      "parents": []
+    },
+    "UJ": {
+      "title": "Transluminal endoskopi av mag-tarmkanalen",
+      "parents": [
+        "U"
+      ]
+    },
+    "UJF": {
+      "title": "Enteroskopier och koloskopier",
+      "parents": [
+        "UJ"
+      ]
+    },
+    "UJF32": {
+      "title": "Koloskopi",
+      "parents": [
+        "UJF"
+      ]
+    }
+  }
+}
