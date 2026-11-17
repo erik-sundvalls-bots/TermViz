@@ -1,7 +1,18 @@
 {
   "v8-icd10-se.json": {
-    "ok": false,
-    "error": "HTTP Error 404: Not Found"
+    "ok": true,
+    "codes": 96
+  },
+  "probes": {
+    "S52.1": "Fraktur på övre delen av radius",
+    "N40": "Prostataförstoring",
+    "N18.9": "Kronisk njursvikt, ospecificerad",
+    "K21.9": "Gastroesofageal refluxsjukdom utan esofagit",
+    "G47.3": "Sömnapnésyndrom"
+  },
+  "v8-kva-sv.json": {
+    "ok": true,
+    "codes": 21
   },
   "v8-atc-sv.json": {
     "ok": false,

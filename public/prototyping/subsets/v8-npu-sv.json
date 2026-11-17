@@ -1,6 +1,6 @@
 {
   "source": "Equalis NPU_Master (optional local) + demo pool",
-  "licence": "NPU English from tx-nordics; Swedish names from demo pool or optional local Equalis NPU_Master xlsx (för lokalt bruk)",
+  "licence": "NPU names för lokalt bruk where not from API",
   "codes": {
     "NPU": {
       "title": "NPU",

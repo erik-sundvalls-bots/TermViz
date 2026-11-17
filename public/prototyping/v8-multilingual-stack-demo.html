@@ -722,6 +722,20 @@ async function loadSwedishSubsets() {
     if (data && data.codes) SV_SUBSETS[sys] = data;
   }
 }
+function applySubsetLabelsToOnt() {
+  if (S.lang !== "sv") return false;
+  let n = 0;
+  for (const [sys, pack] of Object.entries(SV_SUBSETS)) {
+    if (!pack?.codes) continue;
+    for (const row of D.ont.nodes) {
+      if (row.sys !== sys) continue;
+      const t = pack.codes[row.code]?.title;
+      if (t && row.sv !== t) { row.sv = t; n++; }
+    }
+  }
+  if (n) { rebuildIndexes(); if (typeof render === "function") render(); }
+  return n > 0;
+}
 function idbOpen() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(IDB_NAME, 1);
@@ -2153,7 +2167,7 @@ window.V8S = S; window.V8render = render; window.V8toggle = toggle; window.V8dat
 window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll };
 applyI18n();
 bindSettings();
-loadSwedishSubsets().catch((e) => console.warn("subset load", e));
+loadSwedishSubsets().then(() => applySubsetLabelsToOnt()).catch((e) => console.warn("subset load", e));
 window.__v8IngestTexts = async function (recs) {
   for (const rec of recs) {
     const r = await ingestText(rec);
