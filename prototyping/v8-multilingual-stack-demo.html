@@ -3,7 +3,7 @@
 :root{--paper:#f3efe6;--deep:#e7e1d4;--ink:#1c2430;--muted:#5c675f;--line:#d5cdbf;--card:#fffdf8;--teal:#0f6e6b;--amber:#c46b1a}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3','Segoe UI',sans-serif}
 header{padding:12px 24px 2px} h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:23px;margin:0}
-.sub{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:1250px} .ex{color:var(--amber);font-weight:600;font-size:12px;float:right;margin-top:6px;text-align:right}
+header .sub{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:1250px} .ex{color:var(--amber);font-weight:600;font-size:12px;float:right;margin-top:6px;text-align:right}
 .bar{display:flex;gap:10px;align-items:center;padding:6px 24px 4px;font-size:13px;flex-wrap:wrap}
 .bar button{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:3px 12px;cursor:pointer;color:var(--ink)}
 .bar button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
@@ -1317,7 +1317,7 @@ const HDR = { patient: 13, composition: 11.5, template: 12, section: 10.5, entry
 function boxLayout(n, cfg, depth = 0) {
   const kids = cfg.kids(n), collapsed = cfg.isCollapsed(n), lab = cfg.label(n), hpx = HDR[cfg.kind(n, depth)] || 10.5;
   if (collapsed) { const cnt = cfg.count(n); const w = tw(lab, 11, 600) + 16 + (cnt ? tw(String(cnt), 9.5, 700) + 12 : 0); return { n, depth, blob: true, w: Math.max(40, w), h: 20, kids: [] }; }
-  if (!kids.length) { const sub = cfg.sub(n), w = Math.min(cfg.leafMax, Math.max(tw(lab, 10, 600), sub ? tw(sub, 9.5) : 0) + 9); return { n, depth, leaf: true, w: Math.max(26, w), h: sub ? 25 : 15, sub, kids: [] }; }
+  if (!kids.length) { const sub = cfg.sub(n), w = Math.min(cfg.leafMax, Math.max(tw(lab, 10, 600), sub ? tw(sub, 10) : 0) + 9); return { n, depth, leaf: true, w: Math.max(26, w), h: sub ? 25 : 15, sub, kids: [] }; }
   const ks = kids.map((k) => boxLayout(k, cfg, depth + 1)), p = cfg.p, g = cfg.g, Lh = hpx + 5, labW = tw(lab, hpx, 700) + 10 + (cfg.badge ? 18 : 0);
   const minW = Math.max(d3.max(ks, (k) => k.w) || 0, labW - p || 0);
   const r = packBest(ks, minW, Math.max(minW, (depth === 0 ? cfg.maxW : cfg.maxW * 0.9) - p), g, depth === 0 ? cfg.aspect0 : 1.8, depth === 0 ? 1 : 0.45, cfg.reorder ? cfg.reorder(n) : false);
@@ -1537,7 +1537,7 @@ function render() {
   const archList = D.archetypes.slice().sort((a, b) => bx(a) - bx(b));
   const midCfg = (isArch) => ({ reorder: (n) => !isArch && (n.k === "section" || TPL.get(tplOf(n.id))?.tree === n), p: P, g: 2, leafMax: 150, maxW: Wm, aspect0: 2.6, badge: true,
     kids: (n) => n.children || [], isCollapsed: (n) => !n.children.length ? false : (isArch ? n.k === "archetype" && n.id.endsWith("|/") && !S.expArch.has(n.aid) : n === TPL.get(tplOf(n.id))?.tree && !S.expTpl.has(tplOf(n.id))),
-    label: (n) => loc(n.name), sub: (n) => isArch && n.k === "element" ? (n.vt || []).join(" | ").replace(/DV_INTERVAL<(\w+)>/g, "IVL<$1>") : "",
+    label: (n) => loc(n.name), sub: () => "",
     count: (n) => subtree(n).filter((x) => x.k === "element").length, kind: (n, d) => d === 0 ? (isArch ? "archetype" : "template") : n.k });
   const arL = archList.map((a) => boxLayout(a.tree, midCfg(true)));
   const tpL = D.templates.map((t) => boxLayout(t.tree, midCfg(false)));
@@ -1713,7 +1713,7 @@ function render() {
       back.style("visibility", "visible").attr("x", Math.max(0, lx - 2)).attr("y", ly - fs + 1).attr("width", bw).attr("height", fs + 3).attr("fill", fill).attr("fill-opacity", d.txt === "#fff" ? 0.92 : 0.88);
     } else back.style("visibility", "hidden");
     const sub = g.select("text.sub");
-    sub.attr("class", "sub" + (useHalo ? " halo" : "")).attr("fill", d.txt).attr("fill-opacity", .9).attr("font-size", 9.5).text(d.sub ? fit(d.sub, d.w - 7, 9.5) : "");
+    sub.attr("class", "sub" + (useHalo ? " halo" : "")).attr("fill", d.txt).attr("fill-opacity", .9).attr("font-size", 10).text(d.sub ? fit(d.sub, d.w - 7, 10) : "");
     anim(sub).attr("x", 4.5).attr("y", 21.5).attr("opacity", d.sub ? 1 : 0);
     const rm = g.select("text.rm");
     rm.attr("class", "rm" + (halo ? " halo" : "")).attr("fill", C.rm[d.rmLab] || C.muted).text(d.rmLab || "");
@@ -1914,10 +1914,10 @@ function clear() {
   }
   tip.style("display", "none");
 }
-function tipHtml(d, T) {
-  const cnt = (f) => [...T].filter(f).length;
+function tipHtml(d, TS) {
+  const cnt = (f) => [...TS].filter(f).length;
   if (d.kind === "inst") { const n = d.n, e = INST.get(n.id);
-    if (n.k === "element") return `<b>${loc(n.name)}</b> = ${loc(n.value)} · ${loc(e.pat.name)}${e.pat.synthetic ? " ("+T("synthetic")+")" : ""}<br>Archetype: <b>${loc(ARCH.get(n.aid)?.label) || n.aid}</b><br><code>${n.aid}</code><br>Template path: <code>${n.path}</code>${n.codes?.length ? `<br>Coded as: ${n.codes.map((c) => `${c} ${ontLab(ONT.get(c))}`).join(", ")}` : ""}${n.note ? `<br><i>${n.note}</i>` : ""}<br><i>${T("clickShrinkParent")}</i>`;
+    if (n.k === "element") return `<b>${loc(n.name)}</b> = ${loc(n.value)} · ${loc(e.pat.name)}${e.pat.synthetic ? " ("+T("synthetic")+")" : ""}<br>Archetype: <b>${loc(ARCH.get(n.aid)?.label) || n.aid}</b><br><code>${n.aid}</code><br>Template path: <code>${n.path}</code>${n.codes?.length ? `<br>Coded as: ${n.codes.map((c) => `${c} ${ontLab(ONT.get(c))}`).join(", ")}` : ""}${n.note ? `<br><i>${loc(n.note)}</i>` : ""}<br><i>${T("clickShrinkParent")}</i>`;
     const els = subtree(n).filter((x) => x.k === "element").length;
     return `<b>${loc(n.name)}</b> (${n.k})${n.arch ? `<br>Archetype: <b>${loc(ARCH.get(n.arch)?.label)}</b> <code>${n.arch}</code>` : ""}${n.k === "composition" && TPL.get(n.tpl) ? `<br>Template: ${loc(TPL.get(n.tpl)?.name)}${TPL.get(n.tpl)?.invented ? " ("+T("invented")+")" : ""}` : ""}<br>${els} ${T("elements")}${S.collapsed.has(n.id) ? T("collapsedLinks") : T("clickShrink")}`; }
   if (d.kind === "arch") { const a = ARCH.get(archOf(d.id)), n = d.n;
