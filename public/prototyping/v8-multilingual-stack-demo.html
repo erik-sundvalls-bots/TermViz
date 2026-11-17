@@ -627,6 +627,8 @@ async function idbClear() {
 }
 
 const SYS_URI = { sct: "http://snomed.info/sct", icd10: "http://hl7.org/fhir/sid/icd-10", atc: "http://www.whocc.no/atc", npu: "http://npu-terminology.org" };
+// Swedish SNOMED CT edition (module 45991000052106); also carries the international English descriptions.
+const SYS_VERSION = { sct: "http://snomed.info/sct/45991000052106" };
 const URI_SYS = Object.fromEntries(Object.entries(SYS_URI).map(([k, v]) => [v, k]));
 function splitOntId(id) {
   const i = id.indexOf(":");
@@ -637,6 +639,7 @@ async function txLookup(sys, code) {
   const uri = SYS_URI[sys] || sys;
   const lang = S.lang === "en" ? "en" : "sv";
   const q = new URLSearchParams({ system: uri, code, property: "parent", displayLanguage: lang, _format: "json" });
+  if (SYS_VERSION[sys]) q.set("version", SYS_VERSION[sys]);
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 20000);
   try {
