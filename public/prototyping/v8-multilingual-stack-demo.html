@@ -74,8 +74,8 @@ header{position:relative}
     <button type="button" class="reset" id="reset-lang" data-i18n="resetField">Återställ till standard</button></div>
   </fieldset>
   <fieldset><legend data-i18n="animations">Animationer</legend>
-    <div class="row"><label><input type="radio" name="anim" value="system" checked> <span data-i18n="animSystem">Följ systemet (standard)</span></label></div>
-    <div class="row"><label><input type="radio" name="anim" value="on"> <span data-i18n="animOn">Alltid på</span></label></div>
+    <div class="row"><label><input type="radio" name="anim" value="system"> <span data-i18n="animSystem">Följ systemet</span></label></div>
+    <div class="row"><label><input type="radio" name="anim" value="on" checked> <span data-i18n="animOn">Alltid på (standard)</span></label></div>
     <div class="row"><label><input type="radio" name="anim" value="off"> <span data-i18n="animOff">Av</span></label></div>
     <div class="hint" id="sysMotion"></div>
     <button type="button" class="reset" id="reset-anim" data-i18n="resetField">Återställ till standard</button>
@@ -303,7 +303,7 @@ const svg = d3.select("#v"), tip = d3.select("#tip");
 // ===== V8 i18n, settings, DAG subset, uploads, FHIR =====
 const V8SRC = window.V8;
 let D = structuredClone(V8SRC);
-const DEFAULTS = { lang: "sv", anim: "system", txUrl: "https://tx-nordics.fhir.org/fhir/r4" };
+const DEFAULTS = { lang: "sv", anim: "on", txUrl: "https://tx-nordics.fhir.org/fhir/r4" };
 const SETTINGS_KEY = "cdr-v8-settings";
 const I18N = {
   sv: {
@@ -317,7 +317,7 @@ const I18N = {
     legend: "<b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop",
     settings: "Inställningar", settingsTitle: "Inställningar",
     language: "Språk", animations: "Animationer",
-    animSystem: "Följ systemet (standard)", animOn: "Alltid på", animOff: "Av",
+    animSystem: "Följ systemet", animOn: "Alltid på (standard)", animOff: "Av",
     sysReduceOn: "System: reducerad rörelse är PÅ", sysReduceOff: "System: reducerad rörelse är AV",
     txUrl: "FHIR-terminologiserver (URL)", txOk: "Ansluten", txOffline: "Offline — använder cache", txErr: "Fel", txIdle: "Används för $lookup när en kod saknas i cachen",
     uploads: "Uppladdade filer",
@@ -374,7 +374,7 @@ const I18N = {
     legend: "<b>━ n</b> bundled links (count) · <b>┄</b> element-level link between expanded nodes · hatched tile = value coded with a terminology · hover anything to trace its path · coloured cluster background: click empty space to collapse",
     settings: "Settings", settingsTitle: "Settings",
     language: "Language", animations: "Animations",
-    animSystem: "Follow system (default)", animOn: "Always on", animOff: "Off",
+    animSystem: "Follow system", animOn: "Always on (default)", animOff: "Off",
     sysReduceOn: "System: reduce motion is ON", sysReduceOff: "System: reduce motion is OFF",
     txUrl: "FHIR terminology server URL", txOk: "Connected", txOffline: "Offline — using cache", txErr: "Error", txIdle: "Used for $lookup when a code is missing from the cache",
     uploads: "Uploaded files",
@@ -448,12 +448,12 @@ function loadSettings() {
   try { saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") || {}; } catch (e) { saved = {}; }
   const url = new URLSearchParams(location.search);
   const lang = (url.get("lang") === "en" || url.get("lang") === "sv") ? url.get("lang") : (saved.lang || DEFAULTS.lang);
-  const anim = ["system", "on", "off"].includes(saved.anim) ? saved.anim : DEFAULTS.anim;
+  const anim = saved.v >= 2 && ["system", "on", "off"].includes(saved.anim) ? saved.anim : DEFAULTS.anim;
   const txUrl = (typeof saved.txUrl === "string" && saved.txUrl.trim()) ? saved.txUrl.trim() : DEFAULTS.txUrl;
   return { lang, anim, txUrl };
 }
 function persistSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ lang: S.lang, anim: S.anim, txUrl: S.txUrl })); } catch (e) {}
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 2, lang: S.lang, anim: S.anim, txUrl: S.txUrl })); } catch (e) {}
   const url = new URL(location.href);
   url.searchParams.set("lang", S.lang);
   history.replaceState(null, "", url);
