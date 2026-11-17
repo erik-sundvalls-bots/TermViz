@@ -5,6 +5,7 @@ Kept here so the build can be redone after a lost workspace.
 
 The scripts expect this layout: `variants/build8/` (this folder) next to `variants/lib/`.
 
+* Runtime SNOMED CT `$lookup` calls in `v8-src.html` (`txLookup`) pass `version=http://snomed.info/sct/45991000052106` (Swedish edition, which also carries international English descriptions).
 * `v8-src.html` is the app (HTML, CSS and JS) with four placeholders: `<script>/*D3*/</script>`, `/*DAG*/`, `/*DATA*/` and `/*EHRTSlib*/`.
 * `inline-v8.py` fills the placeholders from `../lib/{d3.min.js,d3-dag.min.js,v8-data.js,ehrtslib-v012-browser.min.js}` and writes `../v8-multilingual-stack-demo.html`.
 * `extract-libs.py <published.html> [--data]` gets those lib files back from any published V8 HTML. The minified libs are not committed.
