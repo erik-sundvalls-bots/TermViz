@@ -1,0 +1,25 @@
+{
+  "v8-icd10-se.json": {
+    "ok": true,
+    "codes": 96
+  },
+  "probes": {
+    "S52.1": "Fraktur på övre delen av radius",
+    "N40": "Prostataförstoring",
+    "N18.9": "Kronisk njursvikt, ospecificerad",
+    "K21.9": "Gastroesofageal refluxsjukdom utan esofagit",
+    "G47.3": "Sömnapnésyndrom"
+  },
+  "v8-kva-sv.json": {
+    "ok": true,
+    "codes": 21
+  },
+  "v8-atc-sv.json": {
+    "ok": false,
+    "error": "<urlopen error _ssl.c:983: The handshake operation timed out>"
+  },
+  "v8-npu-sv.json": {
+    "ok": true,
+    "codes": 8
+  }
+}
