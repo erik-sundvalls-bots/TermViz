@@ -1,0 +1,14 @@
+{
+  "v8-icd10-se.json": {
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  "v8-atc-sv.json": {
+    "ok": false,
+    "error": "<urlopen error _ssl.c:983: The handshake operation timed out>"
+  },
+  "v8-npu-sv.json": {
+    "ok": true,
+    "codes": 8
+  }
+}

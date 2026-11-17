@@ -1,0 +1,38 @@
+{
+  "source": "Equalis NPU_Master (optional local) + demo pool",
+  "licence": "NPU English from tx-nordics; Swedish names from demo pool or optional local Equalis NPU_Master xlsx (för lokalt bruk)",
+  "codes": {
+    "NPU": {
+      "title": "NPU",
+      "parents": []
+    },
+    "NPU02319": {
+      "title": "NPU02319",
+      "parents": []
+    },
+    "NPU03230": {
+      "title": "NPU03230 P—Kalium",
+      "parents": []
+    },
+    "NPU03577": {
+      "title": "NPU03577 P—TSH",
+      "parents": []
+    },
+    "NPU04998": {
+      "title": "NPU04998 P—Kreatinin (enz)",
+      "parents": []
+    },
+    "NPU19748": {
+      "title": "NPU19748 P—CRP",
+      "parents": []
+    },
+    "NPU27300": {
+      "title": "NPU27300",
+      "parents": []
+    },
+    "NPU28309": {
+      "title": "NPU28309 B—Hemoglobin (Hb)",
+      "parents": []
+    }
+  }
+}

@@ -1,0 +1,25 @@
+name: V8 Swedish terminology subsets
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 1 * *"
+
+jobs:
+  build-subsets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ensure v8-data.js from published demo
+        run: |
+          python3 .scratch/cdr-kg-explorer/build8/extract-libs.py public/prototyping/v8-multilingual-stack-demo.html --data
+      - name: Build subsets
+        run: python3 .scratch/cdr-kg-explorer/build8/subsets/build-subsets.py
+      - name: Upload subset artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v8-swedish-subsets
+          path: public/prototyping/subsets/

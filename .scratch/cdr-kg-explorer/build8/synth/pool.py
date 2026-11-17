@@ -23,7 +23,6 @@ ICD = {  # id: (parent, sv, en)
  "E03": ("E00-E07", "E03 Annan hypotyreos", "E03 Other hypothyroidism"),
  "E03.9": ("E03", "E03.9 Hypotyreos, ospecificerad", "E03.9 Hypothyroidism, unspecified"),
  "E10": ("E10-E14", "E10 Typ 1-diabetes", "E10 Type 1 diabetes mellitus"),
- "E10.9": ("E10", "E10.9 utan komplikationer", "E10.9 Type 1 diabetes mellitus : Without complications"),
  "E70-E90": ("CH04", "E70–E90 Metabola sjukdomar", "E70-E90 Metabolic disorders"),
  "E78": ("E70-E90", "E78 Lipidrubbningar", "E78 Disorders of lipoprotein metabolism and other lipidaemias"),
  "E78.5": ("E78", "E78.5 Hyperlipidemi, ospecificerad", "E78.5 Hyperlipidaemia, unspecified"),
@@ -37,7 +36,7 @@ ICD = {  # id: (parent, sv, en)
  "G43": ("G40-G47", "G43 Migrän", "G43 Migraine"),
  "G43.9": ("G43", "G43.9 Migrän, ospecificerad", "G43.9 Migraine, unspecified"),
  "G47": ("G40-G47", "G47 Sömnstörningar", "G47 Sleep disorders"),
- "G47.3": ("G47", "G47.3 Sömnapnésyndrom", "G47.3 Sleep apnoea"),
+ "G47.3": ("G47", "G47.3 Sömnapnésyndrom", "G47.3 Sleep apnoea syndrome"),
  "I20-I25": ("CH09", "I20–I25 Ischemiska hjärtsjukdomar", "I20-I25 Ischaemic heart diseases"),
  "I20": ("I20-I25", "I20 Angina pectoris", "I20 Angina pectoris"),
  "I20.9": ("I20", "I20.9 Angina pectoris, ospecificerad", "I20.9 Angina pectoris, unspecified"),
@@ -62,7 +61,7 @@ ICD = {  # id: (parent, sv, en)
  "J45.9": ("J45", "J45.9 Astma, ospecificerad", "J45.9 Asthma, unspecified"),
  "K20-K31": ("CH11", "K20–K31 Matstrupe, magsäck och tolvfingertarm", "K20-K31 Diseases of oesophagus, stomach and duodenum"),
  "K21": ("K20-K31", "K21 Gastroesofageal refluxsjukdom", "K21 Gastro-oesophageal reflux disease"),
- "K21.9": ("K21", "K21.9 utan esofagit", "K21.9 Gastro-oesophageal reflux disease without oesophagitis"),
+ "K21.9": ("K21", "K21.9 Gastroesofageal refluxsjukdom utan esofagit", "K21.9 Gastro-oesophageal reflux disease without oesophagitis"),
  "K90-K93": ("CH11", "K90–K93 Andra sjukdomar i matsmältningsorganen", "K90-K93 Other diseases of the digestive system"),
  "K90": ("K90-K93", "K90 Malabsorption i tarmen", "K90 Intestinal malabsorption"),
  "K90.0": ("K90", "K90.0 Celiaki", "K90.0 Coeliac disease"),
@@ -86,12 +85,17 @@ ICD = {  # id: (parent, sv, en)
  "M81.9": ("M81", "M81.9 Osteoporos, ospecificerad", "M81.9 Osteoporosis, unspecified"),
  "N17-N19": ("CH14", "N17–N19 Njursvikt", "N17-N19 Renal failure"),
  "N18": ("N17-N19", "N18 Kronisk njursjukdom", "N18 Chronic kidney disease"),
- "N18.9": ("N18", "N18.9 Kronisk njursjukdom, ospecificerad", "N18.9 Chronic kidney disease, unspecified"),
+ "N18.9": ("N18", "N18.9 Kronisk njursvikt, ospecificerad", "N18.9 Chronic kidney disease, unspecified"),
  "N30-N39": ("CH14", "N30–N39 Andra sjukdomar i urinorganen", "N30-N39 Other diseases of urinary system"),
  "N39": ("N30-N39", "N39 Andra sjukdomar i urinvägarna", "N39 Other disorders of urinary system"),
  "N39.0": ("N39", "N39.0 Urinvägsinfektion", "N39.0 Urinary tract infection, site not specified"),
  "N40-N51": ("CH14", "N40–N51 Sjukdomar i manliga könsorgan", "N40-N51 Diseases of male genital organs"),
- "N40": ("N40-N51", "N40 Prostatahyperplasi", "N40 Hyperplasia of prostate"),
+ "N40": ("N40-N51", "N40 Prostataförstoring", "N40 Hyperplasia of prostate"),
+ "E11.9": ("E11", "E11.9 Diabetes mellitus typ 2 utan komplikationer, ospecificerad", "E11.9 Type 2 diabetes mellitus without complications, unspecified"),
+ "E11": ("E10-E14", "E11 Diabetes mellitus typ 2", "E11 Type 2 diabetes mellitus"),
+ "E10.9": ("E10", "E10.9 Diabetes mellitus typ 1 utan komplikationer, ospecificerad", "E10.9 Type 1 diabetes mellitus without complications, unspecified"),
+ "S52.1": ("S52", "S52.1 Fraktur på övre delen av radius", "S52.1 Fracture of upper end of radius"),
+ "S52": ("S50-S59", "S52 Fraktur på underarm", "S52 Fracture of forearm"),
 }
 # ---------- ATC hierarchy ----------
 ATC = {  # id: (parent, sv, en)
@@ -156,8 +160,8 @@ ATC = {  # id: (parent, sv, en)
  "J01X": ("J01", "J01X Övriga antibakteriella medel", "J01X Other antibacterials"),
  "J01XE": ("J01X", "J01XE Nitrofuranderivat", "J01XE Nitrofuran derivatives"),
  "J01XE01": ("J01XE", "J01XE01 Nitrofurantoin", "J01XE01 Nitrofurantoin"),
- # vaccines: same depth as the existing J07BB node (attached directly to J07)
- "J07AL": ("J07", "J07AL Pneumokockvaccin", "J07AL Pneumococcal vaccines"),
+ "J07BB02": ("J07BB", "J07BB02 Influensavaccin, avdödat, delat virus", "J07BB02 Influenza vaccine, inactivated, split virus"),
+ "J07AL02": ("J07AL", "J07AL02 Pneumokockvaccin, konjugerat", "J07AL02 Pneumococcal vaccines, conjugated"),
  "J07AM": ("J07", "J07AM Stelkrampsvaccin", "J07AM Tetanus vaccines"),
  "J07AM51": ("J07AM", "J07AM51 Stelkrampstoxoid, komb. med difteritoxoid", "J07AM51 Tetanus toxoid, combinations with diphtheria toxoid"),
  "J07BA": ("J07", "J07BA Vaccin mot encefalit", "J07BA Encephalitis vaccines"),
@@ -210,9 +214,13 @@ ATC = {  # id: (parent, sv, en)
  "R06A": ("R06", "R06A Antihistaminer för systemiskt bruk", "R06A Antihistamines for systemic use"),
  "R06AE": ("R06A", "R06AE Piperazinderivat", "R06AE Piperazine derivatives"),
  "R06AE07": ("R06AE", "R06AE07 Cetirizin", "R06AE07 Cetirizine"),
+ "J07BB": ("J07", "J07BB Influensavaccin", "J07BB Influenza vaccines"),
+ "J07AL": ("J07", "J07AL Pneumokockvaccin", "J07AL Pneumococcal vaccines"),
 }
+# ---------- NPU ----------
 NPU = {  # code: (sv, en)
- "NPU04998": ("NPU04998 P—Kreatinin", "NPU04998 P—Creatininium"),
+ "NPU04998": ("NPU04998 P—Kreatinin (enz)", "NPU04998 P—Creatininium"),
+ "NPU28309": ("NPU28309 B—Hemoglobin (Hb)", "NPU28309 B—Haemoglobin (Hb)"),
  "NPU03577": ("NPU03577 P—TSH", "NPU03577 P—Thyrotropin"),
  "NPU19748": ("NPU19748 P—CRP", "NPU19748 P—C-reactive protein"),
  "NPU03230": ("NPU03230 P—Kalium", "NPU03230 P—Potassium ion"),
@@ -260,7 +268,7 @@ MED = {
 # ---------- labs (NPU code, test sv/en, unit, (lo, hi) normal, decimals) ----------
 LAB = {
  "hba1c": ("NPU27300", "HbA1c (IFCC)", "HbA1c (IFCC)", "B-HbA1c (IFCC)", "mmol/mol", (34, 42), 0),
- "hb":    ("NPU02319", "Hemoglobin", "Haemoglobin", "B-Hemoglobin(Fe)", "mmol/L", (7.6, 9.4), 1),
+ "hb":    ("NPU28309", "Hemoglobin", "Haemoglobin", "B—Hemoglobin (Hb)", "g/L", (122, 158), 0),
  "krea":  ("NPU04998", "Kreatinin", "Creatinine", "P-Kreatinin", "µmol/L", (60, 100), 0),
  "tsh":   ("NPU03577", "TSH", "TSH", "P-TSH", "mIE/L", (0.6, 3.5), 1),
  "crp":   ("NPU19748", "CRP", "CRP", "P-CRP", "mg/L", (1, 4), 0),
@@ -289,19 +297,19 @@ PROB = {
  "lumbago": dict(sct="279039007", icd="M54.5", sv="Ländryggssmärta", en="Low back pain", age=(25, 75), w=4, meds=[["ibuprofen"]]),
  "gikt": dict(sct="90560007", icd="M10.9", sv="Gikt", en="Gout", age=(45, 85), w=2, sex="M", meds=[["allopurinol"]]),
  "reflux": dict(sct="235595009", icd="K21.9", sv="Gastroesofageal refluxsjukdom", en="Gastro-oesophageal reflux disease", age=(30, 85), w=4, meds=[["omeprazol"]]),
- "celiaki": dict(sct="396331005", icd="K90.0", sv="Celiaki", en="Coeliac disease", age=(18, 70), w=2, labs={"hb": (7.0, 8.0)}),
- "ckd": dict(sct="709044004", icd="N18.9", sv="Kronisk njursjukdom", en="Chronic kidney disease", age=(60, 92), w=2, labs={"krea": (130, 190), "kalium": (4.4, 5.2)}),
+ "celiaki": dict(sct="396331005", icd="K90.0", sv="Celiaki", en="Coeliac disease", age=(18, 70), w=2, labs={"hb": (113, 129)}),
+ "ckd": dict(sct="709044004", icd="N18.9", sv="Kronisk njursvikt", en="Chronic kidney disease", age=(60, 92), w=2, labs={"krea": (130, 190), "kalium": (4.4, 5.2)}),
  "uvi": dict(sct="68566005", icd="N39.0", sv="Urinvägsinfektion", en="Urinary tract infection", age=(20, 90), w=3, sex="F", meds=[["pivmecillinam", "nitrofurantoin"]], active=False, labs={"crp": (8, 30)}),
  "pneumoni": dict(sct="233604007", icd="J18.9", sv="Pneumoni", en="Pneumonia", age=(30, 92), w=3, meds=[["pcv", "amoxicillin"]], active=False, labs={"crp": (60, 160)}, sev=True),
  "rinit": dict(sct="21719001", icd="J30.1", sv="Allergisk rinit orsakad av pollen", en="Allergic rhinitis due to pollen", age=(18, 60), w=4, meds=[["cetirizin"]], allergy="bjork"),
  "eksem": dict(sct="24079001", icd="L20.9", sv="Atopiskt eksem", en="Atopic dermatitis", age=(18, 50), w=2, meds=[["betametason"]]),
  "psoriasis": dict(sct="9014002", icd="L40.9", sv="Psoriasis", en="Psoriasis", age=(20, 80), w=3, meds=[["betametason"]]),
- "anemi": dict(sct="87522002", icd="D50.9", sv="Järnbristanemi", en="Iron deficiency anaemia", age=(18, 85), w=2, sex="F", meds=[["jarnsulfat"]], labs={"hb": (6.2, 7.2)}),
+ "anemi": dict(sct="87522002", icd="D50.9", sv="Järnbristanemi", en="Iron deficiency anaemia", age=(18, 85), w=2, sex="F", meds=[["jarnsulfat"]], labs={"hb": (100, 116)}),
  "bphyperplasi": dict(sct="266569009", icd="N40", sv="Benign prostatahyperplasi", en="Benign prostatic hyperplasia", age=(55, 90), w=3, sex="M", meds=[["tamsulosin"]]),
  "brostcancer": dict(sct="254837009", icd="C50.9", sv="Bröstcancer", en="Malignant neoplasm of breast", age=(45, 85), w=1, sex="F", meds=[["letrozol"]], proc=["lumpektomi"]),
- "radiusfraktur": dict(sct="72704001", icd="S52.1", sv="Fraktur i övre delen av höger radius", en="Fracture of upper end of right radius", age=(60, 92), w=0, proc=["frakturfix"], site="radius"),
+ "radiusfraktur": dict(sct="72704001", icd="S52.1", sv="Fraktur på övre delen av radius", en="Fracture of upper end of radius", age=(60, 92), w=0, proc=["frakturfix"], site="radius"),
 }
-SITE = {"knee": ("vänster knäled", "left knee joint", "719442003"), "radius": ("övre delen av höger radius", "upper end of right radius", "62413002")}
+SITE = {"knee": ("vänster knäled", "left knee joint", "719442003"), "radius": ("övre delen av radius", "upper end of radius", "62413002")}
 # ---------- procedures ----------
 PROC = {  # key: (sct, sv, en, site key or None, sex, min age)
  "appendektomi": ("80146002", "Appendektomi", "Appendectomy", ("appendix", "appendix", "66754008"), None, 0),
@@ -315,7 +323,7 @@ PROC = {  # key: (sct, sv, en, site key or None, sex, min age)
  "knaprotes": ("609588000", "Total knäledsplastik", "Total knee replacement", ("vänster knäled", "left knee joint", "719442003"), None, 60),
  "pci": ("415070008", "Perkutan koronarintervention (PCI)", "Percutaneous coronary intervention", ("kranskärl", "coronary artery", "41801008"), None, 50),
  "lumpektomi": ("392021009", "Lumpektomi (bröstbevarande kirurgi)", "Lumpectomy of breast", ("vänster bröst", "left breast", "80248007"), "F", 40),
- "frakturfix": ("239279000", "Fixering av fraktur", "Fixation of fracture", ("höger radius", "right radius", "62413002"), None, 0),
+ "frakturfix": ("239279000", "Fixering av fraktur", "Fixation of fracture", ("radius", "radius", "62413002"), None, 0),
 }
 # ---------- allergies ----------
 ALLERGY = {  # key: (substance sct, subst sv, en, entry sv, en, type sv/en, manifestation key, criticality)
@@ -333,8 +341,9 @@ MANIF = {"urtikaria": ("urtikaria", "urticaria", "126485001"), "anafylaxi": ("an
          "utslag": ("hudutslag", "skin eruption", "271807003"), "angioodem": ("angioödem", "angioedema", "41291007")}
 # ---------- immunisations ----------
 VACC = {  # key: (sct, atc, sv, en, entry sv, en)
- "influensa": ("1181000221105", "J07BB", "Influensavaccin (inaktiverat)", "Influenza vaccine (inactivated)", "Influensavaccin 2025", "Influenza vaccine 2025"),
- "pneumokock": ("981000221107", "J07AL", "Pneumokockvaccin", "Pneumococcal vaccine", "Pneumokockvaccin", "Pneumococcal vaccine"),
+ # ATC on substance level (J07BB/J07AL are group-level only)
+ "influensa": ("1181000221105", "J07BB02", "Influensavaccin (inaktiverat)", "Influenza vaccine (inactivated)", "Influensavaccin 2025", "Influenza vaccine 2025"),
+ "pneumokock": ("981000221107", "J07AL02", "Pneumokockvaccin", "Pneumococcal vaccine", "Pneumokockvaccin", "Pneumococcal vaccine"),
  "covid": ("1119349007", "J07BN01", "Covid-19-vaccin (mRNA)", "COVID-19 vaccine (mRNA)", "Covid-19-vaccin 2025", "COVID-19 vaccine 2025"),
  "tbe": ("871719005", "J07BA01", "TBE-vaccin", "Tick-borne encephalitis vaccine", "TBE-vaccin", "TBE vaccine"),
  "ditebooster": ("2031000221103", "J07AM51", "Difteri-stelkrampsvaccin (vuxen)", "Diphtheria-tetanus vaccine (adult)", "Stelkramp/difteri påfyllnad", "Tetanus/diphtheria booster"),

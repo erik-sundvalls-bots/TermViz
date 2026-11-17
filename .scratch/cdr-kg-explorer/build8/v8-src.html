@@ -80,11 +80,20 @@ header{position:relative}
     <div class="hint" id="sysMotion"></div>
     <button type="button" class="reset" id="reset-anim" data-i18n="resetField">Återställ till standard</button>
   </fieldset>
-  <fieldset><legend data-i18n="txUrl">FHIR-terminologiserver (URL)</legend>
-    <div class="row"><input id="txUrl" type="url" value="https://tx-nordics.fhir.org/fhir/r4" spellcheck="false">
-    <button type="button" class="reset" id="reset-txUrl" data-i18n="resetField">Återställ till standard</button></div>
+  <fieldset><legend data-i18n="txServersLegend">Terminologiserver per kodsystem</legend>
+    <div class="row"><span data-i18n="txServerSct">SNOMED CT</span><input id="txUrlSct" type="url" spellcheck="false"></div>
+    <div class="row"><span data-i18n="txServerIcd">ICD-10</span><input id="txUrlIcd" type="url" spellcheck="false"></div>
+    <div class="row"><span data-i18n="txServerNpu">NPU</span><input id="txUrlNpu" type="url" spellcheck="false"></div>
+    <div class="row"><span data-i18n="txServerAtc">ATC</span><input id="txUrlAtc" type="url" spellcheck="false"></div>
+    <p class="hint" data-i18n="txIdle" id="txIdle"></p>
+    <button type="button" class="reset" id="reset-txServers" data-i18n="resetField">Återställ till standard</button>
     <div class="tx-status idle" id="txStatus"></div>
-    <div class="hint" id="txIdle" hidden></div>
+  </fieldset>
+  <fieldset><legend data-i18n="txCacheLegend">Uppslagscache (IndexedDB)</legend>
+    <p class="hint" data-i18n="txCacheHint">Cachar $lookup-resultat (etikett och föräldrar) per språk. TTL standard 60 dagar.</p>
+    <div class="row"><label><span data-i18n="txCacheTtl">TTL (dagar)</span> <input id="cacheTtl" type="number" min="1" max="365" step="1" style="width:4em"></label>
+    <span id="txCacheCount" class="hint"></span></div>
+    <button type="button" class="reset" id="clearTxCache" data-i18n="txCacheClear">Töm uppslagscache</button>
   </fieldset>
   <fieldset><legend data-i18n="uploads">Uppladdade filer</legend>
     <p class="hint" data-i18n="upDirHint">Dela upp patientdata i separata mappar, en per patient. Mappnamnet blir patientens etikett. Sammansättningsfiler kan vara kanonisk JSON/XML eller FLAT JSON.</p>
@@ -109,8 +118,17 @@ const svg = d3.select("#v"), tip = d3.select("#tip");
 // ===== V8 i18n, settings, DAG subset, uploads, FHIR =====
 const V8SRC = window.V8;
 let D = structuredClone(V8SRC);
-const DEFAULTS = { lang: "sv", anim: "on", txUrl: "https://tx-nordics.fhir.org/fhir/r4" };
+const DEFAULTS = {
+  lang: "sv", anim: "on",
+  txUrl: "https://tx-nordics.fhir.org/fhir/r4",
+  txServers: { sct: "https://tx-nordics.fhir.org/fhir/r4", icd10: "https://tx-nordics.fhir.org/fhir/r4", npu: "https://tx-nordics.fhir.org/fhir/r4", atc: "https://tx.fhir.org/r4" },
+  cacheTtlDays: 60
+};
 const SETTINGS_KEY = "cdr-v8-settings";
+const SCT_EDITION = "http://snomed.info/sct/45991000052106";
+const TX_CACHE_DB = "cdr-v8-tx-cache", TX_CACHE_STORE = "lookups", TX_SUBSET_STORE = "subsets";
+const SUBSET_META = { icd10: "subsets/v8-icd10-se.json", atc: "subsets/v8-atc-sv.json", npu: "subsets/v8-npu-sv.json", kva: "subsets/v8-kva-sv.json" };
+let SV_SUBSETS = {};
 const I18N = {
   sv: {
     title: "CDR KG-utforskare · V8 flerspråkig hopfällbar trestegsstack (interaktiv demo)",
@@ -125,7 +143,10 @@ const I18N = {
     language: "Språk", animations: "Animationer",
     animSystem: "Följ systemet", animOn: "Alltid på (standard)", animOff: "Av",
     sysReduceOn: "System: reducerad rörelse är PÅ", sysReduceOff: "System: reducerad rörelse är AV",
-    txUrl: "FHIR-terminologiserver (URL)", txOk: "Ansluten", txOffline: "Offline — använder cache", txErr: "Fel", txIdle: "Används för $lookup när en kod saknas i cachen",
+    txUrl: "FHIR-terminologiserver (URL)", txServersLegend: "Terminologiserver per kodsystem", txServerSct: "SNOMED CT", txServerIcd: "ICD-10", txServerNpu: "NPU", txServerAtc: "ATC",
+    txOk: "Ansluten", txOffline: "Offline — använder cache", txErr: "Fel", txIdle: "Används för $lookup när en kod saknas i cachen",
+    txCacheLegend: "Uppslagscache (IndexedDB)", txCacheHint: "Cachar $lookup-resultat (etikett och föräldrar) per språk. TTL standard 60 dagar.",
+    txCacheCount: "poster", txCacheClear: "Töm uppslagscache", txCacheTtl: "TTL (dagar)",
     uploads: "Uppladdade filer",
     upArch: "Arketyper (.adl, JSON)",
     upTpl: "Mallar (.opt XML, webbmall-JSON)",
@@ -182,7 +203,10 @@ const I18N = {
     language: "Language", animations: "Animations",
     animSystem: "Follow system", animOn: "Always on (default)", animOff: "Off",
     sysReduceOn: "System: reduce motion is ON", sysReduceOff: "System: reduce motion is OFF",
-    txUrl: "FHIR terminology server URL", txOk: "Connected", txOffline: "Offline — using cache", txErr: "Error", txIdle: "Used for $lookup when a code is missing from the cache",
+    txUrl: "FHIR terminology server URL", txServersLegend: "Terminology server per code system", txServerSct: "SNOMED CT", txServerIcd: "ICD-10", txServerNpu: "NPU", txServerAtc: "ATC",
+    txOk: "Connected", txOffline: "Offline — using cache", txErr: "Error", txIdle: "Used for $lookup when a code is missing from the cache",
+    txCacheLegend: "Lookup cache (IndexedDB)", txCacheHint: "Caches $lookup results (display and parents) per language. Default TTL 60 days.",
+    txCacheCount: "entries", txCacheClear: "Clear lookup cache", txCacheTtl: "TTL (days)",
     uploads: "Uploaded files",
     upArch: "Archetypes (.adl, JSON)",
     upTpl: "Templates (.opt XML, web template JSON)",
@@ -256,10 +280,16 @@ function loadSettings() {
   const lang = (url.get("lang") === "en" || url.get("lang") === "sv") ? url.get("lang") : (saved.lang || DEFAULTS.lang);
   const anim = saved.v >= 2 && ["system", "on", "off"].includes(saved.anim) ? saved.anim : DEFAULTS.anim;
   const txUrl = (typeof saved.txUrl === "string" && saved.txUrl.trim()) ? saved.txUrl.trim() : DEFAULTS.txUrl;
-  return { lang, anim, txUrl };
+  const txServers = { ...DEFAULTS.txServers, ...(saved.txServers || {}) };
+  for (const k of Object.keys(txServers)) {
+    if (typeof txServers[k] !== "string" || !txServers[k].trim()) txServers[k] = DEFAULTS.txServers[k];
+    else txServers[k] = txServers[k].trim();
+  }
+  const cacheTtlDays = Number.isFinite(+saved.cacheTtlDays) && +saved.cacheTtlDays > 0 ? +saved.cacheTtlDays : DEFAULTS.cacheTtlDays;
+  return { lang, anim, txUrl, txServers, cacheTtlDays };
 }
 function persistSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 2, lang: S.lang, anim: S.anim, txUrl: S.txUrl })); } catch (e) {}
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays })); } catch (e) {}
   const url = new URL(location.href);
   url.searchParams.set("lang", S.lang);
   history.replaceState(null, "", url);
@@ -387,6 +417,117 @@ function recomputeVisibleOnt(usedSet) {
 // ----- IndexedDB uploads -----
 const IDB_NAME = "cdr-v8-uploads", IDB_STORE = "files";
 let txLastStatus = "";
+function txServerBase(sys) {
+  const s = (S.txServers && S.txServers[sys]) || S.txUrl || DEFAULTS.txUrl;
+  return String(s).replace(/\/$/, "");
+}
+function sysVersion(sys) { return sys === "sct" ? SCT_EDITION : ""; }
+function txCacheKey(sys, code, lang) {
+  const uri = SYS_URI[sys] || sys;
+  return `${uri}|${sysVersion(sys)}|${code}|${lang}`;
+}
+function txCacheOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(TX_CACHE_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(TX_CACHE_STORE)) db.createObjectStore(TX_CACHE_STORE, { keyPath: "key" });
+      if (!db.objectStoreNames.contains(TX_SUBSET_STORE)) db.createObjectStore(TX_SUBSET_STORE, { keyPath: "id" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function txCacheGet(key) {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_CACHE_STORE, "readonly");
+    const r = tx.objectStore(TX_CACHE_STORE).get(key);
+    r.onsuccess = () => resolve(r.result || null);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function txCachePut(key, val) {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_CACHE_STORE, "readwrite");
+    tx.objectStore(TX_CACHE_STORE).put({ key, ...val, fetchedAt: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function txCacheCount() {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_CACHE_STORE, "readonly");
+    const r = tx.objectStore(TX_CACHE_STORE).count();
+    r.onsuccess = () => resolve(r.result || 0);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function txCacheClearAll() {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_CACHE_STORE, "readwrite");
+    tx.objectStore(TX_CACHE_STORE).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function refreshTxCacheCount() {
+  const el = document.getElementById("txCacheCount");
+  if (!el) return;
+  try {
+    const n = await txCacheCount();
+    el.textContent = `${n} ${T("txCacheCount")}`;
+  } catch (e) { el.textContent = ""; }
+}
+function cacheFresh(entry) {
+  if (!entry || !entry.fetchedAt) return false;
+  const ttl = (S.cacheTtlDays || DEFAULTS.cacheTtlDays) * 86400000;
+  return Date.now() - entry.fetchedAt < ttl;
+}
+function subsetLookup(sys, code) {
+  const pack = SV_SUBSETS[sys];
+  if (!pack || !pack.codes) return null;
+  const row = pack.codes[code];
+  if (!row) return null;
+  return { sv: row.title || row.display || row.sv || null, en: row.en || null, parents: row.parents || [], inactive: !!row.inactive };
+}
+async function subsetStoreGet(id) {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_SUBSET_STORE, "readonly");
+    const r = tx.objectStore(TX_SUBSET_STORE).get(id);
+    r.onsuccess = () => resolve(r.result || null);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function subsetStorePut(id, body) {
+  const db = await txCacheOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(TX_SUBSET_STORE, "readwrite");
+    tx.objectStore(TX_SUBSET_STORE).put({ id, body, fetchedAt: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function loadSwedishSubsets() {
+  for (const [sys, path] of Object.entries(SUBSET_META)) {
+    let data = null;
+    try {
+      const cached = await subsetStoreGet(sys);
+      if (cached && cached.body) data = cached.body;
+    } catch (e) {}
+    if (!data) {
+      try {
+        const res = await fetch(path, { credentials: "same-origin" });
+        if (res.ok) { data = await res.json(); await subsetStorePut(sys, data); }
+      } catch (e) {}
+    }
+    if (data && data.codes) SV_SUBSETS[sys] = data;
+  }
+}
 function idbOpen() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(IDB_NAME, 1);
@@ -439,10 +580,30 @@ function splitOntId(id) {
   return i < 0 ? { sys: "sct", code: id } : { sys: id.slice(0, i), code: id.slice(i + 1) };
 }
 async function txLookup(sys, code) {
-  const base = (S.txUrl || DEFAULTS.txUrl).replace(/\/$/, "");
   const uri = SYS_URI[sys] || sys;
   const lang = S.lang === "en" ? "en" : "sv";
+  const ckey = txCacheKey(sys, code, lang);
+  try {
+    const hit = await txCacheGet(ckey);
+    if (cacheFresh(hit)) {
+      txLastStatus = "ok";
+      updateTxStatus();
+      return { sv: hit.sv, en: hit.en, parents: hit.parents || [], inactive: !!hit.inactive };
+    }
+  } catch (e) {}
+  if (lang === "sv") {
+    const sub = subsetLookup(sys, code);
+    if (sub) {
+      const r = { sv: sub.sv, en: sub.en, parents: sub.parents || [], inactive: !!sub.inactive };
+      try { await txCachePut(ckey, r); refreshTxCacheCount(); } catch (e) {}
+      txLastStatus = "ok";
+      updateTxStatus();
+      return r;
+    }
+  }
+  const base = txServerBase(sys);
   const q = new URLSearchParams({ system: uri, code, property: "parent", displayLanguage: lang, _format: "json" });
+  if (sys === "sct") q.set("version", SCT_EDITION);
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 20000);
   try {
@@ -467,6 +628,7 @@ async function txLookup(sys, code) {
         if (lc.startsWith("sv")) r.sv = r.sv || pp.value?.valueString;
       }
     }
+    try { await txCachePut(ckey, r); refreshTxCacheCount(); } catch (e) {}
     txLastStatus = "ok";
     return r;
   } catch (e) {
@@ -1025,18 +1187,29 @@ function bindSettings() {
     r.checked = r.value === S.anim;
     r.addEventListener("change", () => { if (r.checked) { S.anim = r.value; persistSettings(); render(); } });
   });
-  const tx = document.getElementById("txUrl");
-  tx.value = S.txUrl;
-  tx.addEventListener("change", () => { S.txUrl = tx.value.trim() || DEFAULTS.txUrl; persistSettings(); txLastStatus = ""; updateTxStatus(); });
+  const txSys = ["sct", "icd10", "npu", "atc"];
+  const syncTxInputs = () => { for (const k of txSys) { const el = k === "sct" ? document.getElementById("txUrlSct") : k === "icd10" ? document.getElementById("txUrlIcd") : k === "npu" ? document.getElementById("txUrlNpu") : document.getElementById("txUrlAtc"); if (el) el.value = S.txServers[k] || DEFAULTS.txServers[k]; } };
+  syncTxInputs();
+  for (const k of txSys) {
+    const el = k === "sct" ? document.getElementById("txUrlSct") : k === "icd10" ? document.getElementById("txUrlIcd") : k === "npu" ? document.getElementById("txUrlNpu") : document.getElementById("txUrlAtc");
+    el?.addEventListener("change", () => { S.txServers[k] = el.value.trim() || DEFAULTS.txServers[k]; S.txUrl = S.txServers.sct; persistSettings(); txLastStatus = ""; updateTxStatus(); });
+  }
+  document.getElementById("reset-txServers")?.addEventListener("click", () => { S.txServers = { ...DEFAULTS.txServers }; S.txUrl = DEFAULTS.txUrl; syncTxInputs(); persistSettings(); txLastStatus = ""; updateTxStatus(); });
+  const ttl = document.getElementById("cacheTtl");
+  if (ttl) { ttl.value = S.cacheTtlDays; ttl.addEventListener("change", () => { S.cacheTtlDays = Math.max(1, +ttl.value || DEFAULTS.cacheTtlDays); persistSettings(); }); }
+  document.getElementById("clearTxCache")?.addEventListener("click", async () => { await txCacheClearAll(); refreshTxCacheCount(); });
+  refreshTxCacheCount();
   document.getElementById("reset-lang").addEventListener("click", () => setLang(DEFAULTS.lang, true));
   document.getElementById("reset-anim").addEventListener("click", () => { S.anim = DEFAULTS.anim; persistSettings(); document.querySelectorAll("input[name=anim]").forEach((r) => { r.checked = r.value === S.anim; }); render(); });
-  document.getElementById("reset-txUrl").addEventListener("click", () => { S.txUrl = DEFAULTS.txUrl; tx.value = S.txUrl; persistSettings(); txLastStatus = ""; updateTxStatus(); });
   document.getElementById("resetAll").addEventListener("click", async () => {
     if (!confirm(T("resetConfirm"))) return;
     await idbClear();
-    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl;
+    await txCacheClearAll();
+    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays;
     persistSettings();
-    tx.value = S.txUrl;
+    syncTxInputs();
+    if (ttl) ttl.value = S.cacheTtlDays;
+    refreshTxCacheCount();
     document.querySelectorAll("input[name=anim]").forEach((r) => { r.checked = r.value === S.anim; });
     D = structuredClone(V8SRC);
     rebuildIndexes();
@@ -1092,7 +1265,8 @@ function rebuildIndexes() {
   for (const p of ALLPAT) (function w(n, par) { INST.set(n.id, { n, par, pat: p }); (n.children || []).forEach((c) => w(c, n)); })(p, null);
 }
 const _boot = loadSettings();
-const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl };
+const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays };
+S.txUrl = S.txServers.sct || S.txUrl;
 rebuildIndexes();
 S.collapsed = new Set(synth.map((p) => p.id));
 // ================= representative (visible) node for any fine id =================
@@ -1782,8 +1956,10 @@ d3.select("#expandInst").on("click", () => { S.collapsed = new Set(synth.map((p)
 d3.select("#off").on("input", function () { S.off = +this.value; d3.select("#offv").text(this.value); render(); });
 let lastW = innerWidth; addEventListener("resize", () => { if (Math.abs(innerWidth - lastW) > 30) { lastW = innerWidth; render(); } });
 window.V8S = S; window.V8render = render; window.V8toggle = toggle; window.V8data = () => D;
+window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll };
 applyI18n();
 bindSettings();
+loadSwedishSubsets().catch((e) => console.warn("subset load", e));
 window.__v8IngestTexts = async function (recs) {
   for (const rec of recs) {
     const r = await ingestText(rec);
