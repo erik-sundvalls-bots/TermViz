@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><meta charset="utf-8"><title>CDR KG explorer · V8 multilingual collapsible three-layer stack (interactive demo)</title>
 <style>
-:root{--paper:#f3efe6;--deep:#e7e1d4;--ink:#1c2430;--muted:#5c675f;--line:#d5cdbf;--card:#fffdf8;--teal:#0f6e6b;--amber:#c46b1a}
+:root{--paper:#f3efe6;--deep:#e7e1d4;--ink:#1c2430;--muted:#5c675f;--line:#d5cdbf;--card:#fffdf8;--teal:#0f6e6b;--amber:#c46b1a;--panel:380px;--dock:44px}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3','Segoe UI',sans-serif}
 header{padding:12px 24px 2px} h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:23px;margin:0}
 header .sub{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:1250px} .ex{color:var(--amber);font-weight:600;font-size:12px;float:right;margin-top:6px;text-align:right}
@@ -8,8 +8,25 @@ header .sub{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:1250px}
 .bar button{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:3px 12px;cursor:pointer;color:var(--ink)}
 .bar button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 .hint{color:var(--muted)}
-#tip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;max-width:420px;display:none;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+#tip{position:fixed;z-index:40;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 26px 8px 10px;font-size:12px;max-width:420px;display:none;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+#tip.open{pointer-events:auto}
 #tip code{font-size:11px;color:var(--muted);word-break:break-all}
+#tip-x{position:absolute;top:2px;right:2px;width:22px;height:22px;border:0;background:transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;border-radius:6px}
+#tip-x:hover{color:var(--ink);background:var(--deep)}
+#side{position:fixed;top:0;right:0;bottom:0;z-index:24;width:calc(var(--panel) + 44px);max-width:46vw;display:flex;background:var(--card);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(28,36,48,.06);transition:width .28s ease;overflow:hidden}
+#side.is-collapsed{width:44px;box-shadow:none}
+#side .rail{width:44px;flex:none;display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px 0;background:var(--paper)}
+#side .rail button{display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer}
+#side .rail button:hover{border-color:var(--teal)}
+#side .rail svg{width:18px;height:18px;display:block}
+#side.is-collapsed #side-toggle svg{transform:rotate(180deg)}
+#side .side-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+#side.is-collapsed .side-main{display:none}
+#side .side-scroll{flex:1;overflow:auto;padding:16px 16px 28px;font-size:14px;line-height:1.45}
+#side h2{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:22px;line-height:1.15;margin:0 0 8px}
+#side .kicker{margin:0 0 6px;color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+#side .side-scroll code{font-size:12px;color:var(--muted);word-break:break-all}
+#side .muted{color:var(--muted)}
 svg text{pointer-events:none}
 .box{cursor:pointer}
 .cl-hull{cursor:pointer}
@@ -25,11 +42,12 @@ g.col text.halo, g.box.pill text.halo, g.ontn text{paint-order:stroke;stroke:var
 .elabs text{paint-order:normal;stroke:none}
 .band-label{font-size:11px;letter-spacing:1.4px;font-weight:700;fill:var(--muted)}
 .legend{font-size:12px;color:var(--muted);padding:0 24px 6px}
+header,.bar,.legend{padding-right:calc(var(--dock) + 16px)}
 .legend b{color:var(--ink)}
 .lang-tog, #settingsBtn{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:3px 10px;cursor:pointer;color:var(--ink)}
 .lang-tog.on,#settingsBtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 #settingsBtn{margin-left:auto;font-size:16px;line-height:1;min-width:32px}
-#settings{position:absolute;right:24px;top:86px;z-index:20;width:min(440px,calc(100vw - 48px));background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;box-shadow:0 8px 28px rgba(0,0,0,.1);max-height:calc(100vh - 110px);overflow:auto}
+#settings{position:absolute;right:calc(var(--dock) + 16px);top:86px;z-index:30;width:min(440px,calc(100vw - 48px));background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;box-shadow:0 8px 28px rgba(0,0,0,.1);max-height:calc(100vh - 110px);overflow:auto}
 #settings[hidden]{display:none!important}
 #settings h2{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:18px;margin:0 0 10px}
 #settings fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:8px 10px}
@@ -106,8 +124,18 @@ header{position:relative}
   </fieldset>
   <button type="button" id="resetAll" data-i18n="resetAll">Återställ allt till fabriksinställningar</button>
 </div>
-<div class="legend" data-i18n="legend"><b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop</div>
-<svg id="v"></svg><div id="tip"></div>
+<div class="legend" data-i18n="legend"><b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop · detaljer i sidopanelen, som kan skjutas åt höger</div>
+<aside id="side" class="is-collapsed">
+  <div class="rail">
+    <button type="button" id="side-toggle" aria-expanded="false" aria-controls="side-body" data-i18n-title="sideShow" title="Visa detaljer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+  <div class="side-main">
+    <div class="side-scroll" id="side-body"><p class="muted">Hovra över en nod för att se detaljer här.</p></div>
+  </div>
+</aside>
+<svg id="v"></svg><div id="tip"><button type="button" id="tip-x" data-i18n-title="tipClose" title="Stäng" aria-label="Stäng">×</button><div id="tip-body"></div></div>
 <script>/*D3*/</script><script>/*DAG*/</script><script>/*DATA*/</script><script>/*EHRTSlib*/</script>
 <script>
 const C = { paper: "#f3efe6", deep: "#e7e1d4", ink: "#1c2430", muted: "#5c675f", line: "#d5cdbf", card: "#fffdf8", teal: "#0f6e6b", amber: "#c46b1a",
@@ -138,7 +166,10 @@ const I18N = {
     patients: "Patienter:", both: "Båda", syn: "+ 30 syntetiska patienter",
     collapseAll: "Fäll ihop allt", expandInst: "Expandera alla instanser",
     lbl: "Visa mellanliggande etiketter", cascade: "Kaskadavstånd",
-    legend: "<b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop",
+    legend: "<b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop · detaljer i sidopanelen, som kan skjutas åt höger",
+    sideShow: "Visa detaljer", sideHide: "Dölj detaljer",
+    sideEmpty: "Hovra över en nod för att se detaljer här. Sidopanelen kan skjutas åt höger.",
+    tipClose: "Stäng",
     settings: "Inställningar", settingsTitle: "Inställningar",
     language: "Språk", animations: "Animationer",
     animSystem: "Följ systemet", animOn: "Alltid på (standard)", animOff: "Av",
@@ -198,7 +229,10 @@ const I18N = {
     patients: "Patients:", both: "Both", syn: "+ 30 synthetic patients",
     collapseAll: "Collapse everything", expandInst: "Expand all instances",
     lbl: "Show intermediate labels", cascade: "Cascade offset",
-    legend: "<b>━ n</b> bundled links (count) · <b>┄</b> element-level link between expanded nodes · hatched tile = value coded with a terminology · hover anything to trace its path · coloured cluster background: click empty space to collapse",
+    legend: "<b>━ n</b> bundled links (count) · <b>┄</b> element-level link between expanded nodes · hatched tile = value coded with a terminology · hover anything to trace its path · coloured cluster background: click empty space to collapse · details sit in the side panel, which slides away to the right",
+    sideShow: "Show details", sideHide: "Hide details",
+    sideEmpty: "Hover a node to see its details here. The side panel slides away to the right.",
+    tipClose: "Close",
     settings: "Settings", settingsTitle: "Settings",
     language: "Language", animations: "Animations",
     animSystem: "Follow system", animOn: "Always on (default)", animOff: "Off",
@@ -263,8 +297,9 @@ function applyI18n() {
   document.documentElement.lang = S.lang;
   document.title = T("title");
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = T(el.dataset.i18n); });
-  document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.setAttribute("title", T(el.dataset.i18nTitle)); });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => { const label = T(el.dataset.i18nTitle); el.setAttribute("title", label); if (el.id === "tip-x") el.setAttribute("aria-label", label); });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.setAttribute("placeholder", T(el.dataset.i18nPlaceholder)); });
+  if (typeof refreshSide === "function") refreshSide();
   d3.selectAll("[data-lang]").classed("on", function () { return this.dataset.lang === S.lang; });
   idbAll().then(refreshFileList).catch(() => {}); if (typeof refreshPatientButtons === "function") refreshPatientButtons();
   const sys = document.getElementById("sysMotion");
@@ -1470,7 +1505,7 @@ function interpHull(aPts, bPts) {
 // ================= render =================
 let CUR = null;
 function render() {
-  const W = Math.max(1360, innerWidth); svg.attr("width", W); svg.classed("hovering", false);
+  const W = Math.max(1360, innerWidth - dockPx()); svg.attr("width", W); svg.classed("hovering", false);
   if (!firstPaint) PREV = snapPos();
   const Lyr = layers();
   const P = S.off;
@@ -1482,7 +1517,8 @@ function render() {
   const TOPY = 34, systems = ["sct", "icd10", "atc", "npu"], layouts = [];
   const usedCodes = new Set(visNodes.flatMap((e) => e.codes || []));
   const isRootN = (n) => !n.parents.length;
-  const labelled = (n) => S.labelsAll || usedCodes.has(n.id) || n.bound || isRootN(n);
+  const isRootChild = (n) => !!(n && (n.parents || []).some((p) => { const parent = ONT.get(p); return parent && !(parent.parents || []).length; }));
+  const labelled = (n) => S.labelsAll || usedCodes.has(n.id) || n.bound || isRootN(n) || isRootChild(n);
   const liveClusters = recomputeVisibleOnt(usedCodes);
   for (const c of liveClusters) {
     CLU.set(c.id, c);
@@ -1531,16 +1567,16 @@ function render() {
       R.set(v.id, { x: nx, y: ny - 7, yb: ny + 7, kind: "ont" });
       const clId = v.cl ? v.id : (v.n && ONTCLOF.get(v.n.id)) || null;
       if (!v.cl && v.n && ONTCLOF.get(v.n.id) && S.expCl.has(ONTCLOF.get(v.n.id))) { const cid = ONTCLOF.get(v.n.id); (clPts.get(cid) || clPts.set(cid, []).get(cid)).push([nx, ny]); }
-      ontNodes.push({ kind: v.cl ? "cluster" : "ont", id: v.id, sys: L.sys, cl: v.cl, clId, n: v.n, tx: nx, ty: ny, lx: nd.x, ly: nd.y, lines: v.lines, hlines: v.hlines, used: !v.cl && usedCodes.has(v.n.id), root: !v.cl && isRootN(v.n), bound: !v.cl && !!v.n.bound });
+      ontNodes.push({ kind: v.cl ? "cluster" : "ont", id: v.id, sys: L.sys, cl: v.cl, clId, n: v.n, tx: nx, ty: ny, lx: nd.x, ly: nd.y, lines: v.lines, hlines: v.hlines, used: !v.cl && usedCodes.has(v.n.id), root: !v.cl && isRootN(v.n), rootChild: !v.cl && isRootChild(v.n), bound: !v.cl && !!v.n.bound });
     }
     xSys += w + gap;
   }
   if (sx < 0.8) { // crowded DAG (e.g. synthetic cohort): keep only non-overlapping labels per row, used codes first; the rest show on hover
     const rows = d3.group(ontNodes.filter((o) => o.lines && o.lines.length && !o.root), (o) => o.ty);
     for (const row of rows.values()) { const taken = [];
-      row.sort((a, b) => (b.used - a.used) || (a.tx - b.tx));
+      row.sort((a, b) => (b.used - a.used) || (b.rootChild - a.rootChild) || (a.tx - b.tx));
       for (const o of row) { const hw = d3.max(o.lines, (l) => tw(l)) / 2 + 3, a = o.tx - hw, b = o.tx + hw;
-        if (taken.some(([x, y]) => a < y && b > x)) o.lines = []; else taken.push([a, b]); } }
+        if (!o.rootChild && taken.some(([x, y]) => a < y && b > x)) o.lines = []; else taken.push([a, b]); } }
   }
   // ===== MIDDLE =====
   const MIDY = TOPY + topH + 34, Wm = W - 72;
@@ -1674,8 +1710,8 @@ function render() {
       S.expCl.delete(d.id);
       render();
     })
-    .on("pointerenter", (ev, d) => showTip(ev, hullTip(d.id)))
-    .on("pointermove", moveTip)
+    .on("pointerenter", (ev, d) => { const html = hullTip(d.id); if (sideOpen()) { fillSide(() => html); return; } if (noteTipTarget("hull:" + d.id)) showTip(ev, html); })
+    .on("pointermove", (ev) => { if (!sideOpen() && !tipDismissed) moveTip(ev); })
     .on("pointerleave", clear);
   // ===== boxes (middle + bottom) =====
   function styleBox(b, mode) {
@@ -1769,6 +1805,7 @@ function render() {
     const byId = new Map(items.map((d) => [d.id, d]));
     tweenXY(sel.exit(), (d) => exitTarget(d, byId), 0).remove();
     if (events) bindBoxEvents(mer);
+    mer.order();
     return mer;
   }
   function drawBoxes(Ls, mode) {
@@ -1797,6 +1834,7 @@ function render() {
       g.select("rect.labback").style("visibility", "visible");
     });
     tweenXY(lmer, (d) => ({ tx: d.x, ty: d.y }), 1);
+    lmer.order();
     const lBy = new Map(tiles.map((d) => [d.id, d]));
     tweenXY(lsel.exit(), (d) => exitTarget(d, lBy), 0).remove();
     return items;
@@ -1867,7 +1905,7 @@ function render() {
   firstPaint = false;
 }
 function bindBoxEvents(sel) {
-  sel.on("click", (ev, d) => { ev.stopPropagation(); toggle(d); }).on("mouseenter", (ev, d) => { const T = trace(d); apply(T); showTip(ev, tipHtml(d, T)); }).on("mousemove", moveTip).on("mouseleave", clear);
+  sel.on("click", (ev, d) => { ev.stopPropagation(); toggle(d); fillSide(() => tipHtml(d, trace(d))); }).on("mouseenter", (ev, d) => { const Tr = trace(d); apply(Tr); const htmlFn = () => tipHtml(d, trace(d)); if (sideOpen()) fillSide(htmlFn); else if (noteTipTarget(d.id)) showTip(ev, htmlFn()); }).on("mousemove", (ev) => { if (!sideOpen() && !tipDismissed) moveTip(ev); }).on("mouseleave", clear);
 }
 function toggle(d) {
   if (d.kind === "cluster") { S.expCl.add(d.id); }
@@ -1925,7 +1963,7 @@ function clear() {
     restyleLinks(CUR.gXLinks, () => false);
     restyleLinks(CUR.gDagLinks, () => false);
   }
-  tip.style("display", "none");
+  if (sideOpen()) hideTip(); else scheduleHideTip();
 }
 function tipHtml(d, TS) {
   const cnt = (f) => [...TS].filter(f).length;
@@ -1960,8 +1998,60 @@ function hitLink(ev) {
   }
   return false;
 }
-function showTip(ev, html) { tip.html(html).style("display", "block"); moveTip(ev); }
-function moveTip(ev) { tip.style("left", Math.min(innerWidth - 440, ev.clientX + 14) + "px").style("top", Math.min(innerHeight - 180, ev.clientY + 14) + "px"); }
+let tipTimer = 0, tipDismissed = false, tipNode = null, detailFn = null;
+function noteTipTarget(id) {
+  if (tipDismissed && tipNode === id) return false;
+  tipDismissed = false;
+  tipNode = id;
+  return true;
+}
+function sideEl() { return document.getElementById("side"); }
+function sideOpen() { const s = sideEl(); return !!(s && !s.classList.contains("is-collapsed")); }
+function dockPx() { return sideOpen() ? Math.max(44, Math.min(424, Math.round(innerWidth * 0.46))) : 44; }
+function hideTip() { clearTimeout(tipTimer); tip.classed("open", false).style("display", "none"); }
+function scheduleHideTip() {
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => { if (!tip.node().matches(":hover")) hideTip(); }, 400);
+}
+function showTip(ev, html) {
+  if (sideOpen() || tipDismissed) return;
+  clearTimeout(tipTimer);
+  d3.select("#tip-body").html(html);
+  tip.classed("open", true).style("display", "block");
+  moveTip(ev);
+}
+function moveTip(ev) {
+  const maxL = Math.max(8, innerWidth - dockPx() - 440);
+  tip.style("left", Math.max(8, Math.min(maxL, ev.clientX + 14)) + "px").style("top", Math.min(innerHeight - 180, ev.clientY + 14) + "px");
+}
+function refreshSide() {
+  const body = document.getElementById("side-body");
+  if (body) body.innerHTML = detailFn ? detailFn() : `<p class="muted">${T("sideEmpty")}</p>`;
+  const open = sideOpen();
+  document.documentElement.style.setProperty("--dock", dockPx() + "px");
+  const tgl = document.getElementById("side-toggle");
+  if (tgl) {
+    const label = T(open ? "sideHide" : "sideShow");
+    tgl.setAttribute("aria-expanded", open ? "true" : "false");
+    tgl.title = label;
+    tgl.setAttribute("aria-label", label);
+  }
+}
+function fillSide(fn) { detailFn = fn || null; refreshSide(); }
+function setSideOpen(open, rerender) {
+  const side = sideEl();
+  if (!side) return;
+  side.classList.toggle("is-collapsed", !open);
+  try { localStorage.setItem("cdr-v8-side", open ? "open" : "collapsed"); } catch (e) {}
+  refreshSide();
+  hideTip();
+  if (rerender && typeof render === "function") render();
+}
+d3.select("#tip").on("mouseenter", () => clearTimeout(tipTimer)).on("mouseleave", hideTip);
+d3.select("#tip-x").on("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); tipDismissed = true; hideTip(); });
+d3.select("#side-toggle").on("click", (ev) => { ev.stopPropagation(); setSideOpen(!sideOpen(), true); });
+addEventListener("keydown", (ev) => { if (ev.key === "Escape") { tipDismissed = true; hideTip(); } });
+try { if (localStorage.getItem("cdr-v8-side") === "open") setSideOpen(true, false); } catch (e) {}
 if (typeof refreshPatientButtons === "function") refreshPatientButtons();
 d3.select("#syn").on("click", function () { S.synthetic = !S.synthetic; d3.select(this).classed("on", S.synthetic); render(); });
 d3.select("#lbl").on("click", function () { S.labelsAll = !S.labelsAll; d3.select(this).classed("on", S.labelsAll); render(); });
