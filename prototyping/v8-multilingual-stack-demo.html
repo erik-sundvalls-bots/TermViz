@@ -316,7 +316,9 @@ const DEFAULTS = {
   lang: "sv", anim: "on",
   txUrl: "https://tx-nordics.fhir.org/fhir/r4",
   txServers: { sct: "https://tx-nordics.fhir.org/fhir/r4", icd10: "https://tx-nordics.fhir.org/fhir/r4", npu: "https://tx-nordics.fhir.org/fhir/r4", atc: "https://tx.fhir.org/r4" },
-  cacheTtlDays: 60
+  cacheTtlDays: 60,
+  // Expanded archetype/template tiles: "used" = only attributes with values in the shown instances, "all" = every attribute in the model
+  attrMode: { arch: "used", tpl: "used" }
 };
 const SETTINGS_KEY = "cdr-v8-settings";
 const SCT_EDITION = "http://snomed.info/sct/45991000052106";
@@ -379,6 +381,8 @@ const I18N = {
     archOcc: "arketypförekomster",
     labArch: "ARKETYPER (återanvändbara, designtid) · klicka för att öppna som treemap",
     labTpl: "MALLAR (varje mall använder flera arketyper) · klicka för att öppna",
+    attrLabel: "Attribut i öppnade rutor:", attrUsed: "Endast använda", attrAll: "Alla attribut",
+    attrTip: "Endast använda: visa bara attribut som har värden i de visade patienterna. Alla attribut: visa hela modellen.",
     labBot: "PATIENTDATA · innehållsanpassade kaskad-treemaps · klicka ett kort för att krympa det till en blob",
     upBusy: "Tolkar filer…",
     upBusyReload: "Läser in sparade filer…",
@@ -439,6 +443,8 @@ const I18N = {
     archOcc: "archetype occurrences",
     labArch: "ARCHETYPES (reusable, design time) · click to open as treemap",
     labTpl: "TEMPLATES (each uses many archetypes) · click to open",
+    attrLabel: "Attributes in opened tiles:", attrUsed: "Only used", attrAll: "All attributes",
+    attrTip: "Only used: show just the attributes that have values in the shown patients. All attributes: show the whole model.",
     labBot: "PATIENT DATA · content-sized cascaded treemaps · click a card to shrink it to a blob",
     upBusy: "Parsing files…",
     upBusyReload: "Reloading stored files…",
@@ -480,10 +486,12 @@ function loadSettings() {
     else txServers[k] = txServers[k].trim();
   }
   const cacheTtlDays = Number.isFinite(+saved.cacheTtlDays) && +saved.cacheTtlDays > 0 ? +saved.cacheTtlDays : DEFAULTS.cacheTtlDays;
-  return { lang, anim, txUrl, txServers, cacheTtlDays };
+  const am = saved.attrMode || {}, okM = (v) => v === "used" || v === "all";
+  const attrMode = { arch: okM(am.arch) ? am.arch : DEFAULTS.attrMode.arch, tpl: okM(am.tpl) ? am.tpl : DEFAULTS.attrMode.tpl };
+  return { lang, anim, txUrl, txServers, cacheTtlDays, attrMode };
 }
 function persistSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays })); } catch (e) {}
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays, attrMode: S.attrMode })); } catch (e) {}
   const url = new URL(location.href);
   url.searchParams.set("lang", S.lang);
   history.replaceState(null, "", url);
@@ -1215,6 +1223,7 @@ async function ingestText(rec) {
     if ((kindHint === "archetype" || ext === "adl" || ext === "adls") && lib.parseAdl) {
       const r = lib.parseAdl(text);
       const arch = archetypeToOurs(r, rec.id);
+      arch.adlBindings = adlTermBindings(text);
       D.archetypes.push(arch);
       out.ok = true; out.kind = "archetype"; out.message = T("loadedAs") + " " + loc(arch.label); out.models.push(arch.id);
       return out;
@@ -1303,6 +1312,7 @@ async function reloadFromUploads() {
   applyI18n();
   render();
   refreshFileList(files);
+  refreshBindingTargets();
 }
 
 function refreshFileList(files) {
@@ -1341,7 +1351,7 @@ async function storeFiles(fileList, kindHint, fromDirectory) {
     }
   } catch (e) { console.warn("upload", e); }
   finally { setUploadBusy(false); }
-  try { rebuildIndexes(); refreshPatientButtons(); render(); } catch (e) { console.warn("upload render", e); }
+  try { rebuildIndexes(); refreshPatientButtons(); render(); refreshBindingTargets(); } catch (e) { console.warn("upload render", e); }
   refreshFileList(await idbAll());
 }
 
@@ -1413,7 +1423,7 @@ function bindSettings() {
     if (!confirm(T("resetConfirm"))) return;
     await idbClear();
     await txCacheClearAll();
-    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays;
+    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays; S.attrMode = { ...DEFAULTS.attrMode };
     persistSettings();
     syncTxInputs();
     if (ttl) ttl.value = S.cacheTtlDays;
@@ -1425,6 +1435,7 @@ function bindSettings() {
     applyI18n();
     render();
     refreshFileList([]);
+    refreshBindingTargets();
   });
   document.getElementById("upArch").addEventListener("change", (ev) => storeFiles(ev.target.files, "archetype", false));
   document.getElementById("upTpl").addEventListener("change", (ev) => storeFiles(ev.target.files, "template", false));
@@ -1445,9 +1456,38 @@ let ONT, CLU, CLCOL, ancestors, descendants, ARCH, AEL, TPL, TN, synth, ALLPAT, 
 const tplOf = (id) => id.split("|")[0];
 const archOf = (id) => id.split("|")[0];
 const memo = (f) => { const m = new Map(); return (id) => { if (!m.has(id)) m.set(id, f(id)); return m.get(id); }; };
+// SNOMED CT term_bindings from the archetypes' ADL (generated by build8/extract-adl-bindings.py). They bind the at-code of an
+// attribute (ELEMENT/CLUSTER node) or of the archetype root (at0000), not a coded value, and are drawn as archetype -> terminology links.
+const ADL_SCT_BINDINGS = {"openEHR-EHR-CLUSTER.problem_qualifier.v1":{"at0001":"288526004","at0004":"106229004","at0016":"148006","at0017":"5558000","at0060":"410511007","at0061":"410513005","at0062":"15240007","at0077":"288524001","at0018":"14657009","at0064":"8319008","at0066":"85097005"},"openEHR-EHR-EVALUATION.advance_care_directive.v1":{"at0044":"410515003","at0045":"410516002","at0047":"261665006"},"openEHR-EHR-EVALUATION.limitation_of_treatment.v0":{"at0003":"304253006","at0005":"304252001"},"openEHR-EHR-OBSERVATION.blood_pressure.v2":{"at0000":"364090009","at0004":"271649006","at0005":"271650006","at0013":"246153002"},"openEHR-EHR-OBSERVATION.body_mass_index.v2":{"at0004":"60621009"},"openEHR-EHR-OBSERVATION.body_temperature.v2":{"at0004":"386725007"},"openEHR-EHR-OBSERVATION.pulse_oximetry.v1":{"at0006":"431314004","at0015":"16206004","at0018":"448703006","at0054":"277923006"}};
+function adlTermBindings(text) { // uploaded .adl: SNOMED CT term_bindings by at/id code
+  const out = {}, i = (text || "").indexOf("term_bindings"); if (i < 0) return out;
+  const re = /\["((?:at|id)\d+(?:\.\d+)*)"\]\s*=\s*<\[([A-Za-z0-9_\-]+)(?:\([^)]*\))?::([^\]]+)\]>/g; let m;
+  while ((m = re.exec(text.slice(i)))) if (/^snomed/i.test(m[2])) out[m[1]] = m[3].trim();
+  return out;
+}
+function mergeAdlBindings() {
+  for (const a of D.archetypes) {
+    const map = { ...(ADL_SCT_BINDINGS[a.id] || {}), ...(a.adlBindings || {}) }, have = new Set(a.bindings.map((b) => b[0] + "\t" + b[1]));
+    const nodes = []; (function w(n) { nodes.push(n); (n.children || []).forEach(w); })(a.tree);
+    for (const [at, code] of Object.entries(map)) {
+      const isRoot = at === "at0000" || at === "id1";
+      for (const n of nodes) if (isRoot ? n === a.tree : n.id.endsWith("[" + at + "]")) {
+        const c = "sct:" + code; if (!have.has(n.id + "\t" + c)) { a.bindings.push([n.id, c]); have.add(n.id + "\t" + c); } }
+    }
+  }
+}
+const bindingCodes = () => new Set(D.archetypes.flatMap((a) => a.bindings.map((b) => b[1])));
+async function ensureBindingCodes() { // binding targets missing from the bundled ontology: $lookup (subsets, IndexedDB cache, tx server)
+  const miss = [...bindingCodes()].filter((c) => !ONT.has(c));
+  if (!miss.length) return false;
+  await ensureCodes(miss);
+  return miss.some((c) => ONT.has(c));
+}
 function rebuildIndexes() {
+  mergeAdlBindings();
   ONT = new Map(D.ont.nodes.map((n) => [n.id, { ...n, parents: [], kids: [] }]));
   for (const [c, p] of D.ont.edges) { const a = ONT.get(c), b = ONT.get(p); if (a && b && !a.parents.includes(p)) { a.parents.push(p); b.kids.push(c); } }
+  for (const c of bindingCodes()) if (ONT.has(c)) ONT.get(c).bound = true;
   CLU = new Map((D.ont.clusters || []).map((c) => [c.id, c]));
   CLCOL = new Map((D.ont.clusters || []).map((c, i) => [c.id, CLPAL[i % CLPAL.length]]));
   ancestors = memo((id) => { const acc = new Set(), st = [id]; while (st.length) for (const p of ONT.get(st.pop())?.parents || []) if (!acc.has(p)) { acc.add(p); st.push(p); } return acc; });
@@ -1473,7 +1513,7 @@ function rebuildIndexes() {
   for (const p of ALLPAT) (function w(n, par) { INST.set(n.id, { n, par, pat: p }); (n.children || []).forEach((c) => w(c, n)); })(p, null);
 }
 const _boot = loadSettings();
-const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays };
+const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays, attrMode: _boot.attrMode };
 S.txUrl = S.txServers.sct || S.txUrl;
 rebuildIndexes();
 S.collapsed = new Set(synth.map((p) => p.id));
@@ -1553,7 +1593,8 @@ function layers() {
   const gTop = svg.append("g").attr("class", "top");
   const gLab = svg.append("g").attr("class", "elabs");
   const gBadges = svg.append("g").attr("class", "badges").style("pointer-events", "none");
-  LYS = { defs, gBands, gHulls, gExp, gXLinks, gCol, gDagLinks, gTop, gLab, gBadges };
+  const gCtl = svg.append("g").attr("class", "ctl");
+  LYS = { defs, gBands, gHulls, gExp, gXLinks, gCol, gDagLinks, gTop, gLab, gBadges, gCtl };
   return LYS;
 }
 function snapPos() {
@@ -1677,7 +1718,9 @@ function render() {
   const usedCodes = new Set(visNodes.flatMap((e) => e.codes || []));
   const isRootN = (n) => !n.parents.length;
   const labelled = (n) => S.labelsAll || usedCodes.has(n.id) || n.bound || isRootN(n);
-  const liveClusters = recomputeVisibleOnt(usedCodes);
+  // archetype term bindings (attribute or root at-codes) must reach the DAG too, not only codes of instance values
+  const bindCodes = [...bindingCodes()].filter((c) => ONT.has(c));
+  const liveClusters = recomputeVisibleOnt(new Set([...usedCodes, ...bindCodes]));
   for (const c of liveClusters) {
     CLU.set(c.id, c);
     if (!CLCOL.has(c.id)) CLCOL.set(c.id, CLPAL[CLCOL.size % CLPAL.length]);
@@ -1742,12 +1785,19 @@ function render() {
   for (const e of elems) for (const c of e.codes || []) archCodes.get(e.aid)?.add(c);
   const bx = (a) => { const xs = [...archCodes.get(a.id)].map((c) => R.get(repOnt(c))?.x).filter((v) => v != null); return xs.length ? d3.mean(xs) : W / 2; };
   const archList = D.archetypes.slice().sort((a, b) => bx(a) - bx(b));
-  const midCfg = (isArch) => ({ reorder: (n) => !isArch && (n.k === "section" || TPL.get(tplOf(n.id))?.tree === n), p: P, g: 2, leafMax: 150, maxW: Wm, aspect0: 2.6, badge: true,
-    kids: (n) => n.children || [], isCollapsed: (n) => !n.children.length ? false : (isArch ? n.k === "archetype" && n.id.endsWith("|/") && !S.expArch.has(n.aid) : n === TPL.get(tplOf(n.id))?.tree && !S.expTpl.has(tplOf(n.id))),
+  const midCfg = (isArch) => ({ reorder: (n) => !isArch && (n.k === "section" || TPL.get(tplOf(n.id))?.tree?.id === n.id), p: P, g: 2, leafMax: 150, maxW: Wm, aspect0: 2.6, badge: true,
+    kids: (n) => n.children || [], isCollapsed: (n) => !n.children.length ? false : (isArch ? n.k === "archetype" && n.id.endsWith("|/") && !S.expArch.has(n.aid) : n.id === TPL.get(tplOf(n.id))?.tree?.id && !S.expTpl.has(tplOf(n.id))),
     label: (n) => loc(n.name), sub: () => "",
     count: (n) => subtree(n).filter((x) => x.k === "element").length, kind: (n, d) => d === 0 ? (isArch ? "archetype" : "template") : n.k });
-  const arL = archList.map((a) => boxLayout(a.tree, midCfg(true)));
-  const tpL = D.templates.map((t) => boxLayout(t.tree, midCfg(false)));
+  // "Endast använda": keep only attributes with values in the shown instances (plus their containers); "Alla attribut": the full model tree
+  const usedArchEl = new Set(elems.map((e) => e.archEl)), usedTn = new Set(elems.map((e) => e.tnode));
+  const prune = (n, keep) => { const ch = n.children || [], kids = ch.map((c) => prune(c, keep)).filter(Boolean);
+    if (n.k === "element") return keep.has(n.id) ? n : null;
+    if (!kids.length && !keep.has(n.id)) return null;
+    return kids.length === ch.length && kids.every((k, i) => k === ch[i]) ? n : { ...n, children: kids }; };
+  const shownTree = (root, mode, keep) => mode === "all" ? root : (prune(root, keep) || { ...root, children: [] });
+  const arL = archList.map((a) => boxLayout(shownTree(a.tree, S.attrMode.arch, usedArchEl), midCfg(true)));
+  const tpL = D.templates.map((t) => boxLayout(shownTree(t.tree, S.attrMode.tpl, usedTn), midCfg(false)));
   const rowPack = (Ls, y0) => { const r = skyline(Ls, Wm, 15); const offX = 36 + Math.max(0, (Wm - r.w) / 2); Ls.forEach((L, i) => place(L, offX + r.pos[i].x, y0 + r.pos[i].y, L.all = [])); return r.h; };
   const ARY = MIDY + 30, arH = rowPack(arL, ARY), TRY = ARY + arH + 70, trH = rowPack(tpL, TRY), MIDH = TRY + trH + 26 - MIDY;
   // ===== BOTTOM =====
@@ -1789,6 +1839,35 @@ function render() {
     else if (d.type === "lab") { s.text(d.text); anim(s).attr("x", d.x).attr("y", d.y); }
   });
   bSel.exit().call((s) => anim(s).style("opacity", 0).remove());
+  // ===== attribute switch per layer (archetypes, templates): only used attributes vs all =====
+  const ctlW = (t) => tw(t, 10.5, 600) + 14;
+  const ctls = [{ layer: "arch", y: MIDY + 4 }, { layer: "tpl", y: TRY - 10 }].map((c) => {
+    const opts = [{ v: "used", t: T("attrUsed") }, { v: "all", t: T("attrAll") }]; let x = 0;
+    opts.forEach((o) => { o.w = ctlW(o.t); o.x = x; x += o.w; });
+    const lw = tw(T("attrLabel"), 10.5, 400) + 8;
+    return { ...c, id: "attr-" + c.layer, opts, lw, x: W - 36 - x - lw };
+  });
+  const cSel = Lyr.gCtl.selectAll("g.attr-tog").data(ctls, (d) => d.id);
+  const cEnt = cSel.enter().append("g").attr("class", "attr-tog").attr("transform", (d) => `translate(${d.x},${d.y})`);
+  cEnt.append("title");
+  cEnt.append("text").attr("class", "attr-lab").attr("font-size", 10.5).attr("fill", C.muted).attr("y", 0);
+  const cMer = cEnt.merge(cSel);
+  cMer.attr("data-layer", (d) => d.layer).select("title").text(T("attrTip"));
+  cMer.select("text.attr-lab").text(T("attrLabel"));
+  cMer.each(function (c) {
+    const g = d3.select(this);
+    const o = g.selectAll("g.opt").data(c.opts, (d) => d.v);
+    const oe = o.enter().append("g").attr("class", "opt").style("cursor", "pointer");
+    oe.append("rect").attr("y", -11).attr("height", 15).attr("rx", 0).attr("stroke-width", 0.8);
+    oe.append("text").attr("y", 0).attr("text-anchor", "middle").attr("font-size", 10.5).attr("font-weight", 600);
+    const om = oe.merge(o).attr("data-v", (d) => d.v).attr("transform", (d) => `translate(${c.lw + d.x},0)`);
+    const on = (d) => S.attrMode[c.layer] === d.v;
+    om.select("rect").attr("width", (d) => d.w).attr("fill", (d) => on(d) ? C.teal : C.card).attr("stroke", (d) => on(d) ? C.teal : C.line);
+    om.select("text").attr("x", (d) => d.w / 2).attr("fill", (d) => on(d) ? "#fff" : C.ink).text((d) => d.t);
+    om.on("click", (ev, d) => { ev.stopPropagation(); if (on(d)) return; S.attrMode = { ...S.attrMode, [c.layer]: d.v }; persistSettings(); clear(); render(); });
+  });
+  anim(cMer).attr("transform", (d) => `translate(${d.x},${d.y})`);
+  cSel.exit().remove();
   // ===== ontology nodes =====
   function drawOnt(nodes) {
     const sel = Lyr.gTop.selectAll("g.box.ontn").data(nodes, (d) => d.id);
@@ -2001,7 +2080,9 @@ function render() {
   const newById = new Map(ontNodes.map((d) => [d.id, d]).concat(allBox.map((d) => [d.id, d])));
   // ===== cross-layer links =====
   const agg = new Map();
-  const add = (fam, a, b, pair, coarse) => { const ra = rep(a), rb = rep(b); if (!R.has(ra) || !R.has(rb)) return; const k = fam + "§" + ra + "§" + rb;
+  const drawnRep = (id) => { let cur = id, r = rep(cur); // attribute hidden by "Endast använda": anchor at its nearest drawn container
+    while (!R.has(r)) { const e = AEL.get(cur) || TN.get(cur); if (!e || !e.par) break; cur = e.par.id; r = rep(cur); } return r; };
+  const add = (fam, a, b, pair, coarse) => { const ra = drawnRep(a), rb = drawnRep(b); if (!R.has(ra) || !R.has(rb)) return; const k = fam + "§" + ra + "§" + rb;
     if (!agg.has(k)) agg.set(k, { fam, a: ra, b: rb, pairs: [], fineA: true, fineB: true }); const L = agg.get(k); L.pairs.push(pair); if (ra !== a || coarse) L.fineA = false; if (rb !== b || coarse) L.fineB = false; };
   const archInstNodes = pats.flatMap((p) => subtree(p)).filter((n) => n.arch && ARCH.has(n.arch));
   const comps = pats.flatMap((p) => p.children);
@@ -2057,7 +2138,9 @@ function render() {
   anim(bgM).attr("transform", (l) => `translate(${l.mid[0]},${l.mid[1]})`).attr("opacity", 0.35);
   anim(bg.exit()).attr("opacity", 0).remove();
   CUR = { links, gXLinks: Lyr.gXLinks, gDagLinks: Lyr.gDagLinks, gBadges: Lyr.gBadges };
-  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patient: S.patient, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, txStatus: txLastStatus, ehrts: (window.EHRTSlib && window.EHRTSlib.EHRTSlibVersion) || null };
+  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patient: S.patient, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, attrMode: { ...S.attrMode },
+    midEls: { arch: midItems.filter((d) => d.kind === "arch" && d.n.k === "element").length, tpl: midItems.filter((d) => d.kind === "tpl" && d.n.k === "element").length },
+    acLinks: xLinks.filter((l) => l.fam === "ac").map((l) => ({ a: l.a, b: l.b, cnt: l.cnt, pairs: l.pairs })), txStatus: txLastStatus, ehrts: (window.EHRTSlib && window.EHRTSlib.EHRTSlibVersion) || null };
   firstPaint = false;
 }
 function bindBoxEvents(sel) {
@@ -2164,10 +2247,11 @@ d3.select("#expandInst").on("click", () => { S.collapsed = new Set(synth.map((p)
 d3.select("#off").on("input", function () { S.off = +this.value; d3.select("#offv").text(this.value); render(); });
 let lastW = innerWidth; addEventListener("resize", () => { if (Math.abs(innerWidth - lastW) > 30) { lastW = innerWidth; render(); } });
 window.V8S = S; window.V8render = render; window.V8toggle = toggle; window.V8data = () => D;
-window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll };
+window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll, refreshBindingTargets };
 applyI18n();
 bindSettings();
 loadSwedishSubsets().then(() => applySubsetLabelsToOnt()).catch((e) => console.warn("subset load", e));
+function refreshBindingTargets() { return ensureBindingCodes().then((added) => { if (added) render(); }).catch((e) => console.warn("binding targets", e)); }
 window.__v8IngestTexts = async function (recs) {
   for (const rec of recs) {
     const r = await ingestText(rec);
@@ -2177,6 +2261,7 @@ window.__v8IngestTexts = async function (recs) {
     await idbPut(slim);
   }
   rebuildIndexes();
+  await ensureBindingCodes().catch((e) => console.warn("binding targets", e));
   refreshPatientButtons();
   render();
   refreshFileList(await idbAll());
@@ -2185,5 +2270,6 @@ window.__v8IngestTexts = async function (recs) {
 persistSettings();
 idbAll().then((files) => { if (files.length) return reloadFromUploads(); refreshFileList(files); }).catch((e) => console.warn(e));
 render();
+refreshBindingTargets();
 
 </script></html>
