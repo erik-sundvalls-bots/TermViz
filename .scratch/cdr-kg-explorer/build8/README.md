@@ -17,6 +17,9 @@ The scripts expect this layout: `variants/build8/` (this folder) next to `varian
   * new precomputed clusters, `sct:cl25` and up. Existing nodes and clusters are left untouched.
 * `synth/pool.py` is the clinical pool: problems, medications, labs, procedures, allergies and vaccines.
 * `synth/lk.py` and `synth/ex.py` are small helpers for SNOMED CT `$lookup` and `$expand` searches.
+* `extract-adl-bindings.py` prints the `ADL_SCT_BINDINGS` constant in `v8-src.html`: SNOMED CT `term_bindings` per archetype at-code from `public/models/ips-fileset/archetypes`. The app maps them onto attribute nodes (and the root for at0000), adds them to the archetype bindings and fetches missing target concepts with `$lookup` (cached in IndexedDB). LOINC bindings are skipped because there is no LOINC band.
+* Expanded archetype and template tiles have a per-layer switch, "Endast använda" (default: only attributes with values in the shown patients) or "Alla attribut". The choice is saved with the other settings (`attrMode`).
+* `test-v8-attr-bindings.mjs [shot-dir]` checks the blood pressure attribute bindings (links, hover) and the attribute switch.
 * `snap8-synth.mjs` and `snap8-synth-dist.mjs` are headless Chrome checks using playwright-core: the default views compared against a baseline, the problem distribution, and screenshots.
 
 Rebuild:
