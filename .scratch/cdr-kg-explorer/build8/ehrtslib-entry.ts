@@ -1,4 +1,4 @@
-/** Browser entry for the V8 demo. Imports parse/serialize APIs from local ehrtslib v0.12. Does not modify the ehrtslib repo. */
+/** Browser entry for the V8 demo. Imports parse/serialize APIs from a local ehrtslib checkout (build-ehrtslib.ts rewrites the paths and the version). Does not modify the ehrtslib repo. */
 export { parseAdl } from "../../../ehrtslib-rel/parser/parse_adl.ts";
 export { parseTemplateInput } from "../../../ehrtslib-rel/parser/legacy/parse_template_input.ts";
 export { parseOptXml } from "../../../ehrtslib-rel/parser/legacy/opt_xml_parser.ts";

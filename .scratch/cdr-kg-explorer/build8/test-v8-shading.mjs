@@ -4,6 +4,7 @@
 // painted after its children covers them with its opaque card, leaving only the labels (the bug Erik saw on the live V8).
 // Scenarios: open one after another (later-ordered first), reopen during a running transition, Only used <-> All attributes
 // (full archetype load), language switch, mouse clicks while a transition runs.
+// Layout: subtree extents of top-level tiles (per band) and of nested siblings must not overlap.
 // Usage: node test-v8-shading.mjs [screenshot-dir] [screenshot-prefix]
 import { chromium } from "playwright-core";
 import { createServer } from "http";
@@ -51,7 +52,18 @@ const check = () => page.evaluate(() => {
     let p = d.parentId;
     while (p && idx.has(p)) { if (idx.get(p) > idx.get(d.id)) { bad.push(["covered by", p, d.id]); break; } p = byId.get(p).__data__.parentId; }
   }
-  return { tiles: n, bad: bad.length, sample: bad.slice(0, 3) };
+  // layout overlap: subtree extents (card of a tile plus all its descendants' cards) of top-level tiles, and of nested siblings
+  const items = [...document.querySelectorAll("g.exp g.box, g.col g.box")].map((g) => g.__data__).filter((d) => d && (d.kind === "arch" || d.kind === "tpl"));
+  const kids = new Map(); for (const d of items) if (d.parentId) { if (!kids.has(d.parentId)) kids.set(d.parentId, []); kids.get(d.parentId).push(d); }
+  const ext = new Map(), extent = (d) => { if (ext.has(d.id)) return ext.get(d.id); let e = { x0: d.x, y0: d.y, x1: d.x + d.w, y1: d.y + d.h };
+    for (const k of kids.get(d.id) || []) { const c = extent(k); e = { x0: Math.min(e.x0, c.x0), y0: Math.min(e.y0, c.y0), x1: Math.max(e.x1, c.x1), y1: Math.max(e.y1, c.y1) }; } ext.set(d.id, e); return e; };
+  const hit = (a, b) => a.x0 < b.x1 - 0.5 && b.x0 < a.x1 - 0.5 && a.y0 < b.y1 - 0.5 && b.y0 < a.y1 - 0.5;
+  const overlaps = [], groups = [["top", items.filter((d) => !d.parentId)]].concat([...kids.entries()]);
+  for (const [pid, list] of groups) for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+    if (pid === "top" && list[i].kind !== list[j].kind) continue; // archetype and template rows are separate bands
+    if (hit(extent(list[i]), extent(list[j]))) overlaps.push([pid === "top" ? "top-level" : "siblings", list[i].id.slice(-50), list[j].id.slice(-50)]); }
+  const opened = items.filter((d) => !d.parentId && !d.blob && (kids.get(d.id) || []).length).length;
+  return { tiles: n, opened, bad: bad.length + overlaps.length, overlaps: overlaps.length, sample: bad.concat(overlaps).slice(0, 3) };
 });
 const out = { scenarios: {}, errors: errs };
 const run = async (name, steps, shot) => {
@@ -85,6 +97,9 @@ await run("toggle used/all", [() => page.locator("g.attr-tog[data-layer=tpl] g.o
   () => page.locator("g.attr-tog[data-layer=arch] g.opt[data-v=used]").click(), wait(200),
   () => page.locator("g.attr-tog[data-layer=arch] g.opt[data-v=all]").click(), wait(100),
   () => page.locator("g.attr-tog[data-layer=tpl] g.opt[data-v=used]").click()]);
+// 5b. everything open, All attributes on both layers (largest subtrees, full archetypes)
+await run("all open, all attributes", [() => render(() => { for (const a of V8data().archetypes) V8S.expArch.add(a.id); for (const t of V8data().templates) V8S.expTpl.add(t.id); V8S.attrMode = { arch: "all", tpl: "all" }; V8render(); }),
+  () => page.waitForFunction(() => Object.values(window.__state.archFull || {}).length >= window.V8data().archetypes.length && Object.values(window.__state.archFull).every((x) => x.state !== "loading"), null, { timeout: 90000 })], "all-open");
 // 6. real mouse clicks on collapsed pills while a transition runs
 await reset(); await page.waitForTimeout(SETTLE);
 const clickPill = async (id) => { const b = await page.evaluate((i) => { const g = d3.selectAll("g.col g.box").filter((d) => d.id === i).node(); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; }, id); if (b) await page.mouse.click(b.x, b.y); };

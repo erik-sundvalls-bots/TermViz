@@ -1344,9 +1344,29 @@ function adlDefinitionFrames(text) { // brace-structured scan of the definition 
     buf += c; i++; }
   return root;
 }
-function adlFullTree(text, aid, prevTree) { // -> { tree, label, adlBindings, nAttr } in the same id scheme as the OPT-derived trees (aid|/rel path)
-  const frames = adlDefinitionFrames(text); if (!frames) return null;
-  const texts = adlTermTexts(text), en = texts.en || {}, sv = texts.sv || {};
+// ehrtslib parseAdl output (AOM; ADL 1.4 is converted but keeps its at-codes) -> the same frame/term/binding shapes as the text scanner
+function aomParts(parsed) {
+  const a = parsed?.archetype || parsed, V = (x) => (x && typeof x === "object" && "value" in x) ? x.value : x;
+  if (!a?.definition) return null;
+  const pats = (xs) => [...JSON.stringify(xs || []).matchAll(/"_?pattern":\{"value":"((?:[^"\\]|\\.)*)"\}/g)].map((m) => JSON.parse('"' + m[1] + '"'));
+  const attr = (t) => ({ kind: "attr", name: String(V(t._rm_attribute_name ?? t.rm_attribute_name) || ""), kids: (t.children || []).map(obj), text: "" });
+  const obj = (o) => {
+    const type = String(V(o._rm_type_name ?? o.rm_type_name) || ""), c = V(o._node_id ?? o.node_id), code = typeof c === "string" && /^(at|id)[\d.]+$/.test(c) ? c : null;
+    const isSlot = o.includes || o.excludes || o.constructor?.name === "ARCHETYPE_SLOT";
+    if (isSlot) return { kind: "slot", type, code, kids: [], text: pats(o.includes).map((p) => `{/${p}/}`).join(" ") + " exclude " + pats(o.excludes).map((p) => `{/${p}/}`).join(" ") };
+    if (o.target_path || o._target_path) return { kind: "other", kids: [], text: "" }; // use_node
+    return { kind: "obj", type, code, kids: (o.attributes || []).map(attr), text: "" };
+  };
+  const ont = a.ontology || a.terminology || {}, texts = {}, bindings = {};
+  for (const [lang, defs] of Object.entries(ont.term_definitions || {})) { texts[lang] = {}; for (const [code, d] of Object.entries(defs || {})) { const t = V(d?.text ?? d?._text); if (t != null) texts[lang][code] = String(t); } }
+  for (const [sys, items] of Object.entries(ont.term_bindings || {})) { if (!/snomed/i.test(sys)) continue;
+    for (const [code, v] of Object.entries(items || {})) { if (!/^(at|id)[\d.]+$/.test(code)) continue; const str = typeof v === "string" ? v : String(V(v?.code_string) ?? V(v?.value) ?? JSON.stringify(v));
+      const m = str.match(/::\s*(\d+)/) || str.match(/\/id\/(\d+)/) || str.match(/(\d{6,18})\D*$/); if (m) bindings[code] = m[1]; } }
+  return { frames: { kind: "top", kids: [obj(a.definition)], text: "" }, texts, bindings };
+}
+function adlFullTree(text, aid, prevTree, pre) { // -> { tree, label, adlBindings, nAttr } in the same id scheme as the OPT-derived trees (aid|/rel path); pre = aomParts(...) or none (text scanner)
+  const frames = pre ? pre.frames : adlDefinitionFrames(text); if (!frames) return null;
+  const texts = pre ? pre.texts : adlTermTexts(text), en = texts.en || {}, sv = texts.sv || {};
   const nm = (code) => { const e = en[code] || Object.values(texts)[0]?.[code] || code, s = sv[code]; return s && s !== e ? { sv: s, en: e } : e; };
   const rootObj = frames.kids.find((f) => f.kind === "obj"); if (!rootObj) return null;
   const old = new Map(), oldSlots = []; if (prevTree) (function w(n) { if (n !== prevTree) { old.set(n.id, n); if (n.k === "slot") oldSlots.push(n); } (n.children || []).forEach(w); })(prevTree);
@@ -1383,7 +1403,7 @@ function adlFullTree(text, aid, prevTree) { // -> { tree, label, adlBindings, nA
   prune(tree);
   for (const [id, n] of old) if (!used.has(id) && n.k !== "cluster" && !tree.children.includes(n)) { const placed = (function f(x) { return x.id === id || (x.children || []).some(f); })(tree); if (!placed) tree.children.push(n); } // keep OPT-only nodes
   let nAttr = 0; (function w(x) { if (x.k === "element") nAttr++; (x.children || []).forEach(w); })(tree);
-  return { tree, label, adlBindings: adlTermBindings(text), nAttr };
+  return { tree, label, adlBindings: pre ? pre.bindings : adlTermBindings(text), nAttr };
 }
 
 // ----- full archetype source, fetch and IndexedDB cache -----
@@ -1437,9 +1457,20 @@ async function loadFullArchetypeText(aid) { // IndexedDB cache (TTL = lookup cac
   }
   throw new Error(errs.join("; "));
 }
+function parseFullArchetype(text, aid, prevTree) { // ehrtslib parseAdl first; the built-in ADL 1.4 scanner only if ehrtslib throws or yields nothing
+  const lib = ehr(), ver = lib.EHRTSlibVersion || "?"; let r = null, why = "";
+  if (lib.parseAdl) { try { const parts = aomParts(lib.parseAdl(text)); r = parts && adlFullTree(text, aid, prevTree, parts); if (r && !r.nAttr) { why = "no attributes"; r = null; } }
+    catch (e) { why = String(e && e.message || e).slice(0, 200); r = null; } }
+  else why = "parseAdl missing";
+  if (r) { r.parser = "ehrtslib " + ver; console.info(`[V8] full archetype ${aid}: parsed with ehrtslib ${ver} parseAdl`); return r; }
+  r = adlFullTree(text, aid, prevTree); if (r) r.parser = "built-in ADL 1.4 scanner";
+  console.warn(`[V8] full archetype ${aid}: ehrtslib ${ver} parseAdl failed (${why}); used the built-in ADL 1.4 scanner`);
+  return r;
+}
 function applyFullArchetype(a) { // swap the OPT-derived tree for the full archetype tree (same node ids), merge its SNOMED CT bindings
   const f = FULLADL.get(a.id); if (!f || a.fullSrc === f.src) return;
-  const r = adlFullTree(f.text, a.id, a.tree); if (!r || !r.nAttr) return;
+  const r = parseFullArchetype(f.text, a.id, a.tree); if (!r || !r.nAttr) return;
+  const st = ARCHFULL.get(a.id); if (st) st.parser = r.parser; a.fullParser = r.parser;
   if (typeof a.label === "string" && typeof r.label === "object" && r.label.en === a.label) { a.label = r.label; r.tree.name = r.label; }
   a.optTree = a.optTree || a.tree; a.tree = r.tree; a.adlBindings = { ...(a.adlBindings || {}), ...r.adlBindings }; a.fullSrc = f.src;
 }
@@ -1548,11 +1579,14 @@ function boxLayout(n, cfg, depth = 0) {
   const kids = cfg.kids(n), collapsed = cfg.isCollapsed(n), lab = cfg.label(n), hpx = HDR[cfg.kind(n, depth)] || 10.5;
   if (collapsed) { const cnt = cfg.count(n); const w = tw(lab, 11, 600) + 16 + (cnt ? tw(String(cnt), 9.5, 700) + 12 : 0); return { n, depth, blob: true, w: Math.max(40, w), h: 20, kids: [] }; }
   if (!kids.length) { const sub = cfg.sub(n), w = Math.min(cfg.leafMax, Math.max(tw(lab, 10, 600), sub ? tw(sub, 10) : 0) + 9); return { n, depth, leaf: true, w: Math.max(26, w), h: sub ? 25 : 15, sub, kids: [] }; }
-  const ks = kids.map((k) => boxLayout(k, cfg, depth + 1)), p = cfg.p, g = cfg.g, Lh = hpx + 5, labW = tw(lab, hpx, 700) + 10 + (cfg.badge ? 18 : 0);
-  const minW = Math.max(d3.max(ks, (k) => k.w) || 0, labW - p || 0);
-  const r = packBest(ks, minW, Math.max(minW, (depth === 0 ? cfg.maxW : cfg.maxW * 0.9) - p), g, depth === 0 ? cfg.aspect0 : 1.8, depth === 0 ? 1 : 0.45, cfg.reorder ? cfg.reorder(n) : false);
+  const ks = kids.map((k) => boxLayout(k, cfg, depth + 1)), p = cfg.p, Lh = hpx + 5, labW = tw(lab, hpx, 700) + 10 + (cfg.badge ? 18 : 0);
+  // Bigger subtrees get a little more air (still tight): sibling gaps +0..3 px and an inner margin +0..2 px (keeps >= 1 px cascade overhang)
+  const nDesc = ks.reduce((s, k) => s + 1 + (k.nDesc || 0), 0), grow = Math.min(3, Math.round(Math.log2(1 + nDesc) / 2));
+  const g = cfg.g + grow, m = Math.max(0, Math.min(grow, p - 1));
+  const minW = Math.max(d3.max(ks, (k) => k.w) || 0, labW - p - m || 0);
+  const r = packBest(ks, minW, Math.max(minW, (depth === 0 ? cfg.maxW : cfg.maxW * 0.9) - p - m), g, depth === 0 ? cfg.aspect0 : 1.8, depth === 0 ? 1 : 0.45, cfg.reorder ? cfg.reorder(n) : false);
   ks.forEach((k, i) => { k.rx = p + r.pos[i].x; k.ry = Lh + r.pos[i].y; });
-  return { n, depth, w: Math.max(r.w + p, labW), h: Lh + r.h, Lh, hpx, kids: ks };
+  return { n, depth, w: Math.max(r.w + p + m, labW), h: Lh + r.h + m, Lh, hpx, kids: ks, nDesc };
 }
 function place(L, x, y, out, parentId) { L.x = x; L.y = y; L.parentId = parentId || null; out.push(L); for (const k of L.kids) place(k, x + k.rx, y + k.ry, out, L.n.id); return out; }
 // ================= motion & persistent layers =================
@@ -1790,7 +1824,8 @@ function render() {
   const shownTree = (root, mode, keep) => mode === "all" ? root : (prune(root, keep) || { ...root, children: [] });
   const arL = archList.map((a) => boxLayout(shownTree(a.tree, S.attrMode.arch, usedArchEl), midCfg(true)));
   const tpL = D.templates.map((t) => boxLayout(shownTree(t.tree, S.attrMode.tpl, usedTn), midCfg(false)));
-  const rowPack = (Ls, y0) => { const r = skyline(Ls, Wm, 15); const offX = 36 + Math.max(0, (Wm - r.w) / 2); Ls.forEach((L, i) => place(L, offX + r.pos[i].x, y0 + r.pos[i].y, L.all = [])); return r.h; };
+  // gap between top-level tiles grows a little with the largest opened subtree (15 px closed, up to 24 px)
+  const rowPack = (Ls, y0) => { const big = d3.max(Ls, (L) => L.nDesc || 0) || 0, r = skyline(Ls, Wm, 15 + Math.min(9, Math.round(Math.log2(1 + big)))); const offX = 36 + Math.max(0, (Wm - r.w) / 2); Ls.forEach((L, i) => place(L, offX + r.pos[i].x, y0 + r.pos[i].y, L.all = [])); return r.h; };
   const ARY = MIDY + 30, arH = rowPack(arL, ARY), TRY = ARY + arH + 70, trH = rowPack(tpL, TRY), MIDH = TRY + trH + 26 - MIDY;
   // ===== BOTTOM =====
   const BOTY = MIDY + MIDH + 40;
@@ -2200,7 +2235,7 @@ function clear() {
   tip.style("display", "none");
 }
 function archSrcNote(a) { const st = ARCHFULL.get(a.id);
-  if (a.fullSrc) return `${T("archFullFrom")} <code>${a.fullSrc}</code>`;
+  if (a.fullSrc) return `${T("archFullFrom")} <code>${a.fullSrc}</code>${a.fullParser ? ` · ${a.fullParser}` : ""}`;
   if (st?.state === "loading") return `<i>${T("archLoading")}</i>`;
   if (st?.state === "err") return `${T("archFullFail")} <code>${st.err}</code>`;
   return a.uploaded ? "" : T("archFromOpt"); }
@@ -2248,7 +2283,7 @@ d3.select("#off").on("input", function () { S.off = +this.value; d3.select("#off
 let lastW = innerWidth; addEventListener("resize", () => { if (Math.abs(innerWidth - lastW) > 30) { lastW = innerWidth; render(); } });
 window.V8S = S; window.V8render = render; window.V8toggle = toggle; window.V8data = () => D;
 window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll, refreshBindingTargets };
-window.__v8Arch = { archSources, fetchFromSource, loadFullArchetypeText, ensureFullArchetypes, adlFullTree, adlCacheCount, adlCacheClearAll, adlCacheGet, resetFullArchetypes };
+window.__v8Arch = { aomParts, parseFullArchetype, archSources, fetchFromSource, loadFullArchetypeText, ensureFullArchetypes, adlFullTree, adlCacheCount, adlCacheClearAll, adlCacheGet, resetFullArchetypes };
 applyI18n();
 bindSettings();
 loadSwedishSubsets().then(() => applySubsetLabelsToOnt()).catch((e) => console.warn("subset load", e));

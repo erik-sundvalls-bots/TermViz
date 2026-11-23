@@ -75,6 +75,7 @@ await settle(1600);
 let s = await st();
 out.full.state = s.archFull[BP];
 out.full.all = await bpTiles();
+out.full.parser = (await st()).archFull[BP]?.parser || null; // ehrtslib parseAdl, built-in scanner only as fallback
 out.full.bindings = await page.evaluate((bp) => window.V8data().archetypes.find((a) => a.id === bp).bindings.map((b) => b[0].split("|")[1] + " -> " + b[1]), BP);
 await page.waitForTimeout(2500); // binding target lookups (cuff size 246153002)
 s = await st();
@@ -100,7 +101,7 @@ await page.evaluate(async () => { localStorage.removeItem("cdr-v8-settings"); aw
 const want = ["Mean arterial pressure", "Pulse pressure", "Comment", "Position", "Cuff size", "Location of measurement", "Method"];
 out.full.missing = want.filter((w) => !out.full.all.includes(w));
 const ok = hov.hi > 0 && hov.other > 0 && hov.otherMinOpacity >= 0.8 && hov.hiMinOpacity === 1 &&
-  out.full.used.length === 2 && out.full.state.state === "ok" && out.full.missing.length === 0 && out.full.all.length > 15 &&
+  out.full.used.length === 2 && out.full.state.state === "ok" && /^ehrtslib 0\.1[6-9]/.test(out.full.parser || "") && out.full.missing.length === 0 && out.full.all.length > 15 &&
   out.full.bindings.some((b) => b.includes("at0013") && b.includes("246153002")) && out.full.cached && out.full.usedAgain.length === 2 &&
   out.full.afterReload.state.cached === true && out.full.afterReload.adlRequests === 0 && errs.length === 0;
 out.ok = ok;
