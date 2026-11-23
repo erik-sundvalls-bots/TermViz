@@ -17,6 +17,8 @@ svg text{pointer-events:none}
 @media (prefers-reduced-motion: reduce){.dimmable{transition:none}}
 svg.layouting .dimmable{transition:none!important}
 svg.hovering:not(.layouting) .dimmable{opacity:.12}
+/* hover keeps the thin links between other nodes visible; only the traced path is emphasised */
+svg.hovering:not(.layouting) path.lk.dimmable:not(.hi),svg.hovering:not(.layouting) g.lk-badge.dimmable:not(.hi){opacity:.85}
 svg.hovering:not(.layouting) .dimmable.hi{opacity:1}
 svg.hovering:not(.layouting) path.lk.hi{stroke-opacity:.95!important}
 svg.hovering:not(.layouting) .hi>rect.card,svg.hovering:not(.layouting) .hi>circle{stroke:#1c2430!important;stroke-width:2px!important}
@@ -56,7 +58,7 @@ header{position:relative}
 </style>
 <header><span class="ex" data-i18n="ex">EXEMPELDATA · fiktiva patienter (Eva Holmgren, Lars Nyström), rimliga värden<br>”*” = påhittat möte/mall · ”Syntetisk nn” = syntetiska patienter</span>
 <h1 data-i18n="h1">V8 · Flerspråkig hopfällbar trestegsstack: klustring i terminologi-DAG · arketyper över mallar · innehållsanpassade kaskad-treemaps för instanser</h1>
-<div class="sub" data-i18n="sub">Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.</div></header>
+<div class="sub" data-i18n="sub">Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376; i läget ”Alla attribut” hämtas hela arketypen från arketypbiblioteket, se inställningar). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.</div></header>
 <div class="bar">
  <span data-i18n="patients">Patienter:</span><span id="patBtns"><button type="button" data-p="both" data-i18n="both">Båda</button><button type="button" data-p="Eva Holmgren">Eva</button><button type="button" data-p="Lars Nyström" class="on">Lars</button></span>
  <button id="syn" data-i18n="syn">+ 30 syntetiska patienter</button>
@@ -94,6 +96,13 @@ header{position:relative}
     <div class="row"><label><span data-i18n="txCacheTtl">TTL (dagar)</span> <input id="cacheTtl" type="number" min="1" max="365" step="1" style="width:4em"></label>
     <span id="txCacheCount" class="hint"></span></div>
     <button type="button" class="reset" id="clearTxCache" data-i18n="txCacheClear">Töm uppslagscache</button>
+  </fieldset>
+  <fieldset><legend data-i18n="archRepoLegend">Arketypbibliotek</legend>
+    <p class="hint" data-i18n="archRepoHint"></p>
+    <div class="row"><input id="archRepo" type="url" spellcheck="false" data-i18n-placeholder="archRepoPh"></div>
+    <div class="row"><button type="button" class="reset" id="reset-archRepo" data-i18n="resetField">Återställ till standard</button>
+    <button type="button" class="reset" id="clearAdlCache" data-i18n="adlCacheClear">Töm arketypcache</button> <span id="adlCacheCount" class="hint"></span></div>
+    <div class="tx-status" id="archRepoStatus"></div>
   </fieldset>
   <fieldset><legend data-i18n="uploads">Uppladdade filer</legend>
     <p class="hint" data-i18n="upDirHint">Dela upp patientdata i separata mappar, en per patient. Mappnamnet blir patientens etikett. Sammansättningsfiler kan vara kanonisk JSON/XML eller FLAT JSON.</p>
@@ -318,18 +327,22 @@ const DEFAULTS = {
   txServers: { sct: "https://tx-nordics.fhir.org/fhir/r4", icd10: "https://tx-nordics.fhir.org/fhir/r4", npu: "https://tx-nordics.fhir.org/fhir/r4", atc: "https://tx.fhir.org/r4" },
   cacheTtlDays: 60,
   // Expanded archetype/template tiles: "used" = only attributes with values in the shown instances, "all" = every attribute in the model
-  attrMode: { arch: "used", tpl: "used" }
+  attrMode: { arch: "used", tpl: "used" },
+  // Archetype library for full archetypes ("Alla attribut"). Empty = automatic: bundled IPS file set, openEHR CKM-mirror on GitHub, CKM REST API
+  archRepo: ""
 };
 const SETTINGS_KEY = "cdr-v8-settings";
 const SCT_EDITION = "http://snomed.info/sct/45991000052106";
 const TX_CACHE_DB = "cdr-v8-tx-cache", TX_CACHE_STORE = "lookups", TX_SUBSET_STORE = "subsets";
+const ADL_CACHE_DB = "cdr-v8-adl-cache", ADL_CACHE_STORE = "adl";
+const ADL_BUNDLED = "../models/ips-fileset/archetypes/", CKM_MIRROR_RAW = "https://raw.githubusercontent.com/openEHR/CKM-mirror/master/local/archetypes/", CKM_BASE = "https://ckm.openehr.org/ckm";
 const SUBSET_META = { icd10: "subsets/v8-icd10-se.json", atc: "subsets/v8-atc-sv.json", npu: "subsets/v8-npu-sv.json", kva: "subsets/v8-kva-sv.json" };
 let SV_SUBSETS = {};
 const I18N = {
   sv: {
     title: "CDR KG-utforskare · V8 flerspråkig hopfällbar trestegsstack (interaktiv demo)",
     h1: "V8 · Flerspråkig hopfällbar trestegsstack: klustring i terminologi-DAG · arketyper över mallar · innehållsanpassade kaskad-treemaps för instanser",
-    sub: "Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.",
+    sub: "Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376; i läget ”Alla attribut” hämtas hela arketypen från arketypbiblioteket, se inställningar). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.",
     ex: "EXEMPELDATA · fiktiva patienter (Eva Holmgren, Lars Nyström), rimliga värden<br>”*” = påhittat möte/mall · ”Syntetisk nn” = syntetiska patienter",
     patients: "Patienter:", both: "Båda", syn: "+ 30 syntetiska patienter",
     collapseAll: "Fäll ihop allt", expandInst: "Expandera alla instanser",
@@ -343,6 +356,9 @@ const I18N = {
     txOk: "Ansluten", txOffline: "Offline — använder cache", txErr: "Fel", txIdle: "Används för $lookup när en kod saknas i cachen",
     txCacheLegend: "Uppslagscache (IndexedDB)", txCacheHint: "Cachar $lookup-resultat (etikett och föräldrar) per språk. TTL standard 60 dagar.",
     txCacheCount: "poster", txCacheClear: "Töm uppslagscache", txCacheTtl: "TTL (dagar)",
+    archRepoLegend: "Arketypbibliotek (hela arketyper)", archRepoPh: "tomt = automatiskt",
+    archRepoHint: "Läget ”Alla attribut” hämtar hela arketypen (ADL), eftersom mallen (OPT) bara innehåller de noder mallen använder. Ange bas-URL till en CKM-mirror (t.ex. https://raw.githubusercontent.com/openEHR/CKM-mirror/master/local/archetypes/ eller en GitHub-repo-URL), en URL-mall med {id} eller {path}, eller en CKM-server (…/ckm). Tomt = IPS-filuppsättningen här, därefter openEHR CKM-mirror på GitHub, därefter CKM:s REST-API (som i dag saknar CORS och därför bara fungerar via proxy). Hämtade arketyper cachas i IndexedDB med samma TTL som uppslagscachen.",
+    adlCacheClear: "Töm arketypcache", adlCacheCount: "arketyper i cache", archLoading: "Hämtar hela arketypen …", archFullFrom: "Hel arketyp från", archFullFail: "Hela arketypen kunde inte hämtas; visar mallens noder", archFromOpt: "Noder från IPS-mallen (OPT)",
     uploads: "Uppladdade filer",
     upArch: "Arketyper (.adl, JSON)",
     upTpl: "Mallar (.opt XML, webbmall-JSON)",
@@ -391,7 +407,7 @@ const I18N = {
   en: {
     title: "CDR KG explorer · V8 multilingual collapsible three-layer stack (interactive demo)",
     h1: "V8 · Multilingual collapsible three-layer stack: clustered ontology DAG · archetypes over templates · content-sized cascaded instance treemaps",
-    sub: "Top (locked): Sugiyama DAG per code system; intermediate SNOMED CT concepts are grouped into clusters (<b>+n</b> = hidden concepts; click to expand). Click the coloured background of an expanded cluster, not a node or an edge, to collapse it again; a drag does not. Labels show on hover. Middle: click an archetype or template to open it as a treemap of its nodes and elements (from the IPS OPT, CKM 1013.26.376). Bottom: click any card to shrink a patient, composition or subtree to a blob. Collapsed things get bundled links with counts; expanded things split them into dotted element-level links. Big layout changes (cluster or treemap expand/collapse, filters, language) animate so you can follow what moved.",
+    sub: "Top (locked): Sugiyama DAG per code system; intermediate SNOMED CT concepts are grouped into clusters (<b>+n</b> = hidden concepts; click to expand). Click the coloured background of an expanded cluster, not a node or an edge, to collapse it again; a drag does not. Labels show on hover. Middle: click an archetype or template to open it as a treemap of its nodes and elements (from the IPS OPT, CKM 1013.26.376; in “All attributes” mode the full archetype is fetched from the archetype library, see settings). Bottom: click any card to shrink a patient, composition or subtree to a blob. Collapsed things get bundled links with counts; expanded things split them into dotted element-level links. Big layout changes (cluster or treemap expand/collapse, filters, language) animate so you can follow what moved.",
     ex: "EXAMPLE DATA · fictitious patients (Eva Holmgren, Lars Nyström), plausible values<br>“*” = invented encounter/template · “Synthetic nn” = synthetic patients",
     patients: "Patients:", both: "Both", syn: "+ 30 synthetic patients",
     collapseAll: "Collapse everything", expandInst: "Expand all instances",
@@ -405,6 +421,9 @@ const I18N = {
     txOk: "Connected", txOffline: "Offline — using cache", txErr: "Error", txIdle: "Used for $lookup when a code is missing from the cache",
     txCacheLegend: "Lookup cache (IndexedDB)", txCacheHint: "Caches $lookup results (display and parents) per language. Default TTL 60 days.",
     txCacheCount: "entries", txCacheClear: "Clear lookup cache", txCacheTtl: "TTL (days)",
+    archRepoLegend: "Archetype library (full archetypes)", archRepoPh: "empty = automatic",
+    archRepoHint: "“All attributes” fetches the full archetype (ADL), because the template (OPT) only holds the nodes the template uses. Enter the base URL of a CKM mirror (e.g. https://raw.githubusercontent.com/openEHR/CKM-mirror/master/local/archetypes/ or a GitHub repo URL), a URL pattern with {id} or {path}, or a CKM server (…/ckm). Empty = the IPS file set next to this page, then the openEHR CKM-mirror on GitHub, then the CKM REST API (no CORS today, so it only works through a proxy). Fetched archetypes are cached in IndexedDB with the lookup cache TTL.",
+    adlCacheClear: "Clear archetype cache", adlCacheCount: "archetypes cached", archLoading: "Fetching the full archetype …", archFullFrom: "Full archetype from", archFullFail: "Could not fetch the full archetype; showing the template nodes", archFromOpt: "Nodes from the IPS template (OPT)",
     uploads: "Uploaded files",
     upArch: "Archetypes (.adl, JSON)",
     upTpl: "Templates (.opt XML, web template JSON)",
@@ -488,10 +507,11 @@ function loadSettings() {
   const cacheTtlDays = Number.isFinite(+saved.cacheTtlDays) && +saved.cacheTtlDays > 0 ? +saved.cacheTtlDays : DEFAULTS.cacheTtlDays;
   const am = saved.attrMode || {}, okM = (v) => v === "used" || v === "all";
   const attrMode = { arch: okM(am.arch) ? am.arch : DEFAULTS.attrMode.arch, tpl: okM(am.tpl) ? am.tpl : DEFAULTS.attrMode.tpl };
-  return { lang, anim, txUrl, txServers, cacheTtlDays, attrMode };
+  const archRepo = typeof saved.archRepo === "string" ? saved.archRepo.trim() : DEFAULTS.archRepo;
+  return { lang, anim, txUrl, txServers, cacheTtlDays, attrMode, archRepo };
 }
 function persistSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays, attrMode: S.attrMode })); } catch (e) {}
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays, attrMode: S.attrMode, archRepo: S.archRepo || "" })); } catch (e) {}
   const url = new URL(location.href);
   url.searchParams.set("lang", S.lang);
   history.replaceState(null, "", url);
@@ -1417,12 +1437,19 @@ function bindSettings() {
   if (ttl) { ttl.value = S.cacheTtlDays; ttl.addEventListener("change", () => { S.cacheTtlDays = Math.max(1, +ttl.value || DEFAULTS.cacheTtlDays); persistSettings(); }); }
   document.getElementById("clearTxCache")?.addEventListener("click", async () => { await txCacheClearAll(); refreshTxCacheCount(); });
   refreshTxCacheCount();
+  const ar = document.getElementById("archRepo");
+  const archRepoChanged = () => { persistSettings(); resetFullArchetypes(); refreshAdlCacheCount(); };
+  if (ar) { ar.value = S.archRepo || ""; ar.addEventListener("change", () => { S.archRepo = ar.value.trim(); archRepoChanged(); }); }
+  document.getElementById("reset-archRepo")?.addEventListener("click", () => { S.archRepo = DEFAULTS.archRepo; if (ar) ar.value = ""; archRepoChanged(); });
+  document.getElementById("clearAdlCache")?.addEventListener("click", async () => { await adlCacheClearAll(); resetFullArchetypes(); refreshAdlCacheCount(); });
+  refreshAdlCacheCount();
   document.getElementById("reset-lang").addEventListener("click", () => setLang(DEFAULTS.lang, true));
   document.getElementById("reset-anim").addEventListener("click", () => { S.anim = DEFAULTS.anim; persistSettings(); document.querySelectorAll("input[name=anim]").forEach((r) => { r.checked = r.value === S.anim; }); render(); });
   document.getElementById("resetAll").addEventListener("click", async () => {
     if (!confirm(T("resetConfirm"))) return;
     await idbClear();
     await txCacheClearAll();
+    await adlCacheClearAll().catch(() => {}); FULLADL.clear(); ARCHFULL.clear(); S.archRepo = DEFAULTS.archRepo; if (ar) ar.value = ""; refreshAdlCacheCount();
     S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays; S.attrMode = { ...DEFAULTS.attrMode };
     persistSettings();
     syncTxInputs();
@@ -1476,6 +1503,163 @@ function mergeAdlBindings() {
     }
   }
 }
+// ----- full archetype (ADL 1.4/2 text) -> V8 attribute tree -----
+function adlTermTexts(text) { // { lang: { code: text } } from ontology/terminology term_definitions
+  const out = {}, s = text || "", i0 = s.search(/\n\s*(ontology|terminology)\s*\n/); if (i0 < 0) return out;
+  const tdI = s.indexOf("term_definitions", i0); if (tdI < 0) return out;
+  const endM = s.slice(tdI).search(/\n\s*(constraint_definitions|term_bindings|constraint_bindings|value_sets)\s*=/);
+  const td = endM < 0 ? s.slice(tdI) : s.slice(tdI, tdI + endM);
+  const langRe = /\["([A-Za-z][\w-]*)"\]\s*=\s*<\s*items\s*=\s*</g, starts = []; let m;
+  while ((m = langRe.exec(td))) starts.push({ lang: m[1], i: m.index });
+  if (!starts.length) { const l2 = /\["([A-Za-z][\w-]*)"\]\s*=\s*<\s*\["((?:at|id|ac)[\d.]+)"\]/g; while ((m = l2.exec(td))) starts.push({ lang: m[1], i: m.index }); } // ADL2 (no items)
+  starts.forEach((st, k) => { const blk = td.slice(st.i, k + 1 < starts.length ? starts[k + 1].i : td.length), dict = out[st.lang] = out[st.lang] || {};
+    const re = /\["((?:at|id)[\d.]+)"\]\s*=\s*<\s*text\s*=\s*<"((?:[^"\\]|\\.)*)">/g; let t; while ((t = re.exec(blk))) dict[t[1]] = t[2].replace(/\\"/g, '"'); });
+  return out;
+}
+function adlDefinitionFrames(text) { // brace-structured scan of the definition section; strings, comments and slot regexes skipped
+  const s = text || "", d0 = s.search(/\n\s*definition\s*\n/); if (d0 < 0) return null;
+  const e = s.slice(d0 + 12).search(/\n\s*(ontology|terminology|rules|invariant)\s*\n/), src = e < 0 ? s.slice(d0 + 12) : s.slice(d0 + 12, d0 + 12 + e);
+  const root = { kind: "top", kids: [], text: "" }, stack = [root]; let buf = "", i = 0;
+  const top = () => stack[stack.length - 1];
+  const classify = (h) => { h = h.replace(/\b(occurrences|existence|cardinality)\s+matches\s*\{[^{}]*\}/g, " ").replace(/\s+/g, " ").trim();
+    let m = h.match(/allow_archetype\s+(\w+)\s*\[((?:at|id)[\d.]+)\][^{}]*?matches$/); if (m) return { kind: "slot", type: m[1], code: m[2] };
+    m = h.match(/(?:^|\s)([A-Z][A-Z0-9_]*(?:<[^>]*>)?)\s*\[((?:at|id)[\d.]+)\]\s*matches$/); if (m) return { kind: "obj", type: m[1], code: m[2] };
+    m = h.match(/(?:^|\s)([a-z][a-z0-9_]*)\s+matches$/); if (m) return { kind: "attr", name: m[1] };
+    m = h.match(/(?:^|\s)([A-Z][A-Z0-9_]*)\s+matches$/); if (m) return { kind: "obj", type: m[1], code: null };
+    return { kind: "other" }; };
+  while (i < src.length) { const c = src[i];
+    if (c === '"') { let j = i + 1; while (j < src.length && src[j] !== '"') j += src[j] === "\\" ? 2 : 1; top().text += src.slice(i, j + 1); i = j + 1; continue; }
+    if (c === "-" && src[i + 1] === "-") { const j = src.indexOf("\n", i); i = j < 0 ? src.length : j; continue; }
+    if (c === "{") { let j = i + 1; while (src[j] === " " || src[j] === "\t") j++;
+      if (src[j] === "/") { let k = j + 1; while (k < src.length && src[k] !== "/") k += src[k] === "\\" ? 2 : 1; const close = src.indexOf("}", k); top().text += buf + " {" + src.slice(j, k + 1) + "}"; buf = ""; i = close + 1; continue; }
+      if (/^\s*[\d*|.]/.test(src.slice(j, j + 1)) && /\b(occurrences|existence|cardinality)\s+matches\s*$/.test(buf)) { const close = src.indexOf("}", j); buf += "{" + src.slice(i + 1, close) + "}"; i = close + 1; continue; }
+      const f = { ...classify(buf), kids: [], text: "" }; top().text += buf; top().kids.push(f); stack.push(f); buf = ""; i++; continue; }
+    if (c === "}") { top().text += buf; buf = ""; if (stack.length > 1) stack.pop(); i++; continue; }
+    buf += c; i++; }
+  return root;
+}
+function adlFullTree(text, aid, prevTree) { // -> { tree, label, adlBindings, nAttr } in the same id scheme as the OPT-derived trees (aid|/rel path)
+  const frames = adlDefinitionFrames(text); if (!frames) return null;
+  const texts = adlTermTexts(text), en = texts.en || {}, sv = texts.sv || {};
+  const nm = (code) => { const e = en[code] || Object.values(texts)[0]?.[code] || code, s = sv[code]; return s && s !== e ? { sv: s, en: e } : e; };
+  const rootObj = frames.kids.find((f) => f.kind === "obj"); if (!rootObj) return null;
+  const old = new Map(), oldSlots = []; if (prevTree) (function w(n) { if (n !== prevTree) { old.set(n.id, n); if (n.k === "slot") oldSlots.push(n); } (n.children || []).forEach(w); })(prevTree);
+  const used = new Set();
+  const label = nm(rootObj.code || "at0000"), tree = { ...(prevTree || {}), id: aid + "|/", k: "archetype", name: prevTree?.name || label, aid, rm: rmOf(aid), children: [] };
+  const GROUP = { state: { sv: "Tillstånd", en: "State" }, protocol: { sv: "Protokoll", en: "Protocol" } };
+  const vtOf = (f) => { const set = new Set(), txt = (function w(x) { return x.text + x.kids.map((k) => (k.type || "") + " " + w(k)).join(" "); })(f);
+    for (const m of txt.matchAll(/\b(?:C_)?(DV_[A-Z_]+)/g)) set.add(m[1]); return [...set]; };
+  const walk = (f, path, parentNode, attr) => {
+    for (const k of f.kids) {
+      if (k.kind === "attr") {
+        let target = parentNode;
+        if ((k.name === "state" || k.name === "protocol") && parentNode === tree) { // RM structure groups, only to keep the tile readable
+          const gid = aid + "|" + path + "/" + k.name, g = { id: gid, k: "cluster", name: GROUP[k.name], aid, rel: path + "/" + k.name, group: true, children: [] };
+          const sub = k.kids.find((x) => x.kind === "obj"); if (sub?.code) g.id = aid + "|" + path + "/" + k.name + "[" + sub.code + "]", g.rel = path + "/" + k.name + "[" + sub.code + "]";
+          if (k.name === "state") { const ex = tree.children.find((c) => c.group && c.name === GROUP.state); if (ex) target = ex; else { tree.children.push(g); target = g; } } else { tree.children.push(g); target = g; }
+        }
+        walk(k, path, target, k.name); continue; }
+      if (k.kind === "slot") { const rel = path + "/" + attr + "[" + k.code + "]";
+        const inc = (k.text.split(/\bexclude\b/)[0] || ""), incPats = [...inc.matchAll(/\{\/((?:[^/\\]|\\.)*)\/\}/g)].map((m) => m[1]);
+        const hit = oldSlots.find((o) => !used.has(o.id) && incPats.some((p) => { try { return new RegExp("^" + p + "$").test(o.ref) || new RegExp(p).test(o.ref); } catch (e) { return false; } }));
+        if (hit) { used.add(hit.id); parentNode.children.push(hit); continue; }
+        const l = nm(k.code); parentNode.children.push({ id: aid + "|slot:" + rel, k: "slot", name: typeof l === "string" ? "↳ " + l : { sv: "↳ " + l.sv, en: "↳ " + l.en }, aid, rel, ref: null, pattern: incPats.join(" | "), children: [] }); continue; }
+      if (k.kind === "obj") {
+        const rel = k.code ? path + "/" + attr + "[" + k.code + "]" : path;
+        if (k.type === "ELEMENT" && k.code) { const id = aid + "|" + rel; if (!parentNode.children.some((c) => c.id === id)) { const o = old.get(id); used.add(id);
+            parentNode.children.push({ ...(o || {}), id, k: "element", name: nm(k.code), aid, rel, vt: o?.vt || vtOf(k), children: [] }); } continue; }
+        if (k.type === "CLUSTER" && k.code && parentNode !== null && f !== frames) { const id = aid + "|" + rel, o = old.get(id); used.add(id);
+          const c = { ...(o || {}), id, k: "cluster", name: nm(k.code), aid, rel, vt: null, children: [] }; parentNode.children.push(c); walk(k, rel, c, attr); continue; }
+        walk(k, rel, parentNode, attr); }
+    } };
+  walk(rootObj, "", tree, null);
+  const prune = (n) => { n.children = (n.children || []).filter((c) => { if (c.k === "cluster" || c.group) { prune(c); return c.children.length > 0; } return true; }); };
+  prune(tree);
+  for (const [id, n] of old) if (!used.has(id) && n.k !== "cluster" && !tree.children.includes(n)) { const placed = (function f(x) { return x.id === id || (x.children || []).some(f); })(tree); if (!placed) tree.children.push(n); } // keep OPT-only nodes
+  let nAttr = 0; (function w(x) { if (x.k === "element") nAttr++; (x.children || []).forEach(w); })(tree);
+  return { tree, label, adlBindings: adlTermBindings(text), nAttr };
+}
+
+// ----- full archetype source, fetch and IndexedDB cache -----
+const FULLADL = new Map(); // aid -> { text, src } fetched this session (re-applied after resets/uploads)
+const ARCHFULL = new Map(); // aid -> { state: "loading"|"ok"|"err", src, n, err }
+function adlRelPath(aid) { const rm = rmOf(aid).toLowerCase(); return (["observation", "evaluation", "instruction", "action", "admin_entry"].includes(rm) ? "entry/" + rm : rm) + "/" + aid + ".adl"; }
+function archSources() { // ordered list of { kind: "tree"|"ckm", base, label }
+  let u = (S.archRepo || "").trim();
+  if (!u) return [{ kind: "tree", base: ADL_BUNDLED, label: "IPS file set (bundled)" }, { kind: "tree", base: CKM_MIRROR_RAW, label: "openEHR CKM-mirror (GitHub)" }, { kind: "ckm", base: CKM_BASE, label: "CKM REST API" }];
+  const gh = u.match(/^https?:\/\/github\.com\/([^/]+)\/([^/#?]+)(?:\/(?:tree|blob)\/([^/]+)(\/.*)?)?\/?$/);
+  if (gh) u = `https://raw.githubusercontent.com/${gh[1]}/${gh[2].replace(/\.git$/, "")}/${gh[3] || "HEAD"}${gh[4] ? gh[4].replace(/\/?$/, "/") : "/local/archetypes/"}`;
+  if (/\/ckm\/?$|\/ckm\/rest(\/v1)?\/?$/i.test(u)) return [{ kind: "ckm", base: u.replace(/\/rest(\/v1)?\/?$/i, "").replace(/\/$/, ""), label: u }];
+  return [{ kind: "tree", base: u, label: u }];
+}
+async function fetchText(url, accept) {
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 20000);
+  try { const r = await fetch(url, { signal: ac.signal, headers: accept ? { Accept: accept } : {} }); if (!r.ok) throw new Error("HTTP " + r.status); return await r.text(); }
+  finally { clearTimeout(t); }
+}
+const looksLikeAdl = (t, aid) => /^\uFEFF?\s*archetype\b/.test(t || "") && t.includes(aid) && /\n\s*definition\s*\n/.test(t);
+async function fetchFromSource(src, aid) {
+  if (src.kind === "ckm") {
+    const api = src.base + "/rest/v1/archetypes";
+    const cid = (await fetchText(`${api}/citeable-identifier/${encodeURIComponent(aid)}`, "text/plain")).trim();
+    if (!/^[\d.]+$/.test(cid)) throw new Error("no CKM cid");
+    const url = `${api}/${cid}/adl`; return { text: await fetchText(url, "text/plain"), url };
+  }
+  const b = src.base, urls = /\{(id|path)\}/.test(b) ? [b.replace("{id}", aid).replace("{path}", adlRelPath(aid))] : [b.replace(/\/?$/, "/") + adlRelPath(aid), b.replace(/\/?$/, "/") + aid + ".adl"];
+  let last; for (const u of urls) { const url = new URL(u, location.href).href; try { return { text: await fetchText(url), url }; } catch (e) { last = e; } }
+  throw last || new Error("not found");
+}
+function adlCacheOpen() {
+  return new Promise((resolve, reject) => { const req = indexedDB.open(ADL_CACHE_DB, 1);
+    req.onupgradeneeded = () => { const db = req.result; if (!db.objectStoreNames.contains(ADL_CACHE_STORE)) db.createObjectStore(ADL_CACHE_STORE, { keyPath: "key" }); };
+    req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); });
+}
+async function adlCacheReq(mode, fn) { const db = await adlCacheOpen(); return new Promise((resolve, reject) => { const tx = db.transaction(ADL_CACHE_STORE, mode), r = fn(tx.objectStore(ADL_CACHE_STORE)); tx.oncomplete = () => resolve(r && r.result); tx.onerror = () => reject(tx.error); }); }
+const adlCacheKey = (aid) => aid + "|" + ((S.archRepo || "").trim() || "auto");
+const adlCacheGet = (aid) => adlCacheReq("readonly", (st) => st.get(adlCacheKey(aid)));
+const adlCachePut = (aid, val) => adlCacheReq("readwrite", (st) => st.put({ key: adlCacheKey(aid), aid, ...val, fetchedAt: Date.now() }));
+const adlCacheCount = () => adlCacheReq("readonly", (st) => st.count());
+const adlCacheClearAll = () => adlCacheReq("readwrite", (st) => st.clear());
+function refreshAdlCacheCount() { const el = document.getElementById("adlCacheCount"); if (el) adlCacheCount().then((n) => { el.textContent = (n || 0) + " " + T("adlCacheCount"); }).catch(() => {}); }
+async function loadFullArchetypeText(aid) { // IndexedDB cache (TTL = lookup cache TTL) -> sources in order
+  const ttl = (S.cacheTtlDays || DEFAULTS.cacheTtlDays) * 86400000;
+  try { const c = await adlCacheGet(aid); if (c && c.text && Date.now() - c.fetchedAt < ttl) return { text: c.text, src: c.src, cached: true }; } catch (e) {}
+  const errs = [];
+  for (const src of archSources()) {
+    try { const r = await fetchFromSource(src, aid); if (!looksLikeAdl(r.text, aid)) throw new Error("not an ADL archetype"); try { await adlCachePut(aid, { text: r.text, src: r.url }); } catch (e) {} return { text: r.text, src: r.url, cached: false }; }
+    catch (e) { errs.push(src.label + ": " + (e && e.name === "TypeError" ? "network/CORS" : (e && e.message) || e)); }
+  }
+  throw new Error(errs.join("; "));
+}
+function applyFullArchetype(a) { // swap the OPT-derived tree for the full archetype tree (same node ids), merge its SNOMED CT bindings
+  const f = FULLADL.get(a.id); if (!f || a.fullSrc === f.src) return;
+  const r = adlFullTree(f.text, a.id, a.tree); if (!r || !r.nAttr) return;
+  if (typeof a.label === "string" && typeof r.label === "object" && r.label.en === a.label) { a.label = r.label; r.tree.name = r.label; }
+  a.optTree = a.optTree || a.tree; a.tree = r.tree; a.adlBindings = { ...(a.adlBindings || {}), ...r.adlBindings }; a.fullSrc = f.src;
+}
+function resetFullArchetypes() { // archetype library changed: drop session copies, restore OPT trees, refetch on demand
+  FULLADL.clear(); ARCHFULL.clear();
+  for (const a of D.archetypes) if (a.optTree) { a.tree = a.optTree; delete a.optTree; delete a.fullSrc; }
+  rebuildIndexes(); render();
+}
+async function ensureFullArchetypes(aids) {
+  const todo = aids.filter((aid) => ARCH.has(aid) && !ARCHFULL.has(aid)); if (!todo.length) return false;
+  todo.forEach((aid) => ARCHFULL.set(aid, { state: "loading" })); updateArchRepoStatus();
+  const res = await Promise.all(todo.map(async (aid) => {
+    try { const r = await loadFullArchetypeText(aid); FULLADL.set(aid, r); ARCHFULL.set(aid, { state: "ok", src: r.src, cached: r.cached }); return true; }
+    catch (e) { ARCHFULL.set(aid, { state: "err", err: String(e.message || e) }); console.warn("full archetype", aid, e.message || e); return false; } }));
+  updateArchRepoStatus();
+  if (res.some(Boolean)) { rebuildIndexes(); render(); refreshBindingTargets(); refreshAdlCacheCount(); }
+  else render();
+  return res.some(Boolean);
+}
+function updateArchRepoStatus() {
+  const el = document.getElementById("archRepoStatus"); if (!el) return;
+  const v = [...ARCHFULL.entries()]; if (!v.length) { el.textContent = ""; el.className = "tx-status"; return; }
+  const err = v.filter(([, x]) => x.state === "err"), ok = v.filter(([, x]) => x.state === "ok");
+  el.className = "tx-status " + (err.length ? "err" : "ok");
+  el.textContent = ok.map(([a, x]) => `${a} ← ${x.src}${x.cached ? " (cache)" : ""}`).concat(err.map(([a, x]) => `${a}: ${x.err}`)).join(" · ");
+}
 const bindingCodes = () => new Set(D.archetypes.flatMap((a) => a.bindings.map((b) => b[1])));
 async function ensureBindingCodes() { // binding targets missing from the bundled ontology: $lookup (subsets, IndexedDB cache, tx server)
   const miss = [...bindingCodes()].filter((c) => !ONT.has(c));
@@ -1484,6 +1668,7 @@ async function ensureBindingCodes() { // binding targets missing from the bundle
   return miss.some((c) => ONT.has(c));
 }
 function rebuildIndexes() {
+  for (const a of D.archetypes) applyFullArchetype(a);
   mergeAdlBindings();
   ONT = new Map(D.ont.nodes.map((n) => [n.id, { ...n, parents: [], kids: [] }]));
   for (const [c, p] of D.ont.edges) { const a = ONT.get(c), b = ONT.get(p); if (a && b && !a.parents.includes(p)) { a.parents.push(p); b.kids.push(c); } }
@@ -1513,7 +1698,7 @@ function rebuildIndexes() {
   for (const p of ALLPAT) (function w(n, par) { INST.set(n.id, { n, par, pat: p }); (n.children || []).forEach((c) => w(c, n)); })(p, null);
 }
 const _boot = loadSettings();
-const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays, attrMode: _boot.attrMode };
+const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays, attrMode: _boot.attrMode, archRepo: _boot.archRepo };
 S.txUrl = S.txServers.sct || S.txUrl;
 rebuildIndexes();
 S.collapsed = new Set(synth.map((p) => p.id));
@@ -1705,6 +1890,7 @@ function interpHull(aPts, bPts) {
 // ================= render =================
 let CUR = null;
 function render() {
+  if (S.attrMode.arch === "all" && S.expArch.size) queueMicrotask(() => ensureFullArchetypes([...S.expArch]));
   const W = Math.max(1360, innerWidth); svg.attr("width", W); svg.classed("hovering", false);
   if (!firstPaint) PREV = snapPos();
   const Lyr = layers();
@@ -2138,7 +2324,7 @@ function render() {
   anim(bgM).attr("transform", (l) => `translate(${l.mid[0]},${l.mid[1]})`).attr("opacity", 0.35);
   anim(bg.exit()).attr("opacity", 0).remove();
   CUR = { links, gXLinks: Lyr.gXLinks, gDagLinks: Lyr.gDagLinks, gBadges: Lyr.gBadges };
-  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patient: S.patient, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, attrMode: { ...S.attrMode },
+  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patient: S.patient, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, attrMode: { ...S.attrMode }, archRepo: S.archRepo || "", archFull: Object.fromEntries([...ARCHFULL].map(([k, v]) => [k, { ...v }])),
     midEls: { arch: midItems.filter((d) => d.kind === "arch" && d.n.k === "element").length, tpl: midItems.filter((d) => d.kind === "tpl" && d.n.k === "element").length },
     acLinks: xLinks.filter((l) => l.fam === "ac").map((l) => ({ a: l.a, b: l.b, cnt: l.cnt, pairs: l.pairs })), txStatus: txLastStatus, ehrts: (window.EHRTSlib && window.EHRTSlib.EHRTSlibVersion) || null };
   firstPaint = false;
@@ -2204,6 +2390,11 @@ function clear() {
   }
   tip.style("display", "none");
 }
+function archSrcNote(a) { const st = ARCHFULL.get(a.id);
+  if (a.fullSrc) return `${T("archFullFrom")} <code>${a.fullSrc}</code>`;
+  if (st?.state === "loading") return `<i>${T("archLoading")}</i>`;
+  if (st?.state === "err") return `${T("archFullFail")} <code>${st.err}</code>`;
+  return a.uploaded ? "" : T("archFromOpt"); }
 function tipHtml(d, TS) {
   const cnt = (f) => [...TS].filter(f).length;
   if (d.kind === "inst") { const n = d.n, e = INST.get(n.id);
@@ -2211,7 +2402,7 @@ function tipHtml(d, TS) {
     const els = subtree(n).filter((x) => x.k === "element").length;
     return `<b>${loc(n.name)}</b> (${n.k})${n.arch ? `<br>Archetype: <b>${loc(ARCH.get(n.arch)?.label)}</b> <code>${n.arch}</code>` : ""}${n.k === "composition" && TPL.get(n.tpl) ? `<br>Template: ${loc(TPL.get(n.tpl)?.name)}${TPL.get(n.tpl)?.invented ? " ("+T("invented")+")" : ""}` : ""}<br>${els} ${T("elements")}${S.collapsed.has(n.id) ? T("collapsedLinks") : T("clickShrink")}`; }
   if (d.kind === "arch") { const a = ARCH.get(archOf(d.id)), n = d.n;
-    if (n.id === a.tree.id) return `<b>${loc(a.label)}</b> · ${a.rm}<br><code>${a.id}</code><br>${subtree(a.tree).filter((x) => x.k === "element").length} ${T("elementsInUse")} · ${a.occurrences.length} ${T("tmplOcc")}<br>${T("termBindings")}: ${a.bindings.length ? a.bindings.map((b) => b[1].replace("sct:", "")).join(", ") : T("none")}<br><i>${S.expArch.has(a.id) ? T("clickCollapse") : T("clickOpen")}</i>`;
+    if (n.id === a.tree.id) return `<b>${loc(a.label)}</b> · ${a.rm}<br><code>${a.id}</code><br>${subtree(a.tree).filter((x) => x.k === "element").length} ${T("elementsInUse")} · ${a.occurrences.length} ${T("tmplOcc")}<br>${T("termBindings")}: ${a.bindings.length ? a.bindings.map((b) => b[1].replace("sct:", "")).join(", ") : T("none")}<br>${archSrcNote(a)}<br><i>${S.expArch.has(a.id) ? T("clickCollapse") : T("clickOpen")}</i>`;
     return `<b>${loc(n.name)}</b> (${n.k})<br><code>${a.id}${n.rel || ""}</code>${n.vt ? `<br>${n.vt.join(" | ")}` : ""}${a.bindings.some((b) => b[0] === n.id) ? `<br>Bound to ${a.bindings.filter((b) => b[0] === n.id).map((b) => b[1]).join(", ")}` : ""}`; }
   if (d.kind === "tpl") { const t = TPL.get(tplOf(d.id)), n = d.n;
     if (n.id === t.tree.id) return `<b>${loc(t.name)}</b>${t.invented ? " ("+T("invented")+")" : (t.ckm ? ` · CKM ${t.ckm}` : "")}<br>${subtree(t.tree).filter((x) => x.k === "archetype").length} ${T("archOcc")} · ${subtree(t.tree).filter((x) => x.k === "element").length} ${T("elements")}<br><i>${S.expTpl.has(t.id) ? T("clickCollapse") : T("clickOpen")}</i>`;
@@ -2248,6 +2439,7 @@ d3.select("#off").on("input", function () { S.off = +this.value; d3.select("#off
 let lastW = innerWidth; addEventListener("resize", () => { if (Math.abs(innerWidth - lastW) > 30) { lastW = innerWidth; render(); } });
 window.V8S = S; window.V8render = render; window.V8toggle = toggle; window.V8data = () => D;
 window.__v8Tx = { txLookup, ensureCodes, txCacheCount, txCacheClearAll, refreshBindingTargets };
+window.__v8Arch = { archSources, fetchFromSource, loadFullArchetypeText, ensureFullArchetypes, adlFullTree, adlCacheCount, adlCacheClearAll, adlCacheGet, resetFullArchetypes };
 applyI18n();
 bindSettings();
 loadSwedishSubsets().then(() => applySubsetLabelsToOnt()).catch((e) => console.warn("subset load", e));
