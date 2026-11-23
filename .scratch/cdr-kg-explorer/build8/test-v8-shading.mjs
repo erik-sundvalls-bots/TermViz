@@ -53,7 +53,9 @@ const check = () => page.evaluate(() => {
     while (p && idx.has(p)) { if (idx.get(p) > idx.get(d.id)) { bad.push(["covered by", p, d.id]); break; } p = byId.get(p).__data__.parentId; }
   }
   // layout overlap: subtree extents (card of a tile plus all its descendants' cards) of top-level tiles, and of nested siblings
-  const items = [...document.querySelectorAll("g.exp g.box, g.col g.box")].map((g) => g.__data__).filter((d) => d && (d.kind === "arch" || d.kind === "tpl"));
+  // rendered geometry (card rect on screen), not the target layout, so a transition left half-way also counts
+  const items = [...document.querySelectorAll("g.exp g.box, g.col g.box")].filter((g) => g.__data__ && (g.__data__.kind === "arch" || g.__data__.kind === "tpl"))
+    .map((g) => { const d = g.__data__, r = g.querySelector("rect.card").getBoundingClientRect(); return { id: d.id, parentId: d.parentId, kind: d.kind, blob: d.blob, x: r.x, y: r.y, w: r.width, h: r.height }; });
   const kids = new Map(); for (const d of items) if (d.parentId) { if (!kids.has(d.parentId)) kids.set(d.parentId, []); kids.get(d.parentId).push(d); }
   const ext = new Map(), extent = (d) => { if (ext.has(d.id)) return ext.get(d.id); let e = { x0: d.x, y0: d.y, x1: d.x + d.w, y1: d.y + d.h };
     for (const k of kids.get(d.id) || []) { const c = extent(k); e = { x0: Math.min(e.x0, c.x0), y0: Math.min(e.y0, c.y0), x1: Math.max(e.x1, c.x1), y1: Math.max(e.y1, c.y1) }; } ext.set(d.id, e); return e; };
@@ -65,10 +67,15 @@ const check = () => page.evaluate(() => {
   const opened = items.filter((d) => !d.parentId && !d.blob && (kids.get(d.id) || []).length).length;
   return { tiles: n, opened, bad: bad.length + overlaps.length, overlaps: overlaps.length, sample: bad.concat(overlaps).slice(0, 3) };
 });
+// wait until no layout transition runs and no tile moves any more (async full-archetype loads and $lookup results re-render later)
+const quiet = async () => { let last = "", same = 0;
+  for (let i = 0; i < 40 && same < 2; i++) { const sig = await page.evaluate(() => (document.getElementById("v").classList.contains("layouting") ? "L" : "") + [...document.querySelectorAll("g.box")].map((g) => g.getAttribute("transform")).join(";"));
+    same = sig === last && !sig.startsWith("L") ? same + 1 : 0; last = sig; await page.waitForTimeout(400); } };
 const out = { scenarios: {}, errors: errs };
 const run = async (name, steps, shot) => {
   for (const s of steps) await s();
   await page.waitForTimeout(SETTLE);
+  await quiet();
   out.scenarios[name] = await check();
   if (shots && shot) {
     await page.evaluate(() => { document.getElementById("tip").style.display = "none"; });
