@@ -15,9 +15,9 @@ const out = {};
 const wait = () => p.waitForTimeout(1400);
 out.lars = await snap();
 if (png && tag === "new") await p.screenshot({ path: png + "v8-default-after-synth.png", fullPage: true });
-await p.click("[data-p='Eva Holmgren']"); await wait(); out.eva = await snap();
-await p.click("[data-p='both']"); await wait(); out.both = await snap();
-await p.click("[data-p='Lars Nyström']"); await wait();
+await p.click("[data-p='Eva Holmgren']"); await p.click("[data-p='Lars Nyström']"); await wait(); out.eva = await snap(); // toggles: Eva on, Lars off
+await p.click("[data-p='Lars Nyström']"); await wait(); out.both = await snap(); // Eva + Lars
+await p.click("[data-p='Eva Holmgren']"); await wait(); // Lars only
 await p.click("#syn"); await wait(); out.synth = await snap();
 out.dist = await p.evaluate(() => {
   const res = [];
@@ -27,7 +27,7 @@ if (png && tag === "new") await p.screenshot({ path: png + "v8-synthetic-varied.
 // expand all instances so the synthetic patients show their content
 await p.click("#expandInst").catch(() => {}); await wait();
 if (png && tag === "new") await p.screenshot({ path: png + "v8-synthetic-varied-expanded.png", fullPage: true });
-await p.click("[data-p='both']"); await wait(); out.bothSynth = await snap();
+await p.click("[data-p='Eva Holmgren']"); await wait(); out.bothSynth = await snap(); // Eva + Lars + synthetic
 // language switch with synthetics on
 const lang = await p.$("button.lang-tog[data-lang='en']"); out.langBtn = !!lang; if (lang) { await lang.click(); await wait(); out.en = await p.evaluate(() => window.__state.lang); }
 console.log(JSON.stringify({ tag, errs, out }));

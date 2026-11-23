@@ -7,6 +7,12 @@ header .sub{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:1250px}
 .bar{display:flex;gap:10px;align-items:center;padding:6px 24px 4px;font-size:13px;flex-wrap:wrap}
 .bar button{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:3px 12px;cursor:pointer;color:var(--ink)}
 .bar button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tgroup{display:inline-flex;gap:0}
+.bar .tgroup button{border-radius:0;margin:0;padding:3px 10px}
+.bar .tgroup button+button{border-left-width:0}
+.bar .tgroup button.on+button.on{border-left:1px solid rgba(255,255,255,.55)}
+.bar .tgroup button:not(.on){color:var(--muted)}
+.bar .tgroup button.on::before{content:"✓ "}
 .hint{color:var(--muted)}
 #tip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;max-width:420px;display:none;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 #tip code{font-size:11px;color:var(--muted);word-break:break-all}
@@ -26,6 +32,7 @@ svg.hovering:not(.layouting) .hi>rect.card,svg.hovering:not(.layouting) .hi>circ
 g.col text.halo, g.box.pill text.halo, g.ontn text{paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round}
 .elabs text{paint-order:normal;stroke:none}
 .band-label{font-size:11px;letter-spacing:1.4px;font-weight:700;fill:var(--muted)}
+.band-label.band-hint{font-size:12px;letter-spacing:0;font-weight:400;font-style:italic}
 .legend{font-size:12px;color:var(--muted);padding:0 24px 6px}
 .legend b{color:var(--ink)}
 .lang-tog, #settingsBtn{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:3px 10px;cursor:pointer;color:var(--ink)}
@@ -60,8 +67,7 @@ header{position:relative}
 <h1 data-i18n="h1">V8 · Flerspråkig hopfällbar trestegsstack: klustring i terminologi-DAG · arketyper över mallar · innehållsanpassade kaskad-treemaps för instanser</h1>
 <div class="sub" data-i18n="sub">Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376; i läget ”Alla attribut” hämtas hela arketypen från arketypbiblioteket, se inställningar). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.</div></header>
 <div class="bar">
- <span data-i18n="patients">Patienter:</span><span id="patBtns"><button type="button" data-p="both" data-i18n="both">Båda</button><button type="button" data-p="Eva Holmgren">Eva</button><button type="button" data-p="Lars Nyström" class="on">Lars</button></span>
- <button id="syn" data-i18n="syn">+ 30 syntetiska patienter</button>
+ <span data-i18n="patients">Patienter:</span><span id="patBtns" class="tgroup" role="group" aria-label="Patienter"><button type="button" data-p="Eva Holmgren" aria-pressed="false">Eva</button><button type="button" data-p="Lars Nyström" class="on" aria-pressed="true">Lars</button><button type="button" id="syn" data-i18n="syn" aria-pressed="false">+ 30 syntetiska</button></span>
  <button id="collapseAll" data-i18n="collapseAll">Fäll ihop allt</button><button id="expandInst" data-i18n="expandInst">Expandera alla instanser</button>
  <button id="lbl" data-i18n="lbl">Visa mellanliggande etiketter</button>
  <label><span data-i18n="cascade">Kaskadavstånd</span> <input id="off" type="range" min="2" max="8" step="1" value="3"> <span id="offv">3</span> px</label>
@@ -339,6 +345,7 @@ const V8SRC = window.V8;
 let D = structuredClone(V8SRC);
 const DEFAULTS = {
   lang: "sv", anim: "on",
+  patSel: { on: ["Lars Nyström"], synthetic: false },
   txUrl: "https://tx-nordics.fhir.org/fhir/r4",
   txServers: { sct: "https://tx-nordics.fhir.org/fhir/r4", icd10: "https://tx-nordics.fhir.org/fhir/r4", npu: "https://tx-nordics.fhir.org/fhir/r4", atc: "https://tx.fhir.org/r4" },
   cacheTtlDays: 60,
@@ -360,7 +367,8 @@ const I18N = {
     h1: "V8 · Flerspråkig hopfällbar trestegsstack: klustring i terminologi-DAG · arketyper över mallar · innehållsanpassade kaskad-treemaps för instanser",
     sub: "Topp (låst): Sugiyama-DAG per kodsystem; mellanliggande SNOMED CT-begrepp grupperas i kluster (<b>+n</b> = dolda begrepp; klicka för att expandera). Klicka den färgade bakgrunden i ett expanderat kluster, inte en nod eller en båge, för att fälla ihop det igen; en dragning gör det inte. Etiketter visas vid hovring. Mitten: klicka en arketyp eller mall för att öppna den som en treemap över dess noder och element (från IPS OPT, CKM 1013.26.376; i läget ”Alla attribut” hämtas hela arketypen från arketypbiblioteket, se inställningar). Botten: klicka ett kort för att krympa en patient, komposition eller ett delträd till en blob. Ihopfällda saker får buntade länkar med antal; expanderade saker delar upp dem i streckade elementlänkar. Stora layoutändringar (kluster, treemap, filter, språk) animeras så att du kan följa det som flyttas.",
     ex: "EXEMPELDATA · fiktiva patienter (Eva Holmgren, Lars Nyström), rimliga värden<br>”*” = påhittat möte/mall · ”Syntetisk nn” = syntetiska patienter",
-    patients: "Patienter:", both: "Båda", syn: "+ 30 syntetiska patienter",
+    patients: "Patienter:", syn: "+ 30 syntetiska",
+    noPatients: "Inga patienter valda. Slå på en eller flera patienter ovan. I läget ”Endast använda” visar öppnade arketyper och mallar då inga attribut; välj ”Alla attribut” för hela modellen.",
     collapseAll: "Fäll ihop allt", expandInst: "Expandera alla instanser",
     lbl: "Visa mellanliggande etiketter", cascade: "Kaskadavstånd",
     legend: "<b>━ n</b> buntade länkar (antal) · <b>┄</b> elementlänk mellan expanderade noder · skrafferad ruta = värde kodat med en terminologi · hovra för att spåra sökvägen · färgad klusterbakgrund: klicka tom yta för att fälla ihop",
@@ -425,7 +433,8 @@ const I18N = {
     h1: "V8 · Multilingual collapsible three-layer stack: clustered ontology DAG · archetypes over templates · content-sized cascaded instance treemaps",
     sub: "Top (locked): Sugiyama DAG per code system; intermediate SNOMED CT concepts are grouped into clusters (<b>+n</b> = hidden concepts; click to expand). Click the coloured background of an expanded cluster, not a node or an edge, to collapse it again; a drag does not. Labels show on hover. Middle: click an archetype or template to open it as a treemap of its nodes and elements (from the IPS OPT, CKM 1013.26.376; in “All attributes” mode the full archetype is fetched from the archetype library, see settings). Bottom: click any card to shrink a patient, composition or subtree to a blob. Collapsed things get bundled links with counts; expanded things split them into dotted element-level links. Big layout changes (cluster or treemap expand/collapse, filters, language) animate so you can follow what moved.",
     ex: "EXAMPLE DATA · fictitious patients (Eva Holmgren, Lars Nyström), plausible values<br>“*” = invented encounter/template · “Synthetic nn” = synthetic patients",
-    patients: "Patients:", both: "Both", syn: "+ 30 synthetic patients",
+    patients: "Patients:", syn: "+ 30 synthetic",
+    noPatients: "No patients selected. Turn on one or more patients above. In “Only used” mode, opened archetypes and templates then show no attributes; choose “All attributes” for the full model.",
     collapseAll: "Collapse everything", expandInst: "Expand all instances",
     lbl: "Show intermediate labels", cascade: "Cascade offset",
     legend: "<b>━ n</b> bundled links (count) · <b>┄</b> element-level link between expanded nodes · hatched tile = value coded with a terminology · hover anything to trace its path · coloured cluster background: click empty space to collapse",
@@ -524,10 +533,23 @@ function loadSettings() {
   const am = saved.attrMode || {}, okM = (v) => v === "used" || v === "all";
   const attrMode = { arch: okM(am.arch) ? am.arch : DEFAULTS.attrMode.arch, tpl: okM(am.tpl) ? am.tpl : DEFAULTS.attrMode.tpl };
   const archRepo = typeof saved.archRepo === "string" ? saved.archRepo.trim() : DEFAULTS.archRepo;
-  return { lang, anim, txUrl, txServers, cacheTtlDays, attrMode, archRepo };
+  return { lang, anim, txUrl, txServers, cacheTtlDays, attrMode, archRepo, patSel: migratePatSel(saved) };
+}
+// Patient selection = independent on/off toggles (any combination, all off = no patients).
+// v4 stores { on: [patient keys], synthetic }; older formats (v<4, or a single "patient" value such as
+// "both"/"none"/a name from the earlier radio buttons) are migrated here.
+function migratePatSel(saved) {
+  const ps = saved && saved.patSel;
+  if (ps && Array.isArray(ps.on)) return { on: ps.on.filter((k) => typeof k === "string"), synthetic: !!ps.synthetic };
+  const old = saved && saved.patient;
+  const syn = !!(saved && saved.synthetic);
+  if (old === "both") return { on: ["Eva Holmgren", "Lars Nyström"], synthetic: syn };
+  if (old === "none") return { on: [], synthetic: false };
+  if (typeof old === "string" && old) return { on: [old], synthetic: syn };
+  return { on: [...DEFAULTS.patSel.on], synthetic: DEFAULTS.patSel.synthetic };
 }
 function persistSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 3, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays, attrMode: S.attrMode, archRepo: S.archRepo || "" })); } catch (e) {}
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ v: 4, lang: S.lang, anim: S.anim, txUrl: S.txUrl, txServers: S.txServers, cacheTtlDays: S.cacheTtlDays, attrMode: S.attrMode, archRepo: S.archRepo || "", patSel: { on: [...S.pats], synthetic: !!S.synthetic } })); } catch (e) {}
   const url = new URL(location.href);
   url.searchParams.set("lang", S.lang);
   history.replaceState(null, "", url);
@@ -1414,19 +1436,21 @@ function refreshPatientButtons() {
     seen.add(k);
     list.push(p);
   }
-  if (S.patient !== "both" && !seen.has(S.patient)) S.patient = "both";
-  host.innerHTML = `<button type="button" data-p="both" data-i18n="both">${T("both")}</button>` +
-    list.map((p) => {
-      const k = patientKey(p);
-      const on = S.patient === k ? ' class="on"' : "";
-      const esc = String(k).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      return `<button type="button" data-p="${esc}"${on}>${patientShort(p).replace(/</g, "&lt;")}</button>`;
-    }).join("");
-  if (S.patient === "both") host.querySelector("[data-p='both']")?.classList.add("on");
-  d3.selectAll("#patBtns [data-p]").on("click", function () {
-    S.patient = this.dataset.p;
-    d3.selectAll("#patBtns [data-p]").classed("on", false);
-    d3.select(this).classed("on", true);
+  // Independent on/off toggles: every real/uploaded patient plus the synthetic cohort, one tight button group.
+  // Unknown keys stay in S.pats (uploaded patients load asynchronously from IndexedDB after boot).
+  const escA = (v) => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  host.setAttribute("aria-label", T("patients").replace(/:$/, ""));
+  host.innerHTML = list.map((p) => {
+      const k = patientKey(p), on = S.pats.has(k);
+      return `<button type="button" data-p="${escA(k)}"${on ? ' class="on"' : ""} aria-pressed="${on}">${patientShort(p).replace(/</g, "&lt;")}</button>`;
+    }).join("") +
+    `<button type="button" id="syn" data-i18n="syn"${S.synthetic ? ' class="on"' : ""} aria-pressed="${!!S.synthetic}">${T("syn")}</button>`;
+  d3.selectAll("#patBtns button").on("click", function () {
+    if (this.id === "syn") S.synthetic = !S.synthetic;
+    else { const k = this.dataset.p; if (S.pats.has(k)) S.pats.delete(k); else S.pats.add(k); }
+    const on = this.id === "syn" ? S.synthetic : S.pats.has(this.dataset.p);
+    d3.select(this).classed("on", on).attr("aria-pressed", String(on));
+    persistSettings();
     render();
   });
 }
@@ -1466,7 +1490,7 @@ function bindSettings() {
     await idbClear();
     await txCacheClearAll();
     await adlCacheClearAll().catch(() => {}); FULLADL.clear(); ARCHFULL.clear(); S.archRepo = DEFAULTS.archRepo; if (ar) ar.value = ""; refreshAdlCacheCount();
-    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays; S.attrMode = { ...DEFAULTS.attrMode };
+    S.lang = DEFAULTS.lang; S.anim = DEFAULTS.anim; S.txUrl = DEFAULTS.txUrl; S.txServers = { ...DEFAULTS.txServers }; S.cacheTtlDays = DEFAULTS.cacheTtlDays; S.attrMode = { ...DEFAULTS.attrMode }; S.pats = new Set(DEFAULTS.patSel.on); S.synthetic = DEFAULTS.patSel.synthetic;
     persistSettings();
     syncTxInputs();
     if (ttl) ttl.value = S.cacheTtlDays;
@@ -1745,7 +1769,7 @@ function rebuildIndexes() {
   for (const p of ALLPAT) (function w(n, par) { INST.set(n.id, { n, par, pat: p }); (n.children || []).forEach((c) => w(c, n)); })(p, null);
 }
 const _boot = loadSettings();
-const S = { patient: "Lars Nyström", synthetic: false, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays, attrMode: _boot.attrMode, archRepo: _boot.archRepo };
+const S = { pats: new Set(_boot.patSel.on), synthetic: _boot.patSel.synthetic, labelsAll: false, off: 3, collapsed: new Set(), expArch: new Set(), expTpl: new Set(), expCl: new Set(), lang: _boot.lang, anim: _boot.anim, txUrl: _boot.txUrl, txServers: _boot.txServers, cacheTtlDays: _boot.cacheTtlDays, attrMode: _boot.attrMode, archRepo: _boot.archRepo };
 S.txUrl = S.txServers.sct || S.txUrl;
 rebuildIndexes();
 S.collapsed = new Set(synth.map((p) => p.id));
@@ -1946,7 +1970,7 @@ function render() {
   const Lyr = layers();
   const P = S.off;
   const R = new Map(); // visible key -> anchor {x, y (top), yb (bottom)}
-  const pats = ALLPAT.filter((p) => p.synthetic ? S.synthetic : (S.patient === "both" || patientKey(p) === S.patient));
+  const pats = ALLPAT.filter((p) => p.synthetic ? S.synthetic : S.pats.has(patientKey(p)));
   const visNodes = pats.flatMap((p) => subtree(p));
   const elems = visNodes.filter((n) => n.k === "element");
   // ===== TOP: clustered Sugiyama DAG per code system =====
@@ -2043,7 +2067,7 @@ function render() {
     label: (n) => loc(n.name), sub: (n) => n.k === "element" ? loc(n.value) : "", count: (n) => subtree(n).filter((x) => x.k === "element").length, kind: (n) => n.k };
   const ptL = pats.map((p) => boxLayout(p, { ...instCfg, maxW: p.synthetic ? 520 : W - 72, aspect0: p.synthetic ? 1.6 : 4 }));
   const pr = skyline(ptL, W - 72, 14); ptL.forEach((L, i) => place(L, 36 + pr.pos[i].x, BOTY + pr.pos[i].y, L.all = []));
-  const H = BOTY + pr.h + 40;
+  const H = BOTY + Math.max(pr.h, pats.length ? 0 : 24) + 40;
   const oldH = +svg.attr("height") || H;
   svg.attr("height", Math.max(oldH, H));
   beginLayoutTrans();
@@ -2056,7 +2080,7 @@ function render() {
     { id: "lab-arch", type: "lab", x: 30, y: MIDY + 4, text: T("labArch") },
     { id: "lab-tpl", type: "lab", x: 30, y: TRY - 10, text: T("labTpl") },
     { id: "lab-bot", type: "lab", x: 30, y: BOTY - 12, text: T("labBot") }
-  ]);
+  ].concat(pats.length ? [] : [{ id: "hint-nopat", type: "lab", hint: true, x: 36, y: BOTY + 14, text: T("noPatients") }]));
   const bSel = Lyr.gBands.selectAll("g.band").data(bands, (d) => d.id);
   const bEnt = bSel.enter().append("g").attr("class", "band");
   bEnt.filter((d) => d.sys).append("rect").attr("rx", 16).attr("fill-opacity", .05);
@@ -2073,7 +2097,7 @@ function render() {
   bMer.select("text").each(function (d) {
     const s = d3.select(this);
     if (d.sys) { s.attr("fill", C.ont[d.sys]).text(d.name); anim(s).attr("x", d.labelX).attr("y", d.labelY); }
-    else if (d.type === "lab") { s.text(d.text); anim(s).attr("x", d.x).attr("y", d.y); }
+    else if (d.type === "lab") { s.classed("band-hint", !!d.hint).text(d.text); anim(s).attr("x", d.x).attr("y", d.y); }
   });
   bSel.exit().call((s) => anim(s).style("opacity", 0).remove());
   // ===== attribute switch per layer (archetypes, templates): only used attributes vs all =====
@@ -2378,7 +2402,7 @@ function render() {
   anim(bgM).attr("transform", (l) => `translate(${l.mid[0]},${l.mid[1]})`).attr("opacity", 0.35);
   anim(bg.exit()).attr("opacity", 0).remove();
   CUR = { links, gXLinks: Lyr.gXLinks, gDagLinks: Lyr.gDagLinks, gBadges: Lyr.gBadges };
-  window.__state = { nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patient: S.patient, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, attrMode: { ...S.attrMode }, archRepo: S.archRepo || "", archFull: Object.fromEntries([...ARCHFULL].map(([k, v]) => [k, { ...v }])),
+  window.__state = { shownPatients: pats.map(patientKey), instTiles: botItems.length, nodes: { ont: D.ont.nodes.length }, sx, topW: total, H, links: links.length, xlinks: xLinks.length, daglinks: dLinks.length, bundled: bl.length, dur: DUR(), reducedMotion: reduceMotion(), layoutMs: LAYOUT_MS, lang: S.lang, anim: S.anim, patSel: { on: [...S.pats], synthetic: !!S.synthetic }, used: usedCodes.size, kept: ONTKEEP.size, clusters: ONTCLUSTERS.length, ontVisible: ontNodes.length, usedList: [...usedCodes].sort(), patients: (D.patients || []).filter((p) => !p.synthetic).map(patientKey), uploaded: (D.patients || []).filter((p) => p.uploaded).map((p) => ({ name: patientKey(p), codes: collectTreeCodes(p, []) })), nTpl: D.templates.length, nArch: D.archetypes.length, attrMode: { ...S.attrMode }, archRepo: S.archRepo || "", archFull: Object.fromEntries([...ARCHFULL].map(([k, v]) => [k, { ...v }])),
     midEls: { arch: midItems.filter((d) => d.kind === "arch" && d.n.k === "element").length, tpl: midItems.filter((d) => d.kind === "tpl" && d.n.k === "element").length },
     acLinks: xLinks.filter((l) => l.fam === "ac").map((l) => ({ a: l.a, b: l.b, cnt: l.cnt, pairs: l.pairs })), txStatus: txLastStatus, ehrts: (window.EHRTSlib && window.EHRTSlib.EHRTSlibVersion) || null };
   firstPaint = false;
@@ -2485,7 +2509,6 @@ function hitLink(ev) {
 function showTip(ev, html) { tip.html(html).style("display", "block"); moveTip(ev); }
 function moveTip(ev) { tip.style("left", Math.min(innerWidth - 440, ev.clientX + 14) + "px").style("top", Math.min(innerHeight - 180, ev.clientY + 14) + "px"); }
 if (typeof refreshPatientButtons === "function") refreshPatientButtons();
-d3.select("#syn").on("click", function () { S.synthetic = !S.synthetic; d3.select(this).classed("on", S.synthetic); render(); });
 d3.select("#lbl").on("click", function () { S.labelsAll = !S.labelsAll; d3.select(this).classed("on", S.labelsAll); render(); });
 d3.select("#collapseAll").on("click", () => { ALLPAT.forEach((p) => S.collapsed.add(p.id)); S.expArch.clear(); S.expTpl.clear(); S.expCl.clear(); render(); });
 d3.select("#expandInst").on("click", () => { S.collapsed = new Set(synth.map((p) => p.id)); render(); });
