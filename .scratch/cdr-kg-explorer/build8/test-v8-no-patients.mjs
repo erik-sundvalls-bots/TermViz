@@ -1,6 +1,7 @@
 // Headless check: patient selection = independent on/off toggles (Eva, Lars, +30 synthetic) in one tight button group.
 // Any combination incl. all off (= no patients): instance layer empty with a hint, "Only used" shows no used attributes,
 // SNOMED/ICD/ATC/NPU bands still show the archetype/template bindings, selection survives a reload, old persisted formats migrate.
+// Also: cascade-offset slider moved to the settings menu, SV|EN as one touching button group.
 // Usage: node test-v8-no-patients.mjs [screenshot-dir]
 import { chromium } from "playwright-core";
 import { createServer } from "http";
@@ -99,6 +100,44 @@ for (const [store, want, label] of [
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("cdr-v8-settings") || "{}"));
   void saved;
 }
+// 7. toolbar: no cascade slider; SV|EN one touching group; slider lives in the settings menu (function, value, persistence, sv/en)
+await setStore(null); await load("sv");
+const bar = await page.evaluate(() => {
+  const b = document.querySelector(".bar"), g = [...b.querySelectorAll(".lang-group > button")];
+  const r = g.map((x) => { const q = x.getBoundingClientRect(), cs = getComputedStyle(x); return { l: q.left, r: q.right, t: q.top, rad: cs.borderTopLeftRadius, bw: cs.borderTopWidth, on: x.classList.contains("on"), bg: cs.backgroundColor }; });
+  return { offInBar: !!b.querySelector("#off, input[type=range]"), cascadeText: /Kaskad|Cascade/.test(b.textContent), lang: r, offInSettings: !!document.querySelector("#settings #off") };
+});
+ok(!bar.offInBar && !bar.cascadeText, "cascade slider gone from the toolbar");
+ok(bar.offInSettings, "cascade slider is in the settings menu");
+ok(bar.lang.length === 2 && Math.abs(bar.lang[1].l - bar.lang[0].r) <= 0.5 && bar.lang[0].t === bar.lang[1].t, `SV|EN touch: ${bar.lang.map((g) => g.l.toFixed(1) + "-" + g.r.toFixed(1)).join(" ")}`);
+ok(bar.lang.every((g) => g.rad === "0px" && parseFloat(g.bw) <= 1), `SV|EN square, thin: ${bar.lang.map((g) => g.rad + "/" + g.bw)}`);
+ok(bar.lang[0].on && !bar.lang[1].on && bar.lang[0].bg !== bar.lang[1].bg, "SV active and visibly different");
+if (shots) await page.locator(".bar").first().screenshot({ path: join(shots, "v8-toolbar-sv.png") });
+await page.click("#settingsBtn"); await page.waitForTimeout(300);
+const leg = () => page.evaluate(() => [...document.querySelectorAll("#settings legend")].map((l) => l.textContent).find((t) => /Kaskad|Cascade/.test(t)));
+ok((await leg()) === "Kaskadavstånd", `sv legend: ${await leg()}`);
+await page.locator("#off").fill("6"); await page.waitForTimeout(SETTLE);
+s = await page.evaluate(() => ({ off: V8S.off, txt: document.getElementById("offv").textContent, saved: JSON.parse(localStorage.getItem("cdr-v8-settings") || "{}").off }));
+ok(s.off === 6 && s.txt === "6" && s.saved === 6, `slider sets offset 6 (shown ${s.txt}, saved ${s.saved})`);
+if (shots) await page.screenshot({ path: join(shots, "v8-settings-cascade-sv.png"), clip: await page.locator("#settings").boundingBox().then((b) => ({ x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: Math.min(b.height, 1000) + 16 })) });
+await load("en");
+s = await page.evaluate(() => ({ off: V8S.off, val: document.getElementById("off").value, txt: document.getElementById("offv").textContent }));
+ok(s.off === 6 && s.val === "6" && s.txt === "6", `offset survives reload: ${JSON.stringify(s)}`);
+await page.click("#settingsBtn"); await page.waitForTimeout(300);
+ok((await leg()) === "Cascade offset", `en legend: ${await leg()}`);
+if (shots) await page.screenshot({ path: join(shots, "v8-settings-cascade-en.png"), clip: await page.locator("#settings").boundingBox().then((b) => ({ x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: Math.min(b.height, 1000) + 16 })) });
+await page.click("#reset-off"); await page.waitForTimeout(SETTLE);
+s = await page.evaluate(() => ({ off: V8S.off, txt: document.getElementById("offv").textContent }));
+ok(s.off === 3 && s.txt === "3", `reset to default 3: ${JSON.stringify(s)}`);
+await page.keyboard.press("Escape"); await page.waitForTimeout(300);
+ok(await page.evaluate(() => document.getElementById("settings").hidden), "settings menu closes with Escape");
+await page.evaluate(() => scrollTo(0, 0)); await page.click("#settingsBtn"); await page.waitForTimeout(300);
+const gear = await page.evaluate(() => { const b = document.getElementById("settingsBtn").getBoundingClientRect(), p = document.getElementById("settings").getBoundingClientRect(); return { below: p.top >= b.bottom, top: p.top, gear: b.bottom }; });
+ok(gear.below, `settings menu opens below the gear (${gear.top.toFixed(0)} >= ${gear.gear.toFixed(0)})`);
+await page.click("#settingsBtn"); await page.waitForTimeout(300);
+ok(await page.evaluate(() => document.getElementById("settings").hidden), "gear click closes the menu again");
+await page.evaluate(() => scrollTo(0, 0));
+if (shots) await page.locator(".bar").first().screenshot({ path: join(shots, "v8-toolbar-en.png") });
 await setStore(null);
 ok(errs.length === 0, `no page errors${errs.length ? ": " + errs.slice(0, 3).join(" | ") : ""}`);
 await browser.close(); server.close();
