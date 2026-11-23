@@ -2024,7 +2024,10 @@ function render() {
       .attr("transform", (d) => { const o = enterOrigin(d); return `translate(${o.tx},${o.ty})`; })
       .style("opacity", 0);
     appendBoxParts(ent);
-    const mer = ent.merge(sel);
+    // Keep DOM (paint) order = data order (pre-order: container before its tiles). A collapsed pill that opens is moved from gCol
+    // to the end of gExp (appendChild) and d3 inserts entering tiles before the next *existing* node, so without order() an opened
+    // container could be painted after, i.e. over, its own children (opaque card hides the nested shading, only labels remain).
+    const mer = ent.merge(sel).order();
     mer.attr("class", (d) => "box dimmable " + d.kind + (d.blob && !d.parentId ? " pill" : " treemap"));
     mer.each(function (d) { paintBoxContent(d3.select(this), d, halo); });
     // Expanded tiles keep only the card/hatch in this (under-arc) layer; labels are drawn on top in gLab.
@@ -2053,7 +2056,7 @@ function render() {
       .style("opacity", 0).style("pointer-events", "none");
     appendBoxParts(lent);
     lent.selectAll("rect, circle").attr("opacity", 0).attr("fill", "none").attr("stroke", "none");
-    const lmer = lent.merge(lsel);
+    const lmer = lent.merge(lsel).order(); // same paint order as the tiles (a parent's label backing must not cover child labels)
     lmer.attr("class", (d) => "elab dimmable " + d.kind);
     lmer.each(function (d) {
       const g = d3.select(this);
